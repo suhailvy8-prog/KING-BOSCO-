@@ -3,56 +3,84 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Professional Dark VIP Theme & Mobile Optimization
+# VIP High-Contrast Style Setup (Removed all unwanted white backgrounds)
 st.markdown("""
     <style>
-    .main { background-color: #0E1117; }
-    .stApp { background-color: #0E1117; color: #FFFFFF; }
-    div[data-testid="stMetricValue"] { font-size: 26px; font-weight: bold; text-align: center; }
+    .main { background-color: #0B0E14; }
+    .stApp { background-color: #0B0E14; color: #FFFFFF; }
     
-    /* Number Input Field Styling */
+    /* Metrics Styling - Fully Bold */
+    div[data-testid="stMetricValue"] {
+        font-size: 36px !important;
+        font-weight: 900 !important;
+        color: #FFFFFF !important;
+    }
+    div[data-testid="stMetricLabel"] {
+        font-size: 18px !important;
+        font-weight: 900 !important;
+        color: #FFD700 !important;
+    }
+
+    /* Custom Dark Buttons (Reset & Plus/Minus) */
+    .stButton button {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 1px solid #334155 !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+    }
+    .stButton button:hover {
+        background-color: #334155 !important;
+        border-color: #FFD700 !important;
+        color: #FFD700 !important;
+    }
+
+    /* Input Field Fix (Completely Dark & Clean) */
     input[type="text"] {
         text-align: center !important;
-        font-size: 20px !important;
+        font-size: 24px !important;
         font-weight: bold !important;
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 2px solid #3B82F6 !important;
+    }
+    
+    div[data-baseweb="input"] {
+        background-color: #1E293B !important;
+        border-radius: 8px !important;
     }
 
     /* Prediction Card */
     .pred-card {
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        padding: 20px;
-        border-radius: 15px;
-        border: 2px solid #334155;
+        background: linear-gradient(135deg, #1E293B, #0F172A);
+        padding: 22px;
+        border-radius: 16px;
+        border: 2px solid #FFD700;
         text-align: center;
-        margin-top: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+        margin: 15px 0;
+        box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
     }
 
-    /* History Cards */
+    /* History Logs Styling */
     .history-card {
-        background-color: #1e293b;
+        background-color: #151C28;
         padding: 12px 16px;
         border-radius: 10px;
-        margin-bottom: 8px;
-        border-left: 5px solid #3b82f6;
+        margin-bottom: 10px;
+        border-left: 5px solid #FFD700;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 15px;
+        color: #FFFFFF;
+        font-size: 16px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h2 style='text-align: center; color: #FFD700;'>👑 KING BOSCO PREDICTOR</h2>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FFD700; font-size: 28px;'>👑 KING BOSCO PREDICTOR</h1>", unsafe_allow_html=True)
 
-# ----------------- ACCESS KEYS LIST -----------------
-# വേണ്ടാത്ത കീ ഇവിടുന്ന് ഡിലീറ്റ് ചെയ്യാം
-ALLOWED_KEYS = [
-    "JAI101",
-    "JAI102",
-    "VIP2026"
-]
+# ----------------- ACCESS KEYS -----------------
+ALLOWED_KEYS = ["JAI101", "JAI102", "VIP2026"]
 
 st.sidebar.title("🔐 Access Control")
 user_key = st.sidebar.text_input("Access Key നൽകുക:", type="password")
@@ -64,7 +92,7 @@ if user_key not in ALLOWED_KEYS:
 
 st.sidebar.success("✅ Access Granted!")
 
-# ----------------- MAIN LOGIC -----------------
+# ----------------- SESSION STATES -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -75,106 +103,145 @@ if 'wins' not in st.session_state:
     st.session_state.wins = 0
 if 'losses' not in st.session_state:
     st.session_state.losses = 0
-if 'last_prediction' not in st.session_state:
-    st.session_state.last_prediction = None
+if 'last_prediction_bs' not in st.session_state:
+    st.session_state.last_prediction_bs = None
+if 'last_predicted_numbers' not in st.session_state:
+    st.session_state.last_predicted_numbers = []
+if 'current_num' not in st.session_state:
+    st.session_state.current_num = 0
 
 col1, col2 = st.columns(2)
 col1.metric("WINS 🟢", st.session_state.wins)
 col2.metric("LOSSES 🔴", st.session_state.losses)
 
+st.write("")
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
     st.session_state.num_history = []
     st.session_state.wins = 0
     st.session_state.losses = 0
-    st.session_state.last_prediction = None
+    st.session_state.last_prediction_bs = None
+    st.session_state.last_predicted_numbers = []
+    st.session_state.current_num = 0
     st.rerun()
 
 st.divider()
 
-# നമ്പർ എൻട്രി
-num_input = st.text_input("വന്ന നമ്പർ നൽകുക (0 - 9):", value="", max_chars=1)
+# ----------------- NUMBER INPUT WITH +/- BUTTONS -----------------
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക (0 - 9):</p>", unsafe_allow_html=True)
 
-if st.button("Submit Result", use_container_width=True, type="primary"):
-    if num_input.isdigit() and 0 <= int(num_input) <= 9:
-        val = int(num_input)
-        current_bs = "BIG" if val >= 5 else "SMALL"
-        current_bs_short = "B" if val >= 5 else "S"
+b_minus, b_input, b_plus = st.columns([1, 2, 1])
 
-        status_str = ""
-        if st.session_state.last_prediction is not None:
-            if current_bs_short == st.session_state.last_prediction:
-                st.session_state.wins += 1
-                st.success("✨ WIN! ✨")
-                status_str = "🟢 WIN"
-            else:
-                st.session_state.losses += 1
-                st.error("❌ LOSS! ❌")
-                status_str = "🔴 LOSS"
+with b_minus:
+    if st.button("➖", use_container_width=True):
+        if st.session_state.current_num > 0:
+            st.session_state.current_num -= 1
+            st.rerun()
 
-        st.session_state.history.append(current_bs_short)
-        st.session_state.num_history.append(val)
-        
-        # ഹിസ്റ്ററി ലിസ്റ്റിലേക്ക് വരിവരിയായി ചേർക്കുന്നു
-        st.session_state.history_details.insert(0, {
-            "num": val,
-            "type": current_bs,
-            "status": status_str
-        })
+with b_input:
+    num_str_input = st.text_input(
+        "label_hidden", 
+        value=str(st.session_state.current_num), 
+        max_chars=1, 
+        label_visibility="collapsed"
+    )
+    if num_str_input.isdigit():
+        val_parsed = int(num_str_input)
+        if 0 <= val_parsed <= 9:
+            st.session_state.current_num = val_parsed
 
-        hist = st.session_state.history
-        num_hist = st.session_state.num_history
+with b_plus:
+    if st.button("➕", use_container_width=True):
+        if st.session_state.current_num < 9:
+            st.session_state.current_num += 1
+            st.rerun()
 
-        if len(hist) < 3:
-            st.info(f"കുറഞ്ഞത് {3 - len(hist)} ഡാറ്റ കൂടി നൽകുക...")
-            st.session_state.last_prediction = None
+st.write("")
+submit_clicked = st.button("Submit Result", use_container_width=True, type="primary")
+
+if submit_clicked:
+    val = st.session_state.current_num
+    current_bs = "BIG" if val >= 5 else "SMALL"
+    current_bs_short = "B" if val >= 5 else "S"
+
+    # Big/Small Win-Loss Check
+    status_str = "➖ START"
+    if st.session_state.last_prediction_bs is not None:
+        if current_bs_short == st.session_state.last_prediction_bs:
+            st.session_state.wins += 1
+            status_str = "<span style='color:#00E676; font-weight:bold;'>🟢 WIN</span>"
         else:
-            last_three = "".join(hist[-3:])
-            last_four = "".join(hist[-4:]) if len(hist) >= 4 else ""
+            st.session_state.losses += 1
+            status_str = "<span style='color:#FF5252; font-weight:bold;'>🔴 LOSS</span>"
 
-            if last_four == "BBBB":
-                next_pred = "S"
-            elif last_four == "SSSS":
-                next_pred = "B"
-            elif last_three == "BBB":
-                next_pred = "B"
-            elif last_three == "SSS":
-                next_pred = "S"
-            else:
-                recent_bs = hist[-5:]
-                b_count = recent_bs.count('B')
-                s_count = recent_bs.count('S')
-                next_pred = "B" if b_count >= s_count else "S"
+    # Number Prediction Win Check
+    num_win_str = ""
+    if st.session_state.last_predicted_numbers:
+        if val in st.session_state.last_predicted_numbers:
+            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:bold;'>[🎯 Number Win]</span>"
 
-            st.session_state.last_prediction = next_pred
+    st.session_state.history.append(current_bs_short)
+    st.session_state.num_history.append(val)
+    
+    st.session_state.history_details.insert(0, {
+        "num": val,
+        "type": current_bs,
+        "status": status_str,
+        "num_win": num_win_str
+    })
 
-            num_counts = collections.Counter(num_hist[-15:])
-            likely_nums = [n for n, c in num_counts.most_common(2)]
+    hist = st.session_state.history
+    num_hist = st.session_state.num_history
 
-            pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
-            color_code = "#00E676" if next_pred == "B" else "#FF5252"
-
-            st.markdown(f"""
-                <div class="pred-card">
-                    <div style="color: #94a3b8; font-size: 13px; text-transform: uppercase;">NEXT PREDICTION</div>
-                    <div style="font-size: 34px; font-weight: 800; color: {color_code}; margin: 8px 0;">{pred_text}</div>
-                    <div style="color: #cbd5e1; font-size: 14px;">📊 Likely Numbers: <b>{likely_nums}</b></div>
-                </div>
-            """, unsafe_allow_html=True)
+    if len(hist) < 3:
+        st.session_state.last_prediction_bs = None
+        st.session_state.last_predicted_numbers = []
     else:
-        st.warning("0 മുതൽ 9 വരെയുള്ള ഒരു നമ്പർ മാത്രം ടൈപ്പ് ചെയ്യുക.")
+        last_three = "".join(hist[-3:])
+        last_four = "".join(hist[-4:]) if len(hist) >= 4 else ""
+
+        if last_four == "BBBB":
+            next_pred = "S"
+        elif last_four == "SSSS":
+            next_pred = "B"
+        elif last_three == "BBB":
+            next_pred = "B"
+        elif last_three == "SSS":
+            next_pred = "S"
+        else:
+            recent_bs = hist[-5:]
+            b_count = recent_bs.count('B')
+            s_count = recent_bs.count('S')
+            next_pred = "B" if b_count >= s_count else "S"
+
+        st.session_state.last_prediction_bs = next_pred
+
+        # Calculate likely numbers for next prediction
+        num_counts = collections.Counter(num_hist[-15:])
+        likely_nums = [n for n, c in num_counts.most_common(2)]
+        st.session_state.last_predicted_numbers = likely_nums
+
+        pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
+        color_code = "#00E676" if next_pred == "B" else "#FF5252"
+
+        st.markdown(f"""
+            <div class="pred-card">
+                <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
+                <div style="font-size: 38px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
+                <div style="color: #E2E8F0; font-size: 15px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+            </div>
+        """, unsafe_allow_html=True)
 
 st.divider()
 
-# അടിയ്ക്ക് അടിയായി ബോക്സുകളിൽ വരുന്ന ഹിസ്റ്ററി
 if st.session_state.history_details:
-    st.markdown("### 📜 History Logs")
+    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
     for item in st.session_state.history_details[:10]:
         st.markdown(f"""
             <div class="history-card">
-                <span><b>Number: {item['num']}</b> ({item['type']})</span>
-                <span><b>{item['status']}</b></span>
+                <span><b>Number: {item['num']}</b> ({item['type']}){item.get('num_win', '')}</span>
+                <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
         
