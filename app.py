@@ -3,13 +3,22 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# VIP High-Contrast Style Setup (Removed all unwanted white backgrounds)
+# VIP High-Contrast Style Setup
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
     .stApp { background-color: #0B0E14; color: #FFFFFF; }
     
-    /* Metrics Styling - Fully Bold */
+    .app-title {
+        text-align: center;
+        color: #FFD700;
+        font-size: 34px !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
+    }
+
     div[data-testid="stMetricValue"] {
         font-size: 36px !important;
         font-weight: 900 !important;
@@ -21,13 +30,14 @@ st.markdown("""
         color: #FFD700 !important;
     }
 
-    /* Custom Dark Buttons (Reset & Plus/Minus) */
     .stButton button {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 1px solid #334155 !important;
         font-weight: bold !important;
         border-radius: 8px !important;
+        height: 50px !important;
+        font-size: 20px !important;
     }
     .stButton button:hover {
         background-color: #334155 !important;
@@ -35,7 +45,6 @@ st.markdown("""
         color: #FFD700 !important;
     }
 
-    /* Input Field Fix (Completely Dark & Clean) */
     input[type="text"] {
         text-align: center !important;
         font-size: 24px !important;
@@ -50,7 +59,6 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* Prediction Card */
     .pred-card {
         background: linear-gradient(135deg, #1E293B, #0F172A);
         padding: 22px;
@@ -61,10 +69,9 @@ st.markdown("""
         box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
     }
 
-    /* History Logs Styling */
     .history-card {
         background-color: #151C28;
-        padding: 12px 16px;
+        padding: 14px 16px;
         border-radius: 10px;
         margin-bottom: 10px;
         border-left: 5px solid #FFD700;
@@ -72,27 +79,69 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         color: #FFFFFF;
-        font-size: 16px;
+        font-size: 17px;
+    }
+    
+    .win-text {
+        color: #00E676 !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(0, 230, 118, 0.4);
+    }
+
+    .loss-text {
+        color: #FF5252 !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center; color: #FFD700; font-size: 28px;'>👑 KING BOSCO PREDICTOR</h1>", unsafe_allow_html=True)
+st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- ACCESS KEYS -----------------
-ALLOWED_KEYS = ["JAI101", "JAI102", "VIP2026"]
+# ----------------- SESSION STATE FOR DYNAMIC ACCESS KEYS -----------------
+if 'allowed_keys' not in st.session_state:
+    # ഇവിടെ 'bosco1234' നിങ്ങളുടെ കോമൺ കീ ആയി ചേർത്തിരിക്കുന്നു
+    st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
+# ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
 st.sidebar.title("🔐 Access Control")
-user_key = st.sidebar.text_input("Access Key നൽകുക:", type="password")
 
-if user_key not in ALLOWED_KEYS:
+user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
+
+if user_key not in st.session_state.allowed_keys:
     st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
     st.info("ആക്സസ് ലഭിക്കാൻ അഡ്മിനുമായി ബന്ധപ്പെടുക.")
+    
+    # ----------------- ADMIN PANEL -----------------
+    st.sidebar.divider()
+    st.sidebar.subheader("🛠️ Admin Settings")
+    admin_pass = st.sidebar.text_input("Admin Password:", type="password")
+    
+    if admin_pass == "bosco123":
+        st.sidebar.success("Admin Mode Active ✅")
+        st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
+        st.sidebar.write(st.session_state.allowed_keys)
+        
+        new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക (ഉദാ: anu555):")
+        if st.sidebar.button("Add Key"):
+            if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
+                st.session_state.allowed_keys.append(new_key_to_add)
+                st.sidebar.success(f"'{new_key_to_add}' വിജയകരമായി ചേർത്തു!")
+                st.rerun()
+                
+        key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട/ബ്ലോക്ക് ചെയ്യേണ്ട കീ തിരഞ്ഞെടുക്കുക:", ["-- Select --"] + st.session_state.allowed_keys)
+        if st.sidebar.button("Remove/Block Key") and key_to_remove != "-- Select --":
+            st.session_state.allowed_keys.remove(key_to_remove)
+            st.sidebar.success(f"'{key_to_remove}' ബ്ലോക്ക് ചെയ്തു/ഒഴിവാക്കി!")
+            st.rerun()
+            
     st.stop()
 
 st.sidebar.success("✅ Access Granted!")
 
-# ----------------- SESSION STATES -----------------
+# ----------------- SESSION STATES FOR APP -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -109,6 +158,19 @@ if 'last_predicted_numbers' not in st.session_state:
     st.session_state.last_predicted_numbers = []
 if 'current_num' not in st.session_state:
     st.session_state.current_num = 0
+if 'wallet_balance' not in st.session_state:
+    st.session_state.wallet_balance = 500
+if 'current_level' not in st.session_state:
+    st.session_state.current_level = 1
+
+# Sidebar Wallet Input for User
+st.sidebar.divider()
+st.sidebar.title("💰 Wallet Setup")
+wallet_input = st.sidebar.text_input("വാലറ്റ് ബാലൻസ് നൽകുക:", value=str(st.session_state.wallet_balance))
+if wallet_input.isdigit():
+    val_w = int(wallet_input)
+    if val_w > 0:
+        st.session_state.wallet_balance = val_w
 
 col1, col2 = st.columns(2)
 col1.metric("WINS 🟢", st.session_state.wins)
@@ -124,6 +186,7 @@ if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.last_prediction_bs = None
     st.session_state.last_predicted_numbers = []
     st.session_state.current_num = 0
+    st.session_state.current_level = 1
     st.rerun()
 
 st.divider()
@@ -134,6 +197,7 @@ st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700;'>�
 b_minus, b_input, b_plus = st.columns([1, 2, 1])
 
 with b_minus:
+    st.write("")
     if st.button("➖", use_container_width=True):
         if st.session_state.current_num > 0:
             st.session_state.current_num -= 1
@@ -152,6 +216,7 @@ with b_input:
             st.session_state.current_num = val_parsed
 
 with b_plus:
+    st.write("")
     if st.button("➕", use_container_width=True):
         if st.session_state.current_num < 9:
             st.session_state.current_num += 1
@@ -165,21 +230,24 @@ if submit_clicked:
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
 
-    # Big/Small Win-Loss Check
-    status_str = "➖ START"
+    status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
     if st.session_state.last_prediction_bs is not None:
         if current_bs_short == st.session_state.last_prediction_bs:
             st.session_state.wins += 1
-            status_str = "<span style='color:#00E676; font-weight:bold;'>🟢 WIN</span>"
+            status_str = "<span class='win-text'>🟢 WIN</span>"
+            st.session_state.current_level = 1
         else:
             st.session_state.losses += 1
-            status_str = "<span style='color:#FF5252; font-weight:bold;'>🔴 LOSS</span>"
+            status_str = "<span class='loss-text'>🔴 LOSS</span>"
+            if st.session_state.current_level < 8:
+                st.session_state.current_level += 1
+            else:
+                st.session_state.current_level = 1
 
-    # Number Prediction Win Check
     num_win_str = ""
     if st.session_state.last_predicted_numbers:
         if val in st.session_state.last_predicted_numbers:
-            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:bold;'>[🎯 Number Win]</span>"
+            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
@@ -217,21 +285,43 @@ if submit_clicked:
 
         st.session_state.last_prediction_bs = next_pred
 
-        # Calculate likely numbers for next prediction
         num_counts = collections.Counter(num_hist[-15:])
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-        pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
-        color_code = "#00E676" if next_pred == "B" else "#FF5252"
+    st.rerun()
 
-        st.markdown(f"""
-            <div class="pred-card">
-                <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
-                <div style="font-size: 38px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
-                <div style="color: #E2E8F0; font-size: 15px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+# ----------------- DISPLAY PREDICTION CARD -----------------
+if st.session_state.last_prediction_bs is not None:
+    next_pred = st.session_state.last_prediction_bs
+    likely_nums = st.session_state.last_predicted_numbers
+
+    pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
+    color_code = "#00E676" if next_pred == "B" else "#FF5252"
+
+    total_units = 255
+    base_unit = st.session_state.wallet_balance / total_units
+    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
+    current_multiplier = multipliers[st.session_state.current_level - 1]
+    suggested_bet = max(1, round(base_unit * current_multiplier))
+
+    st.markdown(f"""
+        <div class="pred-card">
+            <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
+            <div style="font-size: 38px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
+            <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+            <hr style="border-color: #334155; margin: 10px 0;">
+            <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">
+                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8
             </div>
-        """, unsafe_allow_html=True)
+            <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">
+                Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+else:
+    if len(st.session_state.history) < 3:
+        st.info(f"കുറഞ്ഞത് {3 - len(st.session_state.history)} ഡാറ്റ കൂടി നൽകുക...")
 
 st.divider()
 
@@ -244,4 +334,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-        
+
