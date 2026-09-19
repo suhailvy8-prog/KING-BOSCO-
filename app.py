@@ -102,7 +102,6 @@ st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_all
 
 # ----------------- SESSION STATE FOR DYNAMIC ACCESS KEYS -----------------
 if 'allowed_keys' not in st.session_state:
-    # ഇവിടെ 'bosco1234' നിങ്ങളുടെ കോമൺ കീ ആയി ചേർത്തിരിക്കുന്നു
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
 # ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
@@ -110,36 +109,36 @@ st.sidebar.title("🔐 Access Control")
 
 user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
 
-if user_key not in st.session_state.allowed_keys:
-    st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
-    st.info("ആക്സസ് ലഭിക്കാൻ അഡ്മിനുമായി ബന്ധപ്പെടുക.")
+st.sidebar.divider()
+st.sidebar.subheader("🛠️ Admin Settings")
+admin_pass = st.sidebar.text_input("Admin Password:", type="password")
+
+admin_logged_in = (admin_pass == "bosco123")
+
+if admin_logged_in:
+    st.sidebar.success("Admin Mode Active ✅")
+    st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
+    st.sidebar.write(st.session_state.allowed_keys)
     
-    # ----------------- ADMIN PANEL -----------------
-    st.sidebar.divider()
-    st.sidebar.subheader("🛠️ Admin Settings")
-    admin_pass = st.sidebar.text_input("Admin Password:", type="password")
-    
-    if admin_pass == "bosco123":
-        st.sidebar.success("Admin Mode Active ✅")
-        st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
-        st.sidebar.write(st.session_state.allowed_keys)
-        
-        new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക (ഉദാ: anu555):")
-        if st.sidebar.button("Add Key"):
-            if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
-                st.session_state.allowed_keys.append(new_key_to_add)
-                st.sidebar.success(f"'{new_key_to_add}' വിജയകരമായി ചേർത്തു!")
-                st.rerun()
-                
-        key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട/ബ്ലോക്ക് ചെയ്യേണ്ട കീ തിരഞ്ഞെടുക്കുക:", ["-- Select --"] + st.session_state.allowed_keys)
-        if st.sidebar.button("Remove/Block Key") and key_to_remove != "-- Select --":
-            st.session_state.allowed_keys.remove(key_to_remove)
-            st.sidebar.success(f"'{key_to_remove}' ബ്ലോക്ക് ചെയ്തു/ഒഴിവാക്കി!")
+    new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക (ഉദാ: anu555):")
+    if st.sidebar.button("Add Key"):
+        if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
+            st.session_state.allowed_keys.append(new_key_to_add)
+            st.sidebar.success(f"'{new_key_to_add}' വിജയകരമായി ചേർത്തു!")
             st.rerun()
             
-    st.stop()
+    key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട/ബ്ലോക്ക് ചെയ്യേണ്ട കീ തിരഞ്ഞെടുക്കുക:", ["-- Select --"] + st.session_state.allowed_keys)
+    if st.sidebar.button("Remove/Block Key") and key_to_remove != "-- Select --":
+        st.session_state.allowed_keys.remove(key_to_remove)
+        st.sidebar.success(f"'{key_to_remove}' ബ്ലോക്ക് ചെയ്തു/ഒഴിവാക്കി!")
+        st.rerun()
 
-st.sidebar.success("✅ Access Granted!")
+if user_key in st.session_state.allowed_keys or admin_logged_in:
+    st.sidebar.success("✅ Access Granted!")
+else:
+    st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക അല്ലെങ്കിൽ അഡ്മിൻ പാസ്‌വേഡ് നൽകുക.")
+    st.info("ആക്സസ് ലഭിക്കാൻ അഡ്മിനുമായി ബന്ധപ്പെടുക.")
+    st.stop()
 
 # ----------------- SESSION STATES FOR APP -----------------
 if 'history_details' not in st.session_state:
@@ -334,4 +333,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-
+    
