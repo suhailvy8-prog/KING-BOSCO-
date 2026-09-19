@@ -19,15 +19,32 @@ st.markdown("""
         text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
     }
 
-    div[data-testid="stMetricValue"] {
-        font-size: 36px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
+    /* Force Side-by-Side for Win/Loss Counters */
+    .metric-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin: 15px 0;
     }
-    div[data-testid="stMetricLabel"] {
-        font-size: 18px !important;
+    .metric-box {
+        flex: 1;
+        background-color: #1E293B;
+        border: 2px solid #334155;
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+    .metric-label {
+        font-size: 16px !important;
         font-weight: 900 !important;
         color: #FFD700 !important;
+        margin-bottom: 5px;
+    }
+    .metric-val {
+        font-size: 32px !important;
+        font-weight: 900 !important;
+        color: #FFFFFF !important;
     }
 
     .stButton button {
@@ -158,24 +175,39 @@ if 'last_predicted_numbers' not in st.session_state:
 if 'current_num' not in st.session_state:
     st.session_state.current_num = 0
 if 'wallet_balance' not in st.session_state:
-    st.session_state.wallet_balance = 500
+    st.session_state.wallet_balance = 10000
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 
-# Sidebar Wallet Input for User
-st.sidebar.divider()
-st.sidebar.title("💰 Wallet Setup")
-wallet_input = st.sidebar.text_input("വാലറ്റ് ബാലൻസ് നൽകുക:", value=str(st.session_state.wallet_balance))
-if wallet_input.isdigit():
-    val_w = int(wallet_input)
-    if val_w > 0:
-        st.session_state.wallet_balance = val_w
-
-col1, col2 = st.columns(2)
-col1.metric("WINS 🟢", st.session_state.wins)
-col2.metric("LOSSES 🔴", st.session_state.losses)
+# ----------------- USER WALLET INPUT (ABOVE WIN/LOSS) -----------------
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ വാലറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
+wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
+with wallet_col2:
+    wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed")
+    if wallet_input.isdigit():
+        val_w = int(wallet_input)
+        if val_w > 0:
+            st.session_state.wallet_balance = val_w
 
 st.write("")
+
+# ----------------- WINS & LOSSES SIDE-BY-SIDE (HTML FLEXBOX) -----------------
+st.markdown(f"""
+    <div class="metric-container">
+        <div class="metric-box">
+            <div class="metric-label">WINS 🟢</div>
+            <div class="metric-val">{st.session_state.wins}</div>
+        </div>
+        <div class="metric-box">
+            <div class="metric-label">LOSSES 🔴</div>
+            <div class="metric-val">{st.session_state.losses}</div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+st.divider()
+
+# ----------------- RESET DATA BUTTON -----------------
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
@@ -188,7 +220,7 @@ if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.current_level = 1
     st.rerun()
 
-st.divider()
+st.write("")
 
 # ----------------- NUMBER INPUT WITH +/- BUTTONS -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക (0 - 9):</p>", unsafe_allow_html=True)
@@ -333,4 +365,3 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
