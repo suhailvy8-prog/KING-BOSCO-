@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Circular Color Balls and Styling
+# Custom CSS for Circular Grid Balls and Styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -52,8 +52,8 @@ st.markdown("""
         border: 2px solid #334155 !important;
         font-weight: bold !important;
         border-radius: 12px !important;
-        height: 60px !important;
-        font-size: 22px !important;
+        height: 50px !important;
+        font-size: 18px !important;
     }
     .stButton button:hover {
         background-color: #334155 !important;
@@ -217,7 +217,7 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number selection instantly
+# Function to handle number selection
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
@@ -280,54 +280,40 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- COLOR NUMBER BUTTONS UI (0 to 9) -----------------
+# ----------------- CIRCULAR GRID BUTTONS UI (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Row 1: Numbers 0 to 4
-col0, col1, col2, col3, col4 = st.columns(5)
-with col0:
-    if st.button("0 🟣🔴", use_container_width=True):
-        handle_number_click(0)
-        st.rerun()
-with col1:
-    if st.button("1 🟢", use_container_width=True):
-        handle_number_click(1)
-        st.rerun()
-with col2:
-    if st.button("2 🔴", use_container_width=True):
-        handle_number_click(2)
-        st.rerun()
-with col3:
-    if st.button("3 🟢", use_container_width=True):
-        handle_number_click(3)
-        st.rerun()
-with col4:
-    if st.button("4 🔴", use_container_width=True):
-        handle_number_click(4)
-        st.rerun()
+# Grid row 1: Numbers 0 to 4
+cols_top = st.columns(5)
+nums_top = [
+    (0, "0", "🟣 🔴"),
+    (1, "1", "🟢"),
+    (2, "2", "🔴"),
+    (3, "3", "🟢"),
+    (4, "4", "🔴")
+]
 
-# Row 2: Numbers 5 to 9
-col5, col6, col7, col8, col9 = st.columns(5)
-with col5:
-    if st.button("5 🟢🟣", use_container_width=True):
-        handle_number_click(5)
-        st.rerun()
-with col6:
-    if st.button("6 🔴", use_container_width=True):
-        handle_number_click(6)
-        st.rerun()
-with col7:
-    if st.button("7 🟢", use_container_width=True):
-        handle_number_click(7)
-        st.rerun()
-with col8:
-    if st.button("8 🔴", use_container_width=True):
-        handle_number_click(8)
-        st.rerun()
-with col9:
-    if st.button("9 🟢", use_container_width=True):
-        handle_number_click(9)
-        st.rerun()
+for idx, (num_val, num_str, badge) in enumerate(nums_top):
+    with cols_top[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+            handle_number_click(num_val)
+            st.rerun()
+
+# Grid row 2: Numbers 5 to 9
+cols_bottom = st.columns(5)
+nums_bottom = [
+    (5, "5", "🟢 🟣"),
+    (6, "6", "🔴"),
+    (7, "7", "🟢"),
+    (8, "8", "🔴"),
+    (9, "9", "🟢")
+]
+
+for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
+    with cols_bottom[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+            handle_number_click(num_val)
+            st.rerun()
 
 st.write("")
 
@@ -373,3 +359,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
+                
