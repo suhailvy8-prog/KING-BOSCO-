@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# VIP High-Contrast Style Setup with Color Number Buttons UI
+# Custom CSS for Circular Color Balls and Styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -49,14 +49,14 @@ st.markdown("""
     .stButton button {
         background-color: #1E293B !important;
         color: #FFFFFF !important;
-        border: 1px solid #334155 !important;
+        border: 2px solid #334155 !important;
         font-weight: bold !important;
-        border-radius: 8px !important;
-        height: 50px !important;
-        font-size: 20px !important;
+        border-radius: 12px !important;
+        height: 60px !important;
+        font-size: 22px !important;
     }
     .stButton button:hover {
-        background-color: #1E293B !important;
+        background-color: #334155 !important;
         border-color: #FFD700 !important;
         color: #FFD700 !important;
     }
@@ -116,7 +116,7 @@ st.markdown("""
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATE FOR DYNAMIC ACCESS KEYS -----------------
+# ----------------- SESSION STATE FOR ACCESS KEYS -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
@@ -136,27 +136,26 @@ if admin_logged_in:
     st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
     st.sidebar.write(st.session_state.allowed_keys)
     
-    new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക (ഉദാ: anu555):")
+    new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക:")
     if st.sidebar.button("Add Key"):
         if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
             st.session_state.allowed_keys.append(new_key_to_add)
-            st.sidebar.success(f"'{new_key_to_add}' വിജയകരമായി ചേർത്തു!")
+            st.sidebar.success(f"'{new_key_to_add}' ചേർത്തു!")
             st.rerun()
             
-    key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട/ബ്ലോക്ക് ചെയ്യേണ്ട കീ തിരഞ്ഞെടുക്കുക:", ["-- Select --"] + st.session_state.allowed_keys)
-    if st.sidebar.button("Remove/Block Key") and key_to_remove != "-- Select --":
+    key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
+    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":
         st.session_state.allowed_keys.remove(key_to_remove)
-        st.sidebar.success(f"'{key_to_remove}' ബ്ലോക്ക് ചെയ്തു/ഒഴിവാക്കി!")
+        st.sidebar.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
         st.rerun()
 
 if user_key in st.session_state.allowed_keys or admin_logged_in:
     st.sidebar.success("✅ Access Granted!")
 else:
-    st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക അല്ലെങ്കിൽ അഡ്മിൻ പാസ്‌വേഡ് നൽകുക.")
-    st.info("ആക്സസ് ലഭിക്കാൻ അഡ്മിനുമായി ബന്ധപ്പെടുക.")
+    st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
     st.stop()
 
-# ----------------- SESSION STATES FOR APP -----------------
+# ----------------- SESSION STATES -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -176,7 +175,7 @@ if 'wallet_balance' not in st.session_state:
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 
-# ----------------- USER WALLET INPUT -----------------
+# ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
@@ -188,7 +187,7 @@ with wallet_col2:
 
 st.write("")
 
-# ----------------- WINS & LOSSES SIDE-BY-SIDE -----------------
+# ----------------- WINS & LOSSES -----------------
 st.markdown(f"""
     <div class="metric-container">
         <div class="metric-box">
@@ -204,7 +203,7 @@ st.markdown(f"""
 
 st.divider()
 
-# ----------------- RESET DATA BUTTON -----------------
+# ----------------- RESET BUTTON -----------------
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
@@ -218,10 +217,8 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number selection (Instant Submission with Toast)
+# Function to handle number selection instantly
 def handle_number_click(val):
-    st.toast(f"Selected: {val}", icon="🎯")
-    
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
 
@@ -287,54 +284,54 @@ def handle_number_click(val):
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
 # Row 1: Numbers 0 to 4
-r1_c0, r1_c1, r1_c2, r1_c3, r1_c4 = st.columns(5)
-with r1_c0:
+col0, col1, col2, col3, col4 = st.columns(5)
+with col0:
     if st.button("0 🟣🔴", use_container_width=True):
         handle_number_click(0)
         st.rerun()
-with r1_c1:
+with col1:
     if st.button("1 🟢", use_container_width=True):
         handle_number_click(1)
         st.rerun()
-with r1_c2:
+with col2:
     if st.button("2 🔴", use_container_width=True):
         handle_number_click(2)
         st.rerun()
-with r1_c3:
+with col3:
     if st.button("3 🟢", use_container_width=True):
         handle_number_click(3)
         st.rerun()
-with r1_c4:
+with col4:
     if st.button("4 🔴", use_container_width=True):
         handle_number_click(4)
         st.rerun()
 
 # Row 2: Numbers 5 to 9
-r2_c5, r2_c6, r2_c7, r2_c8, r2_c9 = st.columns(5)
-with r2_c5:
+col5, col6, col7, col8, col9 = st.columns(5)
+with col5:
     if st.button("5 🟢🟣", use_container_width=True):
         handle_number_click(5)
         st.rerun()
-with r2_c6:
+with col6:
     if st.button("6 🔴", use_container_width=True):
         handle_number_click(6)
         st.rerun()
-with r2_c7:
+with col7:
     if st.button("7 🟢", use_container_width=True):
         handle_number_click(7)
         st.rerun()
-with r2_c8:
+with col8:
     if st.button("8 🔴", use_container_width=True):
         handle_number_click(8)
         st.rerun()
-with r2_c9:
+with col9:
     if st.button("9 🟢", use_container_width=True):
         handle_number_click(9)
         st.rerun()
 
 st.write("")
 
-# ----------------- DISPLAY PREDICTION CARD (8-LEVEL MARTINGALE PLAN) -----------------
+# ----------------- DISPLAY PREDICTION CARD -----------------
 if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
@@ -342,8 +339,7 @@ if st.session_state.last_prediction_bs is not None:
     pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
     color_code = "#00E676" if next_pred == "B" else "#FF5252"
 
-    # Standard Martingale Double-Up based on user deposit (Base bet unit calculation)
-    base_unit = st.session_state.wallet_balance / 100  # Default base unit ratio
+    base_unit = st.session_state.wallet_balance / 100
     multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
     current_multiplier = multipliers[st.session_state.current_level - 1]
     suggested_bet = max(1, round(base_unit * current_multiplier))
@@ -377,4 +373,3 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
