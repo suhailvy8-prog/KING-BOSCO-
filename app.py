@@ -1,9 +1,8 @@
-        import streamlit as st
+import streamlit as st
 import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for App Styling and Perfect Circular Grid Buttons
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -95,7 +94,6 @@ st.markdown("""
         font-weight: 900 !important;
     }
 
-    /* Target specific buttons by key for correct circular colored balls */
     button[kind="secondary"][aria-describedby*="num_0"] { background: linear-gradient(135deg, #a855f7, #ef4444) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
     button[kind="secondary"][aria-describedby*="num_1"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
     button[kind="secondary"][aria-describedby*="num_2"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
@@ -115,11 +113,9 @@ st.markdown("""
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATE FOR ACCESS KEYS -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
-# ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
 st.sidebar.title("🔐 Access Control")
 user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
 
@@ -143,7 +139,6 @@ else:
     st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
     st.stop()
 
-# ----------------- SESSION STATES -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -163,7 +158,6 @@ if 'wallet_balance' not in st.session_state:
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 
-# ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
@@ -175,7 +169,6 @@ with wallet_col2:
 
 st.write("")
 
-# ----------------- WINS & LOSSES -----------------
 st.markdown(f"""
     <div class="metric-container">
         <div class="metric-box">
@@ -191,7 +184,6 @@ st.markdown(f"""
 
 st.divider()
 
-# ----------------- RESET BUTTON -----------------
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
@@ -205,7 +197,6 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number click logic with Enhanced Pattern Detection (Repeating & Alternating)
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
@@ -243,7 +234,6 @@ def handle_number_click(val):
     num_hist = st.session_state.num_history
 
     if len(hist) >= 3:
-        # Check for Alternating Pattern (e.g., B, S, B, S or S, B, S, B)
         is_alternating = False
         if len(hist) >= 4:
             last_four = hist[-4:]
@@ -254,18 +244,14 @@ def handle_number_click(val):
                 is_alternating = True
 
         if is_alternating:
-            # If alternating, predict the opposite of the very last result
             next_pred = "S" if hist[-1] == "B" else "B"
         else:
-            # Check for Repeating Streak (e.g., multiple S's or multiple B's)
             recent_three = hist[-3:]
             if recent_three.count('S') >= 3:
-                # If continuous smalls, catch trend or switch based on level
                 next_pred = "B" if st.session_state.current_level > 1 else "S"
             elif recent_three.count('B') >= 3:
                 next_pred = "S" if st.session_state.current_level > 1 else "B"
             else:
-                # General trend analysis using recent window
                 recent_window = hist[-6:] if len(hist) >= 6 else hist
                 b_count = recent_window.count('B')
                 s_count = recent_window.count('S')
@@ -282,10 +268,8 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- NATIVE STREAMLIT CIRCULAR BUTTONS (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Row 1: 0 to 4
 r1_cols = st.columns(5)
 for i in range(5):
     with r1_cols[i]:
@@ -295,7 +279,6 @@ for i in range(5):
 
 st.write("")
 
-# Row 2: 5 to 9
 r2_cols = st.columns(5)
 for i in range(5, 10):
     with r2_cols[i-5]:
@@ -305,7 +288,6 @@ for i in range(5, 10):
 
 st.write("")
 
-# ----------------- DISPLAY PREDICTION CARD -----------------
 if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
