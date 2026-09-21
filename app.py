@@ -1,8 +1,10 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
+# Custom CSS for overall app styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -93,29 +95,16 @@ st.markdown("""
         font-size: 18px !important;
         font-weight: 900 !important;
     }
-
-    button[kind="secondary"][aria-describedby*="num_0"] { background: linear-gradient(135deg, #a855f7, #ef4444) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_1"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_2"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_3"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_4"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_5"] { background: linear-gradient(135deg, #22c55e, #a855f7) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_6"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_7"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_8"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    button[kind="secondary"][aria-describedby*="num_9"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
-    
-    div.stButton > button {
-        border-radius: 8px !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
+# ----------------- SESSION STATE FOR ACCESS KEYS -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
+# ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
 st.sidebar.title("🔐 Access Control")
 user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
 
@@ -139,6 +128,7 @@ else:
     st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
     st.stop()
 
+# ----------------- SESSION STATES -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -158,6 +148,7 @@ if 'wallet_balance' not in st.session_state:
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 
+# ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
@@ -169,6 +160,7 @@ with wallet_col2:
 
 st.write("")
 
+# ----------------- WINS & LOSSES -----------------
 st.markdown(f"""
     <div class="metric-container">
         <div class="metric-box">
@@ -184,6 +176,7 @@ st.markdown(f"""
 
 st.divider()
 
+# ----------------- RESET BUTTON -----------------
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
@@ -197,97 +190,173 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-def handle_number_click(val):
-    current_bs = "BIG" if val >= 5 else "SMALL"
-    current_bs_short = "B" if val >= 5 else "S"
+# Query parameter listener to catch HTML button clicks
+query_params = st.query_params
+if "selected_num" in query_params:
+    try:
+        clicked_val = int(query_params["selected_num"])
+        # Clear the param immediately to avoid double triggers
+        st.query_params.clear()
+        
+        # Core click logic
+        current_bs = "BIG" if clicked_val >= 5 else "SMALL"
+        current_bs_short = "B" if clicked_val >= 5 else "S"
 
-    status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
-    if st.session_state.last_prediction_bs is not None:
-        if current_bs_short == st.session_state.last_prediction_bs:
-            st.session_state.wins += 1
-            status_str = "<span class='win-text'>🟢 WIN</span>"
-            st.session_state.current_level = 1
-        else:
-            st.session_state.losses += 1
-            status_str = "<span class='loss-text'>🔴 LOSS</span>"
-            if st.session_state.current_level < 8:
-                st.session_state.current_level += 1
-            else:
+        status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
+        if st.session_state.last_prediction_bs is not None:
+            if current_bs_short == st.session_state.last_prediction_bs:
+                st.session_state.wins += 1
+                status_str = "<span class='win-text'>🟢 WIN</span>"
                 st.session_state.current_level = 1
-
-    num_win_str = ""
-    if st.session_state.last_predicted_numbers:
-        if val in st.session_state.last_predicted_numbers:
-            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
-
-    st.session_state.history.append(current_bs_short)
-    st.session_state.num_history.append(val)
-    
-    st.session_state.history_details.insert(0, {
-        "num": val,
-        "type": current_bs,
-        "status": status_str,
-        "num_win": num_win_str
-    })
-
-    hist = st.session_state.history
-    num_hist = st.session_state.num_history
-
-    if len(hist) >= 3:
-        is_alternating = False
-        if len(hist) >= 4:
-            last_four = hist[-4:]
-            if last_four[0] != last_four[1] and last_four[1] != last_four[2] and last_four[2] != last_four[3]:
-                is_alternating = True
-        elif len(hist) == 3:
-            if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
-                is_alternating = True
-
-        if is_alternating:
-            next_pred = "S" if hist[-1] == "B" else "B"
-        else:
-            recent_three = hist[-3:]
-            if recent_three.count('S') >= 3:
-                next_pred = "B" if st.session_state.current_level > 1 else "S"
-            elif recent_three.count('B') >= 3:
-                next_pred = "S" if st.session_state.current_level > 1 else "B"
             else:
-                recent_window = hist[-6:] if len(hist) >= 6 else hist
-                b_count = recent_window.count('B')
-                s_count = recent_window.count('S')
-                if b_count > s_count:
-                    next_pred = "B"
-                elif s_count > b_count:
-                    next_pred = "S"
+                st.session_state.losses += 1
+                status_str = "<span class='loss-text'>🔴 LOSS</span>"
+                if st.session_state.current_level < 8:
+                    st.session_state.current_level += 1
                 else:
-                    next_pred = "S" if hist[-1] == "B" else "B"
+                    st.session_state.current_level = 1
 
-        st.session_state.last_prediction_bs = next_pred
+        num_win_str = ""
+        if st.session_state.last_predicted_numbers:
+            if clicked_val in st.session_state.last_predicted_numbers:
+                num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
 
-        num_counts = collections.Counter(num_hist[-12:])
-        likely_nums = [n for n, c in num_counts.most_common(2)]
-        st.session_state.last_predicted_numbers = likely_nums
+        st.session_state.history.append(current_bs_short)
+        st.session_state.num_history.append(clicked_val)
+        
+        st.session_state.history_details.insert(0, {
+            "num": clicked_val,
+            "type": current_bs,
+            "status": status_str,
+            "num_win": num_win_str
+        })
 
+        hist = st.session_state.history
+        num_hist = st.session_state.num_history
+
+        if len(hist) >= 3:
+            is_alternating = False
+            if len(hist) >= 4:
+                last_four = hist[-4:]
+                if last_four[0] != last_four[1] and last_four[1] != last_four[2] and last_four[2] != last_four[3]:
+                    is_alternating = True
+            elif len(hist) == 3:
+                if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
+                    is_alternating = True
+
+            if is_alternating:
+                next_pred = "S" if hist[-1] == "B" else "B"
+            else:
+                recent_three = hist[-3:]
+                if recent_three.count('S') >= 3:
+                    next_pred = "B" if st.session_state.current_level > 1 else "S"
+                elif recent_three.count('B') >= 3:
+                    next_pred = "S" if st.session_state.current_level > 1 else "B"
+                else:
+                    recent_window = hist[-6:] if len(hist) >= 6 else hist
+                    b_count = recent_window.count('B')
+                    s_count = recent_window.count('S')
+                    if b_count > s_count:
+                        next_pred = "B"
+                    elif s_count > b_count:
+                        next_pred = "S"
+                    else:
+                        next_pred = "S" if hist[-1] == "B" else "B"
+
+            st.session_state.last_prediction_bs = next_pred
+
+            num_counts = collections.Counter(num_hist[-12:])
+            likely_nums = [n for n, c in num_counts.most_common(2)]
+            st.session_state.last_predicted_numbers = likely_nums
+            
+        st.rerun()
+    except Exception as e:
+        pass
+
+# ----------------- HTML/CSS CIRCULAR BALLS COMPONENT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-r1_cols = st.columns(5)
-for i in range(5):
-    with r1_cols[i]:
-        if st.button(str(i), key=f"num_{i}"):
-            handle_number_click(i)
-            st.rerun()
+html_balls_code = """
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    background-color: #0B0E14;
+    margin: 0;
+    padding: 10px;
+    font-family: sans-serif;
+  }
+  .grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+  }
+  .row {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  .ball {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+    transition: transform 0.1s ease;
+    text-decoration: none;
+  }
+  .ball:active {
+    transform: scale(0.90);
+  }
+  /* Gradients based on your exact specifications */
+  .b-0 { background: linear-gradient(135deg, #a855f7, #ef4444); }
+  .b-1 { background: linear-gradient(135deg, #22c55e, #15803d); }
+  .b-2 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  .b-3 { background: linear-gradient(135deg, #22c55e, #15803d); }
+  .b-4 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  .b-5 { background: linear-gradient(135deg, #22c55e, #a855f7); }
+  .b-6 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  .b-7 { background: linear-gradient(135deg, #22c55e, #15803d); }
+  .b-8 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  .b-9 { background: linear-gradient(135deg, #22c55e, #15803d); }
+</style>
+</head>
+<body>
+  <div class="grid-container">
+    <div class="row">
+      <a href="?selected_num=0" target="_self" class="ball b-0">0</a>
+      <a href="?selected_num=1" target="_self" class="ball b-1">1</a>
+      <a href="?selected_num=2" target="_self" class="ball b-2">2</a>
+      <a href="?selected_num=3" target="_self" class="ball b-3">3</a>
+      <a href="?selected_num=4" target="_self" class="ball b-4">4</a>
+    </div>
+    <div class="row">
+      <a href="?selected_num=5" target="_self" class="ball b-5">5</a>
+      <a href="?selected_num=6" target="_self" class="ball b-6">6</a>
+      <a href="?selected_num=7" target="_self" class="ball b-7">7</a>
+      <a href="?selected_num=8" target="_self" class="ball b-8">8</a>
+      <a href="?selected_num=9" target="_self" class="ball b-9">9</a>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+components.html(html_balls_code, height=140)
 
 st.write("")
 
-r2_cols = st.columns(5)
-for i in range(5, 10):
-    with r2_cols[i-5]:
-        if st.button(str(i), key=f"num_{i}"):
-            handle_number_click(i)
-            st.rerun()
-
-st.write("")
-
+# ----------------- DISPLAY PREDICTION CARD -----------------
 if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
@@ -321,7 +390,7 @@ else:
 st.divider()
 
 if st.session_state.history_details:
-    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_card_html=True)
+    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
     for item in st.session_state.history_details[:10]:
         st.markdown(f"""
             <div class="history-card">
