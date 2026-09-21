@@ -1,5 +1,5 @@
-import streamlit.components.v1 as components
 import streamlit as st
+import streamlit.components.v1 as components
 import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
@@ -153,10 +153,8 @@ query_params = st.query_params
 if "selected_num" in query_params:
     try:
         clicked_val = int(query_params["selected_num"])
-        # Clear query param to prevent loop
         st.query_params.clear()
         
-        # Process click logic
         current_bs = "BIG" if clicked_val >= 5 else "SMALL"
         current_bs_short = "B" if clicked_val >= 5 else "S"
 
@@ -266,13 +264,18 @@ st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; fo
 
 html_grid_code = """
 <style>
+body {
+    background-color: #0B0E14 !important;
+    margin: 0;
+    padding: 0;
+}
 .grid-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    background-color: #0B0E14;
 }
 .grid-row {
     display: flex;
@@ -299,7 +302,6 @@ html_grid_code = """
     transform: scale(0.90);
     border-color: #FFD700 !important;
 }
-/* Colors matching user reference */
 .bg-0 { background: linear-gradient(135deg, #a855f7, #ef4444); }
 .bg-1 { background: linear-gradient(135deg, #22c55e, #15803d); }
 .bg-2 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
@@ -330,7 +332,7 @@ html_grid_code = """
 </div>
 """
 
-components.html(html_grid_code, height=140)
+components.html(html_grid_code, height=130)
 
 st.write("")
 
