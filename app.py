@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Circular Grid Balls and Styling
+# Custom CSS for Styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -144,7 +144,7 @@ if admin_logged_in:
             st.rerun()
             
     key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
-    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":
+    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":	
         st.session_state.allowed_keys.remove(key_to_remove)
         st.sidebar.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
         st.rerun()
@@ -174,6 +174,8 @@ if 'wallet_balance' not in st.session_state:
     st.session_state.wallet_balance = 5000
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
+if 'is_skip' not in st.session_state:
+    st.session_state.is_skip = False
 
 # ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
@@ -213,28 +215,33 @@ if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.last_prediction_bs = None
     st.session_state.last_predicted_numbers = []
     st.session_state.current_level = 1
+    st.session_state.is_skip = False
     st.rerun()
 
 st.write("")
 
-# Function to handle number selection
+# Function to handle number selection with Dynamic Trend, Repeat & Smart Skip Logic
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
 
     status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
+    
     if st.session_state.last_prediction_bs is not None:
-        if current_bs_short == st.session_state.last_prediction_bs:
-            st.session_state.wins += 1
-            status_str = "<span class='win-text'>🟢 WIN</span>"
-            st.session_state.current_level = 1
-        else:
-            st.session_state.losses += 1
-            status_str = "<span class='loss-text'>🔴 LOSS</span>"
-            if st.session_state.current_level < 8:
-                st.session_state.current_level += 1
+        if not st.session_state.is_skip:
+            if current_bs_short == st.session_state.last_prediction_bs:
+                st.session_state.wins += 1
+                status_str = "<span class='win-text'>🟢 WIN</span>"
+                st.session_state.current_level = 1  # Reset on Win (Within 5 levels preferred)
             else:
-                st.session_state.current_level = 1
+                st.session_state.losses += 1
+                status_str = "<span class='loss-text'>🔴 LOSS</span>"
+                if st.session_state.current_level < 8:
+                    st.session_state.current_level += 1  # Max up to Level 8
+                else:
+                    st.session_state.current_level = 1  # Reset after Level 8
+        else:
+            status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
 
     num_win_str = ""
     if st.session_state.last_predicted_numbers:
@@ -257,19 +264,56 @@ def handle_number_click(val):
     if len(hist) < 3:
         st.session_state.last_prediction_bs = None
         st.session_state.last_predicted_numbers = []
+        st.session_state.is_skip = False
     else:
+        # ---- SMART DYNAMIC SKIP & PROBABILITY LOGIC ----
+        # If trend is clear and repeating properly, follow the trend.
+        # If it's heavily fluctuating/choppy without pattern, use conditional temporary SKIP.
         recent_four = hist[-4:] if len(hist) >= 4 else hist
-        b_ratio = recent_four.count('B')
-        s_ratio = recent_four.count('S')
         
-        if "".join(recent_four[-3:]) == "BBB":
-            next_pred = "S" if st.session_state.current_level > 1 else "B"
-        elif "".join(recent_four[-3:]) == "SSS":
-            next_pred = "B" if st.session_state.current_level > 1 else "S"
+        # Check high-choppiness (e.g. B S B S or S B S B)
+        is_choppy = False
+        if len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]:
+            is_choppy = True
+
+        # Check consecutive repeats (e.g. 3 or 4 same results in a row)
+        is_heavy_repeat = False
+        if len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]:
+            is_heavy_repeat = True
+
+        # If it's dangerously choppy and level is low, trigger a smart skip occasionally, but not full-time.
+        if is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0:
+            st.session_state.is_skip = True
         else:
-            if b_ratio > s_ratio:
+            st.session_state.is_skip = False
+
+        # Pattern evaluation based on Trend and Probability
+        is_alternating = False
+        if len(hist) >= 4:
+            if hist[-1] != hist[-2] and hist[-2] != hist[-3] and hist[-3] != hist[-4]:
+                is_alternating = True
+        elif len(hist) == 3:
+            if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
+                is_alternating = True
+
+        if is_alternating:
+            # Follow alternation trend
+            next_pred = "S" if hist[-1] == "B" else "B"
+        elif is_heavy_repeat:
+            # If a trend repeats strongly, follow probability to break or continue based on level
+            if st.session_state.current_level >= 3:
+                next_pred = "S" if hist[-1] == "B" else "B" # Reverse for safety on higher levels
+            else:
+                next_pred = hist[-1] # Follow repeat trend
+        else:
+            # General Probability balance from recent window
+            recent_window = hist[-6:] if len(hist) >= 6 else hist
+            b_count = recent_window.count('B')
+            s_count = recent_window.count('S')
+            
+            if b_count > s_count:
                 next_pred = "B"
-            elif s_ratio > b_ratio:
+            elif s_count > b_count:
                 next_pred = "S"
             else:
                 next_pred = "S" if hist[-1] == "B" else "B"
@@ -322,22 +366,26 @@ if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
 
-    pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
-    color_code = "#00E676" if next_pred == "B" else "#FF5252"
+    if st.session_state.is_skip:
+        pred_text = "⚠️ SMART SKIP (ഈ റൗണ്ട് സുരക്ഷിതമായി വിടുക)"
+        color_code = "#38BDF8"
+    else:
+        pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
+        color_code = "#00E676" if next_pred == "B" else "#FF5252"
 
-    base_unit = st.session_state.wallet_balance / 100
-    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
+    base_unit = st.session_state.wallet_balance / 255  # 8-level optimal base calculation
+    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]  # 8-Level Plan (Targeting wins within early levels)
     current_multiplier = multipliers[st.session_state.current_level - 1]
     suggested_bet = max(1, round(base_unit * current_multiplier))
 
     st.markdown(f"""
         <div class="pred-card">
             <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
-            <div style="font-size: 38px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
+            <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
             <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
             <hr style="border-color: #334155; margin: 10px 0;">
             <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">
-                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8
+                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8 (Win within 5 prioritized)
             </div>
             <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">
                 Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span>
@@ -359,4 +407,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
+        
