@@ -1,10 +1,9 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for overall app styling
+# Custom CSS for Circular Grid Balls and Styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -45,6 +44,21 @@ st.markdown("""
         font-size: 32px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
+    }
+
+    .stButton button {
+        background-color: #1E293B !important;
+        color: #FFFFFF !important;
+        border: 2px solid #334155 !important;
+        font-weight: bold !important;
+        border-radius: 12px !important;
+        height: 50px !important;
+        font-size: 18px !important;
+    }
+    .stButton button:hover {
+        background-color: #334155 !important;
+        border-color: #FFD700 !important;
+        color: #FFD700 !important;
     }
 
     input[type="text"] {
@@ -88,12 +102,14 @@ st.markdown("""
         color: #00E676 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(0, 230, 118, 0.4);
     }
 
     .loss-text {
         color: #FF5252 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -106,21 +122,32 @@ if 'allowed_keys' not in st.session_state:
 
 # ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
 st.sidebar.title("🔐 Access Control")
+
 user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
 
 st.sidebar.divider()
 st.sidebar.subheader("🛠️ Admin Settings")
 admin_pass = st.sidebar.text_input("Admin Password:", type="password")
+
 admin_logged_in = (admin_pass == "bosco123")
 
 if admin_logged_in:
     st.sidebar.success("Admin Mode Active ✅")
+    st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
+    st.sidebar.write(st.session_state.allowed_keys)
+    
     new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക:")
     if st.sidebar.button("Add Key"):
         if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
             st.session_state.allowed_keys.append(new_key_to_add)
             st.sidebar.success(f"'{new_key_to_add}' ചേർത്തു!")
             st.rerun()
+            
+    key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
+    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":
+        st.session_state.allowed_keys.remove(key_to_remove)
+        st.sidebar.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
+        st.rerun()
 
 if user_key in st.session_state.allowed_keys or admin_logged_in:
     st.sidebar.success("✅ Access Granted!")
@@ -190,169 +217,103 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Query parameter listener to catch HTML button clicks
-query_params = st.query_params
-if "selected_num" in query_params:
-    try:
-        clicked_val = int(query_params["selected_num"])
-        # Clear the param immediately to avoid double triggers
-        st.query_params.clear()
-        
-        # Core click logic
-        current_bs = "BIG" if clicked_val >= 5 else "SMALL"
-        current_bs_short = "B" if clicked_val >= 5 else "S"
+# Function to handle number selection
+def handle_number_click(val):
+    current_bs = "BIG" if val >= 5 else "SMALL"
+    current_bs_short = "B" if val >= 5 else "S"
 
-        status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
-        if st.session_state.last_prediction_bs is not None:
-            if current_bs_short == st.session_state.last_prediction_bs:
-                st.session_state.wins += 1
-                status_str = "<span class='win-text'>🟢 WIN</span>"
+    status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
+    if st.session_state.last_prediction_bs is not None:
+        if current_bs_short == st.session_state.last_prediction_bs:
+            st.session_state.wins += 1
+            status_str = "<span class='win-text'>🟢 WIN</span>"
+            st.session_state.current_level = 1
+        else:
+            st.session_state.losses += 1
+            status_str = "<span class='loss-text'>🔴 LOSS</span>"
+            if st.session_state.current_level < 8:
+                st.session_state.current_level += 1
+            else:
                 st.session_state.current_level = 1
-            else:
-                st.session_state.losses += 1
-                status_str = "<span class='loss-text'>🔴 LOSS</span>"
-                if st.session_state.current_level < 8:
-                    st.session_state.current_level += 1
-                else:
-                    st.session_state.current_level = 1
 
-        num_win_str = ""
-        if st.session_state.last_predicted_numbers:
-            if clicked_val in st.session_state.last_predicted_numbers:
-                num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
+    num_win_str = ""
+    if st.session_state.last_predicted_numbers:
+        if val in st.session_state.last_predicted_numbers:
+            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
 
-        st.session_state.history.append(current_bs_short)
-        st.session_state.num_history.append(clicked_val)
+    st.session_state.history.append(current_bs_short)
+    st.session_state.num_history.append(val)
+    
+    st.session_state.history_details.insert(0, {
+        "num": val,
+        "type": current_bs,
+        "status": status_str,
+        "num_win": num_win_str
+    })
+
+    hist = st.session_state.history
+    num_hist = st.session_state.num_history
+
+    if len(hist) < 3:
+        st.session_state.last_prediction_bs = None
+        st.session_state.last_predicted_numbers = []
+    else:
+        recent_four = hist[-4:] if len(hist) >= 4 else hist
+        b_ratio = recent_four.count('B')
+        s_ratio = recent_four.count('S')
         
-        st.session_state.history_details.insert(0, {
-            "num": clicked_val,
-            "type": current_bs,
-            "status": status_str,
-            "num_win": num_win_str
-        })
-
-        hist = st.session_state.history
-        num_hist = st.session_state.num_history
-
-        if len(hist) >= 3:
-            is_alternating = False
-            if len(hist) >= 4:
-                last_four = hist[-4:]
-                if last_four[0] != last_four[1] and last_four[1] != last_four[2] and last_four[2] != last_four[3]:
-                    is_alternating = True
-            elif len(hist) == 3:
-                if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
-                    is_alternating = True
-
-            if is_alternating:
-                next_pred = "S" if hist[-1] == "B" else "B"
+        if "".join(recent_four[-3:]) == "BBB":
+            next_pred = "S" if st.session_state.current_level > 1 else "B"
+        elif "".join(recent_four[-3:]) == "SSS":
+            next_pred = "B" if st.session_state.current_level > 1 else "S"
+        else:
+            if b_ratio > s_ratio:
+                next_pred = "B"
+            elif s_ratio > b_ratio:
+                next_pred = "S"
             else:
-                recent_three = hist[-3:]
-                if recent_three.count('S') >= 3:
-                    next_pred = "B" if st.session_state.current_level > 1 else "S"
-                elif recent_three.count('B') >= 3:
-                    next_pred = "S" if st.session_state.current_level > 1 else "B"
-                else:
-                    recent_window = hist[-6:] if len(hist) >= 6 else hist
-                    b_count = recent_window.count('B')
-                    s_count = recent_window.count('S')
-                    if b_count > s_count:
-                        next_pred = "B"
-                    elif s_count > b_count:
-                        next_pred = "S"
-                    else:
-                        next_pred = "S" if hist[-1] == "B" else "B"
+                next_pred = "S" if hist[-1] == "B" else "B"
 
-            st.session_state.last_prediction_bs = next_pred
+        st.session_state.last_prediction_bs = next_pred
 
-            num_counts = collections.Counter(num_hist[-12:])
-            likely_nums = [n for n, c in num_counts.most_common(2)]
-            st.session_state.last_predicted_numbers = likely_nums
-            
-        st.rerun()
-    except Exception as e:
-        pass
+        num_counts = collections.Counter(num_hist[-12:])
+        likely_nums = [n for n, c in num_counts.most_common(2)]
+        st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- HTML/CSS CIRCULAR BALLS COMPONENT -----------------
+# ----------------- CIRCULAR GRID BUTTONS UI (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-html_balls_code = """
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-  body {
-    background-color: #0B0E14;
-    margin: 0;
-    padding: 10px;
-    font-family: sans-serif;
-  }
-  .grid-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-  }
-  .row {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-  }
-  .ball {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    border: 2px solid rgba(255,255,255,0.3);
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
-    transition: transform 0.1s ease;
-    text-decoration: none;
-  }
-  .ball:active {
-    transform: scale(0.90);
-  }
-  /* Gradients based on your exact specifications */
-  .b-0 { background: linear-gradient(135deg, #a855f7, #ef4444); }
-  .b-1 { background: linear-gradient(135deg, #22c55e, #15803d); }
-  .b-2 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-  .b-3 { background: linear-gradient(135deg, #22c55e, #15803d); }
-  .b-4 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-  .b-5 { background: linear-gradient(135deg, #22c55e, #a855f7); }
-  .b-6 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-  .b-7 { background: linear-gradient(135deg, #22c55e, #15803d); }
-  .b-8 { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-  .b-9 { background: linear-gradient(135deg, #22c55e, #15803d); }
-</style>
-</head>
-<body>
-  <div class="grid-container">
-    <div class="row">
-      <a href="?selected_num=0" target="_self" class="ball b-0">0</a>
-      <a href="?selected_num=1" target="_self" class="ball b-1">1</a>
-      <a href="?selected_num=2" target="_self" class="ball b-2">2</a>
-      <a href="?selected_num=3" target="_self" class="ball b-3">3</a>
-      <a href="?selected_num=4" target="_self" class="ball b-4">4</a>
-    </div>
-    <div class="row">
-      <a href="?selected_num=5" target="_self" class="ball b-5">5</a>
-      <a href="?selected_num=6" target="_self" class="ball b-6">6</a>
-      <a href="?selected_num=7" target="_self" class="ball b-7">7</a>
-      <a href="?selected_num=8" target="_self" class="ball b-8">8</a>
-      <a href="?selected_num=9" target="_self" class="ball b-9">9</a>
-    </div>
-  </div>
-</body>
-</html>
-"""
+# Grid row 1: Numbers 0 to 4
+cols_top = st.columns(5)
+nums_top = [
+    (0, "0", "🟣 🔴"),
+    (1, "1", "🟢"),
+    (2, "2", "🔴"),
+    (3, "3", "🟢"),
+    (4, "4", "🔴")
+]
 
-components.html(html_balls_code, height=140)
+for idx, (num_val, num_str, badge) in enumerate(nums_top):
+    with cols_top[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+            handle_number_click(num_val)
+            st.rerun()
+
+# Grid row 2: Numbers 5 to 9
+cols_bottom = st.columns(5)
+nums_bottom = [
+    (5, "5", "🟢 🟣"),
+    (6, "6", "🔴"),
+    (7, "7", "🟢"),
+    (8, "8", "🔴"),
+    (9, "9", "🟢")
+]
+
+for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
+    with cols_bottom[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+            handle_number_click(num_val)
+            st.rerun()
 
 st.write("")
 
@@ -398,4 +359,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-        
+    
