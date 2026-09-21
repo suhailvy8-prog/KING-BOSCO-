@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# VIP High-Contrast Style Setup
+# VIP High-Contrast Style Setup with Color Number Buttons UI
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -19,7 +19,6 @@ st.markdown("""
         text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
     }
 
-    /* Force Side-by-Side for Win/Loss Counters */
     .metric-container {
         display: flex;
         justify-content: space-between;
@@ -57,7 +56,7 @@ st.markdown("""
         font-size: 20px !important;
     }
     .stButton button:hover {
-        background-color: #334155 !important;
+        background-color: #1E293B !important;
         border-color: #FFD700 !important;
         color: #FFD700 !important;
     }
@@ -172,15 +171,13 @@ if 'last_prediction_bs' not in st.session_state:
     st.session_state.last_prediction_bs = None
 if 'last_predicted_numbers' not in st.session_state:
     st.session_state.last_predicted_numbers = []
-if 'current_num' not in st.session_state:
-    st.session_state.current_num = 0
 if 'wallet_balance' not in st.session_state:
-    st.session_state.wallet_balance = 10000
+    st.session_state.wallet_balance = 5000
 if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 
-# ----------------- USER WALLET INPUT (ABOVE WIN/LOSS) -----------------
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ വാലറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
+# ----------------- USER WALLET INPUT -----------------
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
     wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed")
@@ -191,7 +188,7 @@ with wallet_col2:
 
 st.write("")
 
-# ----------------- WINS & LOSSES SIDE-BY-SIDE (HTML FLEXBOX) -----------------
+# ----------------- WINS & LOSSES SIDE-BY-SIDE -----------------
 st.markdown(f"""
     <div class="metric-container">
         <div class="metric-box">
@@ -216,48 +213,15 @@ if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.losses = 0
     st.session_state.last_prediction_bs = None
     st.session_state.last_predicted_numbers = []
-    st.session_state.current_num = 0
     st.session_state.current_level = 1
     st.rerun()
 
 st.write("")
 
-# ----------------- NUMBER INPUT WITH +/- BUTTONS -----------------
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക (0 - 9):</p>", unsafe_allow_html=True)
-
-b_minus, b_input, b_plus = st.columns([1, 2, 1])
-
-with b_minus:
-    st.write("")
-    if st.button("➖", use_container_width=True):
-        if st.session_state.current_num > 0:
-            st.session_state.current_num -= 1
-            st.rerun()
-
-with b_input:
-    num_str_input = st.text_input(
-        "label_hidden", 
-        value=str(st.session_state.current_num), 
-        max_chars=1, 
-        label_visibility="collapsed"
-    )
-    if num_str_input.isdigit():
-        val_parsed = int(num_str_input)
-        if 0 <= val_parsed <= 9:
-            st.session_state.current_num = val_parsed
-
-with b_plus:
-    st.write("")
-    if st.button("➕", use_container_width=True):
-        if st.session_state.current_num < 9:
-            st.session_state.current_num += 1
-            st.rerun()
-
-st.write("")
-submit_clicked = st.button("Submit Result", use_container_width=True, type="primary")
-
-if submit_clicked:
-    val = st.session_state.current_num
+# Function to handle number selection (Instant Submission with Toast)
+def handle_number_click(val):
+    st.toast(f"Selected: {val}", icon="🎯")
+    
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
 
@@ -297,32 +261,80 @@ if submit_clicked:
         st.session_state.last_prediction_bs = None
         st.session_state.last_predicted_numbers = []
     else:
-        last_three = "".join(hist[-3:])
-        last_four = "".join(hist[-4:]) if len(hist) >= 4 else ""
-
-        if last_four == "BBBB":
-            next_pred = "S"
-        elif last_four == "SSSS":
-            next_pred = "B"
-        elif last_three == "BBB":
-            next_pred = "B"
-        elif last_three == "SSS":
-            next_pred = "S"
+        recent_four = hist[-4:] if len(hist) >= 4 else hist
+        b_ratio = recent_four.count('B')
+        s_ratio = recent_four.count('S')
+        
+        if "".join(recent_four[-3:]) == "BBB":
+            next_pred = "S" if st.session_state.current_level > 1 else "B"
+        elif "".join(recent_four[-3:]) == "SSS":
+            next_pred = "B" if st.session_state.current_level > 1 else "S"
         else:
-            recent_bs = hist[-5:]
-            b_count = recent_bs.count('B')
-            s_count = recent_bs.count('S')
-            next_pred = "B" if b_count >= s_count else "S"
+            if b_ratio > s_ratio:
+                next_pred = "B"
+            elif s_ratio > b_ratio:
+                next_pred = "S"
+            else:
+                next_pred = "S" if hist[-1] == "B" else "B"
 
         st.session_state.last_prediction_bs = next_pred
 
-        num_counts = collections.Counter(num_hist[-15:])
+        num_counts = collections.Counter(num_hist[-12:])
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-    st.rerun()
+# ----------------- COLOR NUMBER BUTTONS UI (0 to 9) -----------------
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# ----------------- DISPLAY PREDICTION CARD -----------------
+# Row 1: Numbers 0 to 4
+r1_c0, r1_c1, r1_c2, r1_c3, r1_c4 = st.columns(5)
+with r1_c0:
+    if st.button("0 🟣🔴", use_container_width=True):
+        handle_number_click(0)
+        st.rerun()
+with r1_c1:
+    if st.button("1 🟢", use_container_width=True):
+        handle_number_click(1)
+        st.rerun()
+with r1_c2:
+    if st.button("2 🔴", use_container_width=True):
+        handle_number_click(2)
+        st.rerun()
+with r1_c3:
+    if st.button("3 🟢", use_container_width=True):
+        handle_number_click(3)
+        st.rerun()
+with r1_c4:
+    if st.button("4 🔴", use_container_width=True):
+        handle_number_click(4)
+        st.rerun()
+
+# Row 2: Numbers 5 to 9
+r2_c5, r2_c6, r2_c7, r2_c8, r2_c9 = st.columns(5)
+with r2_c5:
+    if st.button("5 🟢🟣", use_container_width=True):
+        handle_number_click(5)
+        st.rerun()
+with r2_c6:
+    if st.button("6 🔴", use_container_width=True):
+        handle_number_click(6)
+        st.rerun()
+with r2_c7:
+    if st.button("7 🟢", use_container_width=True):
+        handle_number_click(7)
+        st.rerun()
+with r2_c8:
+    if st.button("8 🔴", use_container_width=True):
+        handle_number_click(8)
+        st.rerun()
+with r2_c9:
+    if st.button("9 🟢", use_container_width=True):
+        handle_number_click(9)
+        st.rerun()
+
+st.write("")
+
+# ----------------- DISPLAY PREDICTION CARD (8-LEVEL MARTINGALE PLAN) -----------------
 if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
@@ -330,8 +342,8 @@ if st.session_state.last_prediction_bs is not None:
     pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
     color_code = "#00E676" if next_pred == "B" else "#FF5252"
 
-    total_units = 255
-    base_unit = st.session_state.wallet_balance / total_units
+    # Standard Martingale Double-Up based on user deposit (Base bet unit calculation)
+    base_unit = st.session_state.wallet_balance / 100  # Default base unit ratio
     multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
     current_multiplier = multipliers[st.session_state.current_level - 1]
     suggested_bet = max(1, round(base_unit * current_multiplier))
@@ -365,3 +377,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
+    
