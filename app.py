@@ -1,9 +1,9 @@
-import streamlit as st
+        import streamlit as st
 import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS to make Streamlit buttons look like circular colored balls without any white flash boxes
+# Custom CSS for App Styling and Perfect Circular Grid Buttons
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -95,28 +95,21 @@ st.markdown("""
         font-weight: 900 !important;
     }
 
-    /* Circular Button Styling for Native Buttons */
+    /* Target specific buttons by key for correct circular colored balls */
+    button[kind="secondary"][aria-describedby*="num_0"] { background: linear-gradient(135deg, #a855f7, #ef4444) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_1"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_2"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_3"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_4"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_5"] { background: linear-gradient(135deg, #22c55e, #a855f7) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_6"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_7"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_8"] { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    button[kind="secondary"][aria-describedby*="num_9"] { background: linear-gradient(135deg, #22c55e, #15803d) !important; width: 55px !important; height: 55px !important; border-radius: 50% !important; font-size: 20px !important; font-weight: bold !important; color: white !important; border: 2px solid rgba(255,255,255,0.3) !important; margin: 0 auto !important; display: block !important; }
+    
     div.stButton > button {
-        width: 60px !important;
-        height: 60px !important;
-        border-radius: 50% !important;
-        font-size: 20px !important;
-        font-weight: bold !important;
-        color: white !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.4) !important;
-        margin: 0 auto !important;
-        display: block !important;
+        border-radius: 8px !important;
     }
-    div.stButton > button:active {
-        transform: scale(0.90);
-    }
-    /* Individual Ball Gradient Colors */
-    div[data-testid="column"]:nth-child(1) div.stButton > button { background: linear-gradient(135deg, #a855f7, #ef4444) !important; }
-    div[data-testid="column"]:nth-child(2) div.stButton > button { background: linear-gradient(135deg, #22c55e, #15803d) !important; }
-    div[data-testid="column"]:nth-child(3) div.stButton > button { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; }
-    div[data-testid="column"]:nth-child(4) div.stButton > button { background: linear-gradient(135deg, #22c55e, #15803d) !important; }
-    div[data-testid="column"]:nth-child(5) div.stButton > button { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -212,7 +205,7 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number click logic
+# Function to handle number click logic with Enhanced Pattern Detection (Repeating & Alternating)
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
@@ -250,21 +243,38 @@ def handle_number_click(val):
     num_hist = st.session_state.num_history
 
     if len(hist) >= 3:
-        recent_four = hist[-4:] if len(hist) >= 4 else hist
-        b_ratio = recent_four.count('B')
-        s_ratio = recent_four.count('S')
-        
-        if "".join(recent_four[-3:]) == "BBB":
-            next_pred = "S" if st.session_state.current_level > 1 else "B"
-        elif "".join(recent_four[-3:]) == "SSS":
-            next_pred = "B" if st.session_state.current_level > 1 else "S"
+        # Check for Alternating Pattern (e.g., B, S, B, S or S, B, S, B)
+        is_alternating = False
+        if len(hist) >= 4:
+            last_four = hist[-4:]
+            if last_four[0] != last_four[1] and last_four[1] != last_four[2] and last_four[2] != last_four[3]:
+                is_alternating = True
+        elif len(hist) == 3:
+            if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
+                is_alternating = True
+
+        if is_alternating:
+            # If alternating, predict the opposite of the very last result
+            next_pred = "S" if hist[-1] == "B" else "B"
         else:
-            if b_ratio > s_ratio:
-                next_pred = "B"
-            elif s_ratio > b_ratio:
-                next_pred = "S"
+            # Check for Repeating Streak (e.g., multiple S's or multiple B's)
+            recent_three = hist[-3:]
+            if recent_three.count('S') >= 3:
+                # If continuous smalls, catch trend or switch based on level
+                next_pred = "B" if st.session_state.current_level > 1 else "S"
+            elif recent_three.count('B') >= 3:
+                next_pred = "S" if st.session_state.current_level > 1 else "B"
             else:
-                next_pred = "S" if hist[-1] == "B" else "B"
+                # General trend analysis using recent window
+                recent_window = hist[-6:] if len(hist) >= 6 else hist
+                b_count = recent_window.count('B')
+                s_count = recent_window.count('S')
+                if b_count > s_count:
+                    next_pred = "B"
+                elif s_count > b_count:
+                    next_pred = "S"
+                else:
+                    next_pred = "S" if hist[-1] == "B" else "B"
 
         st.session_state.last_prediction_bs = next_pred
 
@@ -329,7 +339,7 @@ else:
 st.divider()
 
 if st.session_state.history_details:
-    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_card_html=True)
     for item in st.session_state.history_details[:10]:
         st.markdown(f"""
             <div class="history-card">
@@ -337,4 +347,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
+        
