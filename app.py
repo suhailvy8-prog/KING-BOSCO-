@@ -9,10 +9,9 @@ st.markdown("""
     .app-title {
         text-align: center;
         color: #FFD700;
-        font-size: 28px !important;
+        font-size: 24px !important;
         font-weight: 900 !important;
         letter-spacing: 1px;
-        margin-bottom: 15px;
     }
     .metric-container {
         display: flex;
@@ -29,12 +28,12 @@ st.markdown("""
         text-align: center;
     }
     .metric-label {
-        font-size: 14px !important;
+        font-size: 12px !important;
         font-weight: 900 !important;
         color: #FFD700 !important;
     }
     .metric-val {
-        font-size: 24px !important;
+        font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
     }
@@ -46,13 +45,18 @@ st.markdown("""
         border-radius: 10px !important;
         height: 45px !important;
     }
+    /* Active/Clicked button yellow border effect */
+    .stButton button:active, .stButton button:focus {
+        border: 2px solid #FFD700 !important;
+        color: #FFD700 !important;
+    }
     .pred-card {
         background: linear-gradient(135deg, #1E293B, #0F172A);
-        padding: 18px;
+        padding: 15px;
         border-radius: 14px;
         border: 2px solid #FFD700;
         text-align: center;
-        margin: 12px 0;
+        margin: 10px 0;
     }
     .history-card {
         background-color: #151C28;
@@ -64,12 +68,20 @@ st.markdown("""
         justify-content: space-between;
         color: #FFFFFF;
     }
+    .custom-box {
+        background-color: #1E293B;
+        border: 1px solid #334155;
+        padding: 10px;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-family: monospace;
+        margin-bottom: 10px;
+    }
     .win-text { color: #00E676 !important; font-weight: 900 !important; }
     .loss-text { color: #FF5252 !important; font-weight: 900 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-# Session States initialization
 if 'user_keys' not in st.session_state:
     st.session_state.user_keys = ["bosco123", "rahul123", "arun456"]
 if 'target_keys' not in st.session_state:
@@ -79,7 +91,6 @@ if 'admin_keys' not in st.session_state:
 if 'auth_role' not in st.session_state:
     st.session_state.auth_role = None
 
-# Authentication Screen
 if st.session_state.auth_role is None:
     st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
     st.markdown("### 🔐 ആക്സസ് തിരഞ്ഞെടുക്കുക")
@@ -113,10 +124,10 @@ if st.session_state.auth_role is None:
                 st.error("❌ തെറ്റായ അഡ്മിൻ പാസ്‌വേഡ്!")
     st.stop()
 
-# Top Bar with Title and Small Logout Door Icon
-col_title, col_logout = st.columns([0.85, 0.15])
+# Top Bar with Title and Small Logout Icon (🚪)
+col_title, col_logout = st.columns([0.88, 0.12])
 with col_title:
-    st.markdown("<div class='app-title' style='text-align: left; margin-bottom: 0;'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-title' style='text-align: left;'>👑 KING BOSCO</div>", unsafe_allow_html=True)
 with col_logout:
     if st.button("🚪", help="Logout", use_container_width=True):
         st.session_state.auth_role = None
@@ -133,14 +144,17 @@ if st.session_state.auth_role == 'admin':
     if st.button("Add User Key"):
         if new_u_key and new_u_key not in st.session_state.user_keys:
             st.session_state.user_keys.append(new_u_key)
-            st.success(f"User key '{new_u_key}' successfully added!")
+            st.success("User key successfully added!")
             st.rerun()
             
-    st.write("നിലവിലുള്ള User Keys:", st.session_state.user_keys)
-    del_u_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട User Key തിരഞ്ഞെടുക്കുക", ["--Select--"] + st.session_state.user_keys, key="del_u")
+    st.markdown("നിലവിലുള്ള User Keys:")
+    u_keys_str = ", ".join(st.session_state.user_keys)
+    st.markdown(f"<div class='custom-box'>{u_keys_str}</div>", unsafe_allow_html=True)
+    
+    del_u_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട User Key", ["--Select--"] + st.session_state.user_keys, key="del_u")
     if st.button("Remove User Key") and del_u_key != "--Select--":
         st.session_state.user_keys.remove(del_u_key)
-        st.success(f"User key '{del_u_key}' removed!")
+        st.success("User key removed!")
         st.rerun()
 
     st.markdown("---")
@@ -149,14 +163,17 @@ if st.session_state.auth_role == 'admin':
     if st.button("Add Target Key"):
         if new_t_key and new_t_key not in st.session_state.target_keys:
             st.session_state.target_keys.append(new_t_key)
-            st.success(f"Target key '{new_t_key}' successfully added!")
+            st.success("Target key successfully added!")
             st.rerun()
             
-    st.write("നിലവിലുള്ള Target Keys:", st.session_state.target_keys)
-    del_t_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട Target Key തിരഞ്ഞെടുക്കുക", ["--Select--"] + st.session_state.target_keys, key="del_t")
+    st.markdown("നിലവിലുള്ള Target Keys:")
+    t_keys_str = ", ".join(st.session_state.target_keys)
+    st.markdown(f"<div class='custom-box'>{t_keys_str}</div>", unsafe_allow_html=True)
+    
+    del_t_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട Target Key", ["--Select--"] + st.session_state.target_keys, key="del_t")
     if st.button("Remove Target Key") and del_t_key != "--Select--":
         st.session_state.target_keys.remove(del_t_key)
-        st.success(f"Target key '{del_t_key}' removed!")
+        st.success("Target key removed!")
         st.rerun()
 
 # ================= TARGET SECTION =================
@@ -171,7 +188,10 @@ elif st.session_state.auth_role == 'target':
     if 'target_history_details' not in st.session_state: st.session_state.target_history_details = []
     if 'target_pred' not in st.session_state: st.session_state.target_pred = None
 
-    # Wallet Display Box (Big & Stylish)
+    base = st.session_state.target_wallet / 255
+    mults = [1, 2, 4, 8, 16, 32, 64, 128]
+    current_bet = max(1, round(base * mults[st.session_state.target_level - 1]))
+
     st.markdown(f"""
         <div class='metric-container'>
             <div class='metric-box'>
@@ -179,30 +199,27 @@ elif st.session_state.auth_role == 'target':
                 <div class='metric-val'>₹ {st.session_state.target_wallet}</div>
             </div>
             <div class='metric-box'>
-                <div class='metric-label'>CURRENT LEVEL</div>
-                <div class='metric-val'>Lvl {st.session_state.target_level}</div>
+                <div class='metric-label'>BET AMOUNT</div>
+                <div class='metric-val'>₹ {current_bet} (Lvl {st.session_state.target_level})</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
 
     st.markdown(f"**Wins:** <span style='color:#00E676; font-weight:bold;'>{st.session_state.target_wins}</span> | **Losses:** <span style='color:#FF5252; font-weight:bold;'>{st.session_state.target_losses}</span>", unsafe_allow_html=True)
 
-    # Next Prediction Display Card
     pred_display = st.session_state.target_pred if st.session_state.target_pred else "WAITING..."
     pred_full = "BIG (5-9)" if pred_display == "B" else ("SMALL (0-4)" if pred_display == "S" else "WAITING FOR 3 INPUTS")
     st.markdown(f"""
         <div class='pred-card'>
-            <div style='font-size: 14px; color: #FFD700; font-weight: bold;'>NEXT PREDICTION</div>
-            <div style='font-size: 28px; font-weight: 900; color: #FFFFFF;'>{pred_full}</div>
+            <div style='font-size: 12px; color: #FFD700; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full}</div>
         </div>
     """, unsafe_allow_html=True)
 
     def handle_target_click(val):
         cb = "BIG" if val >= 5 else "SMALL"
         cbs = "B" if val >= 5 else "S"
-        base = st.session_state.target_wallet / 255
-        mults = [1, 2, 4, 8, 16, 32, 64, 128]
-        bet = max(1, round(base * mults[st.session_state.target_level - 1]))
+        bet = current_bet
 
         status = "➖ START"
         if st.session_state.target_pred is not None:
@@ -226,7 +243,7 @@ elif st.session_state.auth_role == 'target':
         else:
             st.session_state.target_pred = None
 
-    st.markdown("### ቁഖ്യകൾ തിരഞ്ഞെടുക്കുക (0-9)")
+    st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
     cols = st.columns(2)
     nums = [(0, "0"), (1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, "6"), (7, "7"), (8, "8"), (9, "9")]
     for i, (n, label) in enumerate(nums):
@@ -235,7 +252,6 @@ elif st.session_state.auth_role == 'target':
                 handle_target_click(n)
                 st.rerun()
 
-    # History Display
     st.markdown("### 📊 ഹിസ്റ്ററി")
     if st.session_state.target_history_details:
         for item in st.session_state.target_history_details[:10]:
@@ -249,7 +265,7 @@ elif st.session_state.auth_role == 'target':
     else:
         st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
 
-# ================= USER SECTION =================
+# ================= USER SECTION (Original Setup Restored) =================
 elif st.session_state.auth_role == 'user':
     st.markdown("<h2>👑 King Bosco Predictor</h2>", unsafe_allow_html=True)
     
