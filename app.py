@@ -103,7 +103,7 @@ if 'auth_role' not in st.session_state:
 
 if st.session_state.auth_role is None:
     st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
-    st.markdown("### 🔐 ആക്സസ് തിരഞ്ഞെടുക്കുക")
+    st.markdown("### 🔐 Aakhas തിരഞ്ഞെടുക്കുക")
     tab1, tab2, tab3 = st.tabs(["👤 User Access", "🎯 Target Access", "🛠️ Admin Access"])
     
     with tab1:
@@ -111,26 +111,26 @@ if st.session_state.auth_role is None:
         if st.button("Login as User", use_container_width=True):
             if u_key_input in st.session_state.user_keys:
                 if u_key_input in st.session_state.used_keys:
-                    st.error("❌ ഈ കീ ഇതിനകം ഉപയോഗിച്ചതാണ്!")
+                    st.error("❌ Ee key ithinakam upayogichathanu!")
                 else:
                     st.session_state.used_keys.add(u_key_input)
                     st.session_state.auth_role = 'user'
                     st.rerun()
             else:
-                st.error("❌ തെറ്റായ യൂസർ കീ!")
+                st.error("❌ Thettaya user key!")
 
     with tab2:
         t_key_input = st.text_input("Target Key", type="password", key="t_key_in")
         if st.button("Login as Target", use_container_width=True):
             if t_key_input in st.session_state.target_keys:
                 if t_key_input in st.session_state.used_keys:
-                    st.error("❌ ഈ കീ ഇതിനകം ഉപയോഗിച്ചതാണ്!")
+                    st.error("❌ Ee key ithinakam upayogichathanu!")
                 else:
                     st.session_state.used_keys.add(t_key_input)
                     st.session_state.auth_role = 'target'
                     st.rerun()
             else:
-                st.error("❌ തെറ്റായ ടാർഗറ്റ് കീ!")
+                st.error("❌ Thettaya target key!")
 
     with tab3:
         a_key_input = st.text_input("Admin Key", type="password", key="a_key_in")
@@ -139,7 +139,7 @@ if st.session_state.auth_role is None:
                 st.session_state.auth_role = 'admin'
                 st.rerun()
             else:
-                st.error("❌ തെറ്റായ അഡ്മിൻ പാസ്‌വേഡ്!")
+                st.error("❌ Thettaya admin password!")
     st.stop()
 
 # Top Bar with Title and Small Logout Icon (🚪)
@@ -158,18 +158,18 @@ if st.session_state.auth_role == 'admin':
     st.markdown("<h2>🛠️ Admin Control Panel</h2>", unsafe_allow_html=True)
     
     st.markdown("### 👤 User Keys Management")
-    new_u_key = st.text_input("New User Key Add ചെയ്യുക", key="new_u")
+    new_u_key = st.text_input("New User Key Add cheyyuka", key="new_u")
     if st.button("Add User Key"):
         if new_u_key and new_u_key not in st.session_state.user_keys:
             st.session_state.user_keys.append(new_u_key)
             st.success("User key successfully added!")
             st.rerun()
             
-    st.markdown("നിലവിലുള്ള User Keys:")
+    st.markdown("Nilavilulla User Keys:")
     u_keys_str = ", ".join(st.session_state.user_keys)
     st.markdown(f"<div class='custom-box'>{u_keys_str}</div>", unsafe_allow_html=True)
     
-    del_u_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട User Key", ["--Select--"] + st.session_state.user_keys, key="del_u")
+    del_u_key = st.selectbox("Block/Delete cheyyenda User Key", ["--Select--"] + st.session_state.user_keys, key="del_u")
     if st.button("Remove User Key") and del_u_key != "--Select--":
         st.session_state.user_keys.remove(del_u_key)
         if del_u_key in st.session_state.used_keys:
@@ -179,18 +179,18 @@ if st.session_state.auth_role == 'admin':
 
     st.markdown("---")
     st.markdown("### 🎯 Target Keys Management")
-    new_t_key = st.text_input("New Target Key Add ചെയ്യുക", key="new_t")
+    new_t_key = st.text_input("New Target Key Add cheyyuka", key="new_t")
     if st.button("Add Target Key"):
         if new_t_key and new_t_key not in st.session_state.target_keys:
             st.session_state.target_keys.append(new_t_key)
             st.success("Target key successfully added!")
             st.rerun()
             
-    st.markdown("നിലവിലുള്ള Target Keys:")
+    st.markdown("Nilavilulla Target Keys:")
     t_keys_str = ", ".join(st.session_state.target_keys)
     st.markdown(f"<div class='custom-box'>{t_keys_str}</div>", unsafe_allow_html=True)
     
-    del_t_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട Target Key", ["--Select--"] + st.session_state.target_keys, key="del_t")
+    del_t_key = st.selectbox("Block/Delete cheyyenda Target Key", ["--Select--"] + st.session_state.target_keys, key="del_t")
     if st.button("Remove Target Key") and del_t_key != "--Select--":
         st.session_state.target_keys.remove(del_t_key)
         if del_t_key in st.session_state.used_keys:
@@ -198,7 +198,7 @@ if st.session_state.auth_role == 'admin':
         st.success("Target key removed!")
         st.rerun()
 
-# ================= TARGET SECTION (No Prediction, Wallet & Target Tracker Only) =================
+# ================= TARGET SECTION (With Number Buttons & Predictions & Wallet Updates) =================
 elif st.session_state.auth_role == 'target':
     st.markdown("<h2>🎯 Target Profit & Wallet Tracker (500 ➡️ 600)</h2>", unsafe_allow_html=True)
     
@@ -206,15 +206,20 @@ elif st.session_state.auth_role == 'target':
     if 'target_level' not in st.session_state: st.session_state.target_level = 1
     if 'target_wins' not in st.session_state: st.session_state.target_wins = 0
     if 'target_losses' not in st.session_state: st.session_state.target_losses = 0
+    if 'target_history' not in st.session_state: st.session_state.target_history = []
     if 'target_history_details' not in st.session_state: st.session_state.target_history_details = []
+    if 'target_pred' not in st.session_state: st.session_state.target_pred = None
 
     if st.session_state.target_wallet >= 600:
-        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! Target 600 reached. വാലറ്റ് റീസെറ്റ് ചെയ്യുന്നു!")
+        st.success("🎉 Lakshyam vijayichirikkunnu! Target 600 reached. Wallet reset cheyyunnu!")
         st.session_state.target_wallet = 500
         st.session_state.target_level = 1
+        st.session_state.target_pred = None
+        st.session_state.target_history = []
+        st.session_state.target_history_details = []
         st.rerun()
 
-    manual_t_wal = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക", min_value=-5000, value=int(st.session_state.target_wallet), step=50, key="manual_t_input")
+    manual_t_wal = st.number_input("Wallet balance mattuka", min_value=-5000, value=int(st.session_state.target_wallet), step=50, key="manual_t_input")
     if manual_t_wal != st.session_state.target_wallet:
         st.session_state.target_wallet = manual_t_wal
         st.session_state.target_level = 1
@@ -250,43 +255,69 @@ elif st.session_state.auth_role == 'target':
         </div>
     """, unsafe_allow_html=True)
 
-    def handle_target_click(val, result_type):
+    pred_display = st.session_state.target_pred if st.session_state.target_pred else "WAITING..."
+    pred_full = "BIG (5-9)" if pred_display == "B" else ("SMALL (0-4)" if pred_display == "S" else "WAITING FOR 3 INPUTS")
+    st.markdown(f"""
+        <div class='pred-card'>
+            <div style='font-size: 13px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 32px; font-weight: 900; color: #FFFFFF; margin: 10px 0;'>{pred_full}</div>
+            <div style='font-size: 14px; color: #38bdf8;'>8-Level Plan | Level <b>{st.session_state.target_level}</b> | Bet: <b>₹ {current_bet}</b></div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    def handle_target_click(val):
+        cb = "BIG" if val >= 5 else "SMALL"
+        cbs = "B" if val >= 5 else "S"
         bet = current_bet
-        status = result_type
-        if status == "🟢 WIN":
-            st.session_state.target_wins += 1
-            st.session_state.target_wallet += bet
-            st.session_state.target_level = 1
+
+        if st.session_state.target_pred is not None:
+            if cbs == st.session_state.target_pred:
+                st.session_state.target_wins += 1
+                status = "🟢 WIN"
+                st.session_state.target_wallet += bet
+                st.session_state.target_level = 1
+            else:
+                st.session_state.target_losses += 1
+                status = "🔴 LOSS"
+                st.session_state.target_wallet -= bet
+                st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
         else:
-            st.session_state.target_losses += 1
-            st.session_state.target_wallet -= bet
-            st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
+            if len(st.session_state.target_history) > 0:
+                st.session_state.target_losses += 1
+                status = "🔴 LOSS"
+                st.session_state.target_wallet -= bet
+                st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
+            else:
+                status = "➖ START"
 
-        st.session_state.target_history_details.insert(0, {"num": val, "status": status})
+        st.session_state.target_history.append(cbs)
+        st.session_state.target_history_details.insert(0, {"num": val, "type": cb, "status": status})
+        th = st.session_state.target_history
 
-    st.markdown("### ഫലം രേഖപ്പെടുത്തുക (Win / Loss)")
-    col_w, col_l = st.columns(2)
-    with col_w:
-        if st.button("🟢 WIN", use_container_width=True):
-            handle_target_click("Win", "🟢 WIN")
+        if len(th) >= 3:
+            st.session_state.target_pred = "S" if th[-1] == "B" else "B"
+        else:
+            st.session_state.target_pred = None
+
+    st.markdown("### Numbers theranjedukkuka (0-9)")
+    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for n in nums_t:
+        if st.button(str(n), key=f"t_{n}", use_container_width=True):
+            handle_target_click(n)
             st.rerun()
-    with col_l:
-        if st.button("🔴 LOSS", use_container_width=True):
-            handle_target_click("Loss", "🔴 LOSS")
-            st.rerun()
 
-    st.markdown("### 📊 ഹിസ്റ്ററി")
+    st.markdown("### 📊 History")
     if st.session_state.target_history_details:
         for item in st.session_state.target_history_details[:10]:
-            st_color = "win-text" if "WIN" in item['status'] else "loss-text"
+            st_color = "win-text" if "WIN" in item['status'] else ("loss-text" if "LOSS" in item['status'] else "")
             st.markdown(f"""
                 <div class='history-card'>
-                    <div>ഫലം: <b>{item['num']}</b></div>
+                    <div>Number: <b>{item['num']}</b> ({item['type']})</div>
                     <div class='{st_color}'>{item['status']}</div>
                 </div>
             """, unsafe_allow_html=True)
     else:
-        st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
+        st.write("Ithuvare history onnumilla.")
 
 # ================= USER SECTION =================
 elif st.session_state.auth_role == 'user':
@@ -300,7 +331,7 @@ elif st.session_state.auth_role == 'user':
     if 'user_level' not in st.session_state: st.session_state.user_level = 1
     if 'user_pred' not in st.session_state: st.session_state.user_pred = None
 
-    manual_u_wal = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക", min_value=-5000, value=int(st.session_state.user_wallet), step=50, key="manual_u_input")
+    manual_u_wal = st.number_input("Wallet balance mattuka", min_value=-5000, value=int(st.session_state.user_wallet), step=50, key="manual_u_input")
     if manual_u_wal != st.session_state.user_wallet:
         st.session_state.user_wallet = manual_u_wal
         st.session_state.user_level = 1
@@ -351,7 +382,6 @@ elif st.session_state.auth_role == 'user':
         cbs = "B" if val >= 5 else "S"
         bet = current_u_bet
 
-        status = "➖ START"
         if st.session_state.user_pred is not None:
             if cbs == st.session_state.user_pred:
                 st.session_state.user_wins += 1
@@ -363,6 +393,14 @@ elif st.session_state.auth_role == 'user':
                 status = "🔴 LOSS"
                 st.session_state.user_wallet -= bet
                 st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
+        else:
+            if len(st.session_state.user_history) > 0:
+                st.session_state.user_losses += 1
+                status = "🔴 LOSS"
+                st.session_state.user_wallet -= bet
+                st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
+            else:
+                status = "➖ START"
 
         st.session_state.user_history.append(cbs)
         st.session_state.user_history_details.insert(0, {"num": val, "type": cb, "status": status})
@@ -373,23 +411,23 @@ elif st.session_state.auth_role == 'user':
         else:
             st.session_state.user_pred = None
 
-    st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
+    st.markdown("### Numbers theranjedukkuka (0-9)")
     nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     for n in nums_u:
         if st.button(str(n), key=f"u_{n}", use_container_width=True):
             handle_user_click(n)
             st.rerun()
 
-    st.markdown("### 📊 ഹിസ്റ്ററി")
+    st.markdown("### 📊 History")
     if st.session_state.user_history_details:
         for item in st.session_state.user_history_details[:10]:
             st_color = "win-text" if "WIN" in item['status'] else ("loss-text" if "LOSS" in item['status'] else "")
             st.markdown(f"""
                 <div class='history-card'>
-                    <div>നമ്പർ: <b>{item['num']}</b> ({item['type']})</div>
+                    <div>Number: <b>{item['num']}</b> ({item['type']})</div>
                     <div class='{st_color}'>{item['status']}</div>
                 </div>
             """, unsafe_allow_html=True)
     else:
-        st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
+        st.write("Ithuvare history onnumilla.")
             
