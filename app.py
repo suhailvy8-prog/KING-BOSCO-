@@ -88,12 +88,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# State Management for Keys & Used Keys (Single-use validation)
 if 'user_keys' not in st.session_state:
     st.session_state.user_keys = ["bosco123", "rahul123", "arun456"]
 if 'target_keys' not in st.session_state:
     st.session_state.target_keys = ["bosco123", "target999"]
 if 'admin_keys' not in st.session_state:
     st.session_state.admin_keys = ["bosco123"]
+if 'used_keys' not in st.session_state:
+    st.session_state.used_keys = set()
+
 if 'auth_role' not in st.session_state:
     st.session_state.auth_role = None
 
@@ -106,8 +110,12 @@ if st.session_state.auth_role is None:
         u_key_input = st.text_input("User Key", type="password", key="u_key_in")
         if st.button("Login as User", use_container_width=True):
             if u_key_input in st.session_state.user_keys:
-                st.session_state.auth_role = 'user'
-                st.rerun()
+                if u_key_input in st.session_state.used_keys:
+                    st.error("❌ ഈ കീ ഇതിനകം ഉപയോഗിച്ചതാണ്! മറ്റൊന്ന് ഉപയോഗിക്കുക.")
+                else:
+                    st.session_state.used_keys.add(u_key_input)
+                    st.session_state.auth_role = 'user'
+                    st.rerun()
             else:
                 st.error("❌ തെറ്റായ യൂസർ കീ!")
 
@@ -115,8 +123,12 @@ if st.session_state.auth_role is None:
         t_key_input = st.text_input("Target Key", type="password", key="t_key_in")
         if st.button("Login as Target", use_container_width=True):
             if t_key_input in st.session_state.target_keys:
-                st.session_state.auth_role = 'target'
-                st.rerun()
+                if t_key_input in st.session_state.used_keys:
+                    st.error("❌ ഈ കീ ഇതിനകം ഉപയോഗിച്ചതാണ്! മറ്റൊന്ന് ഉപയോഗിക്കുക.")
+                else:
+                    st.session_state.used_keys.add(t_key_input)
+                    st.session_state.auth_role = 'target'
+                    st.rerun()
             else:
                 st.error("❌ തെറ്റായ ടാർഗറ്റ് കീ!")
 
@@ -130,7 +142,7 @@ if st.session_state.auth_role is None:
                 st.error("❌ തെറ്റായ അഡ്മിൻ പാസ്‌വേഡ്!")
     st.stop()
 
-# Top Bar with Title and Small Logout Icon (🚪) for all sections
+# Top Bar with Title and Small Logout Icon (🚪) aligned to the right side
 col_title, col_logout = st.columns([0.88, 0.12])
 with col_title:
     st.markdown("<div class='app-title' style='text-align: left;'>👑 KING BOSCO</div>", unsafe_allow_html=True)
@@ -160,6 +172,8 @@ if st.session_state.auth_role == 'admin':
     del_u_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട User Key", ["--Select--"] + st.session_state.user_keys, key="del_u")
     if st.button("Remove User Key") and del_u_key != "--Select--":
         st.session_state.user_keys.remove(del_u_key)
+        if del_u_key in st.session_state.used_keys:
+            st.session_state.used_keys.remove(del_u_key)
         st.success("User key removed!")
         st.rerun()
 
@@ -179,12 +193,14 @@ if st.session_state.auth_role == 'admin':
     del_t_key = st.selectbox("ബ്ലോക്ക്/ഡിലീറ്റ് ചെയ്യേണ്ട Target Key", ["--Select--"] + st.session_state.target_keys, key="del_t")
     if st.button("Remove Target Key") and del_t_key != "--Select--":
         st.session_state.target_keys.remove(del_t_key)
+        if del_t_key in st.session_state.used_keys:
+            st.session_state.used_keys.remove(del_t_key)
         st.success("Target key removed!")
         st.rerun()
 
 # ================= TARGET SECTION =================
 elif st.session_state.auth_role == 'target':
-    st.markdown("<h2>🎯 Target Profit & Wallet Tracker</h2>", unsafe_allow_html=True)
+    st.markdown("<h2>🎯 Target Profit & Wallet Tracker (500 ➡️ 600)</h2>", unsafe_allow_html=True)
     
     if 'target_wallet' not in st.session_state: st.session_state.target_wallet = 500
     if 'target_level' not in st.session_state: st.session_state.target_level = 1
@@ -194,8 +210,15 @@ elif st.session_state.auth_role == 'target':
     if 'target_history_details' not in st.session_state: st.session_state.target_history_details = []
     if 'target_pred' not in st.session_state: st.session_state.target_pred = None
 
-    # Wallet Input Option
-    new_t_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=10, value=int(st.session_state.target_wallet), step=50, key="t_wal_input")
+    # Check Target Reached (500 to 600 auto-back / alert)
+    if st.session_state.target_wallet >= 600:
+        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! Target 600 досяг (Target Achieved). വാലറ്റ് റീസെറ്റ് ചെയ്യുന്നു!")
+        st.session_state.target_wallet = 500
+        st.session_state.target_level = 1
+        st.session_state.target_pred = None
+        st.rerun()
+
+    new_t_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet - 500 to 600 Target)", min_value=10, value=int(st.session_state.target_wallet), step=50, key="t_wal_input")
     if new_t_wallet != st.session_state.target_wallet:
         st.session_state.target_wallet = new_t_wallet
         st.session_state.target_level = 1
@@ -209,10 +232,10 @@ elif st.session_state.auth_role == 'target':
         <div class='metric-container'>
             <div class='metric-box'>
                 <div class='metric-label'>WALLET BALANCE</div>
-                <div class='metric-val'>₹ {st.session_state.target_wallet}</div>
+                <div class='metric-val'>₹ {st.session_state.target_wallet} / ₹ 600</div>
             </div>
             <div class='metric-box'>
-                <div class='metric-label'>BET AMOUNT</div>
+                <div class='metric-label'>8-LEVEL PLAN BET</div>
                 <div class='metric-val'>₹ {current_bet} (Lvl {st.session_state.target_level})</div>
             </div>
         </div>
@@ -236,8 +259,8 @@ elif st.session_state.auth_role == 'target':
     st.markdown(f"""
         <div class='pred-card'>
             <div style='font-size: 13px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
-            <div style='font-size: 28px; font-weight: 900; color: #FFFFFF; margin: 8px 0;'>{pred_full}</div>
-            <div style='font-size: 14px; color: #38bdf8;'>Bet Amount: <b>₹ {current_bet}</b> (Level {st.session_state.target_level})</div>
+            <div style='font-size: 32px; font-weight: 900; color: #FFFFFF; margin: 10px 0;'>{pred_full}</div>
+            <div style='font-size: 14px; color: #38bdf8;'>8-Level Plan | Level <b>{st.session_state.target_level}</b> | Bet: <b>₹ {current_bet}</b></div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -270,7 +293,7 @@ elif st.session_state.auth_role == 'target':
 
     st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
     cols = st.columns(2)
-    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Correct 0 to 9 order
     for i, n in enumerate(nums_t):
         with cols[i % 2]:
             if st.button(str(n), key=f"t_{n}", use_container_width=True):
@@ -302,7 +325,6 @@ elif st.session_state.auth_role == 'user':
     if 'user_level' not in st.session_state: st.session_state.user_level = 1
     if 'user_pred' not in st.session_state: st.session_state.user_pred = None
 
-    # Wallet Input Option for User
     new_u_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=10, value=int(st.session_state.user_wallet), step=50, key="u_wal_input")
     if new_u_wallet != st.session_state.user_wallet:
         st.session_state.user_wallet = new_u_wallet
@@ -320,7 +342,7 @@ elif st.session_state.auth_role == 'user':
                 <div class='metric-val'>₹ {st.session_state.user_wallet}</div>
             </div>
             <div class='metric-box'>
-                <div class='metric-label'>BET AMOUNT</div>
+                <div class='metric-label'>8-LEVEL PLAN BET</div>
                 <div class='metric-val'>₹ {current_u_bet} (Lvl {st.session_state.user_level})</div>
             </div>
         </div>
@@ -344,8 +366,8 @@ elif st.session_state.auth_role == 'user':
     st.markdown(f"""
         <div class='pred-card'>
             <div style='font-size: 13px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
-            <div style='font-size: 28px; font-weight: 900; color: #FFFFFF; margin: 8px 0;'>{pred_full_u}</div>
-            <div style='font-size: 14px; color: #38bdf8;'>Bet Amount: <b>₹ {current_u_bet}</b> (Level {st.session_state.user_level})</div>
+            <div style='font-size: 32px; font-weight: 900; color: #FFFFFF; margin: 10px 0;'>{pred_full_u}</div>
+            <div style='font-size: 14px; color: #38bdf8;'>8-Level Plan | Level <b>{st.session_state.user_level}</b> | Bet: <b>₹ {current_u_bet}</b></div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -378,7 +400,7 @@ elif st.session_state.auth_role == 'user':
 
     st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
     cols = st.columns(2)
-    nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Correct 0 to 9 order
     for i, n in enumerate(nums_u):
         with cols[i % 2]:
             if st.button(str(n), key=f"u_{n}", use_container_width=True):
