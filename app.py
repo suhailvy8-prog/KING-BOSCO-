@@ -56,7 +56,7 @@ st.markdown("""
     }
     .pred-card {
         background: linear-gradient(135deg, #312e81, #581c87);
-        padding: 18px;
+        padding: 20px;
         border-radius: 16px;
         border: 2px solid #fbbf24;
         text-align: center;
@@ -194,6 +194,13 @@ elif st.session_state.auth_role == 'target':
     if 'target_history_details' not in st.session_state: st.session_state.target_history_details = []
     if 'target_pred' not in st.session_state: st.session_state.target_pred = None
 
+    # Wallet Input Option
+    new_t_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=10, value=int(st.session_state.target_wallet), step=50, key="t_wal_input")
+    if new_t_wallet != st.session_state.target_wallet:
+        st.session_state.target_wallet = new_t_wallet
+        st.session_state.target_level = 1
+        st.rerun()
+
     base = st.session_state.target_wallet / 255
     mults = [1, 2, 4, 8, 16, 32, 64, 128]
     current_bet = max(1, round(base * mults[st.session_state.target_level - 1]))
@@ -228,9 +235,9 @@ elif st.session_state.auth_role == 'target':
     pred_full = "BIG (5-9)" if pred_display == "B" else ("SMALL (0-4)" if pred_display == "S" else "WAITING FOR 3 INPUTS")
     st.markdown(f"""
         <div class='pred-card'>
-            <div style='font-size: 12px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
-            <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full}</div>
-            <div style='font-size: 13px; color: #38bdf8; margin-top: 5px;'>Bet Amount: <b>₹ {current_bet}</b> (Level {st.session_state.target_level})</div>
+            <div style='font-size: 13px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 28px; font-weight: 900; color: #FFFFFF; margin: 8px 0;'>{pred_full}</div>
+            <div style='font-size: 14px; color: #38bdf8;'>Bet Amount: <b>₹ {current_bet}</b> (Level {st.session_state.target_level})</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -287,15 +294,37 @@ elif st.session_state.auth_role == 'target':
 elif st.session_state.auth_role == 'user':
     st.markdown("<h2>👑 King Bosco Predictor</h2>", unsafe_allow_html=True)
     
+    if 'user_wallet' not in st.session_state: st.session_state.user_wallet = 500
     if 'user_history' not in st.session_state: st.session_state.user_history = []
+    if 'user_history_details' not in st.session_state: st.session_state.user_history_details = []
     if 'user_wins' not in st.session_state: st.session_state.user_wins = 0
     if 'user_losses' not in st.session_state: st.session_state.user_losses = 0
     if 'user_level' not in st.session_state: st.session_state.user_level = 1
     if 'user_pred' not in st.session_state: st.session_state.user_pred = None
 
-    # Base bet calculation for user too if needed, or default multiplier steps
-    user_bets = [10, 20, 40, 80, 160, 320, 640, 1280]
-    current_u_bet = user_bets[st.session_state.user_level - 1]
+    # Wallet Input Option for User
+    new_u_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=10, value=int(st.session_state.user_wallet), step=50, key="u_wal_input")
+    if new_u_wallet != st.session_state.user_wallet:
+        st.session_state.user_wallet = new_u_wallet
+        st.session_state.user_level = 1
+        st.rerun()
+
+    base_u = st.session_state.user_wallet / 255
+    mults_u = [1, 2, 4, 8, 16, 32, 64, 128]
+    current_u_bet = max(1, round(base_u * mults_u[st.session_state.user_level - 1]))
+
+    st.markdown(f"""
+        <div class='metric-container'>
+            <div class='metric-box'>
+                <div class='metric-label'>WALLET BALANCE</div>
+                <div class='metric-val'>₹ {st.session_state.user_wallet}</div>
+            </div>
+            <div class='metric-box'>
+                <div class='metric-label'>BET AMOUNT</div>
+                <div class='metric-val'>₹ {current_u_bet} (Lvl {st.session_state.user_level})</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     st.markdown(f"""
         <div class='metric-container'>
@@ -314,23 +343,32 @@ elif st.session_state.auth_role == 'user':
     pred_full_u = "BIG (5-9)" if pred_display_u == "B" else ("SMALL (0-4)" if pred_display_u == "S" else "WAITING FOR 3 INPUTS")
     st.markdown(f"""
         <div class='pred-card'>
-            <div style='font-size: 12px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
-            <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full_u}</div>
-            <div style='font-size: 13px; color: #38bdf8; margin-top: 5px;'>Bet Amount: <b>₹ {current_u_bet}</b> (Level {st.session_state.user_level})</div>
+            <div style='font-size: 13px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 28px; font-weight: 900; color: #FFFFFF; margin: 8px 0;'>{pred_full_u}</div>
+            <div style='font-size: 14px; color: #38bdf8;'>Bet Amount: <b>₹ {current_u_bet}</b> (Level {st.session_state.user_level})</div>
         </div>
     """, unsafe_allow_html=True)
 
     def handle_user_click(val):
+        cb = "BIG" if val >= 5 else "SMALL"
         cbs = "B" if val >= 5 else "S"
+        bet = current_u_bet
+
+        status = "➖ START"
         if st.session_state.user_pred is not None:
             if cbs == st.session_state.user_pred:
                 st.session_state.user_wins += 1
+                status = "🟢 WIN"
+                st.session_state.user_wallet += bet
                 st.session_state.user_level = 1
             else:
                 st.session_state.user_losses += 1
+                status = "🔴 LOSS"
+                st.session_state.user_wallet = max(100, st.session_state.user_wallet - bet)
                 st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
 
         st.session_state.user_history.append(cbs)
+        st.session_state.user_history_details.insert(0, {"num": val, "type": cb, "status": status})
         th_u = st.session_state.user_history
 
         if len(th_u) >= 3:
@@ -346,4 +384,17 @@ elif st.session_state.auth_role == 'user':
             if st.button(str(n), key=f"u_{n}", use_container_width=True):
                 handle_user_click(n)
                 st.rerun()
-                
+
+    st.markdown("### 📊 ഹിസ്റ്ററി")
+    if st.session_state.user_history_details:
+        for item in st.session_state.user_history_details[:10]:
+            st_color = "win-text" if "WIN" in item['status'] else ("loss-text" if "LOSS" in item['status'] else "")
+            st.markdown(f"""
+                <div class='history-card'>
+                    <div>നമ്പർ: <b>{item['num']}</b> ({item['type']})</div>
+                    <div class='{st_color}'>{item['status']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
+        
