@@ -46,23 +46,6 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Custom styling for compact number buttons */
-    .stButton button {
-        background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        border: 2px solid #334155 !important;
-        font-weight: bold !important;
-        border-radius: 10px !important;
-        height: 45px !important;
-        font-size: 16px !important;
-        width: 100% !important;
-    }
-    .stButton button:hover {
-        background-color: #334155 !important;
-        border-color: #FFD700 !important;
-        color: #FFD700 !important;
-    }
-
     input[type="text"] {
         text-align: center !important;
         font-size: 24px !important;
@@ -315,35 +298,36 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- COMPACT NUMBER BUTTONS UI (0 to 9 in 5 columns x 2 rows) -----------------
+# ----------------- COLOR BALLS GRID UI (5 in a row, Compact & Neat) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Grid layout: 5 columns per row so buttons remain compact and clean without vertical stretching
-cols_r1 = st.columns(5)
-nums_top = [
-    (0, "0 (🟣🔴)"),
-    (1, "1 (🟢)"),
-    (2, "2 (🔴)"),
-    (3, "3 (🟢)"),
-    (4, "4 (🔴)")
+# Row 1: Numbers 0 to 4
+r1_cols = st.columns(5)
+r1_data = [
+    (0, "0", "🟣🔴"),
+    (1, "1", "🟢"),
+    (2, "2", "🔴"),
+    (3, "3", "🟢"),
+    (4, "4", "🔴")
 ]
-for idx, (num_val, num_label) in enumerate(nums_top):
-    with cols_r1[idx]:
-        if st.button(num_label, key=f"btn_{num_val}", use_container_width=True):
+for idx, (num_val, num_str, badge) in enumerate(r1_data):
+    with r1_cols[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"ball_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
-cols_r2 = st.columns(5)
-nums_bottom = [
-    (5, "5 (🟢🟣)"),
-    (6, "6 (🔴)"),
-    (7, "7 (🟢)"),
-    (8, "8 (🔴)"),
-    (9, "9 (🟢)")
+# Row 2: Numbers 5 to 9
+r2_cols = st.columns(5)
+r2_data = [
+    (5, "5", "🟢🟣"),
+    (6, "6", "🔴"),
+    (7, "7", "🟢"),
+    (8, "8", "🔴"),
+    (9, "9", "🟢")
 ]
-for idx, (num_val, num_label) in enumerate(nums_bottom):
-    with cols_r2[idx]:
-        if st.button(num_label, key=f"btn_{num_val}", use_container_width=True):
+for idx, (num_val, num_str, badge) in enumerate(r2_data):
+    with r2_cols[idx]:
+        if st.button(f"{num_str}\n{badge}", key=f"ball_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
@@ -395,4 +379,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-                                 
+        
