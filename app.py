@@ -11,41 +11,40 @@ st.markdown("""
     .app-title {
         text-align: center;
         color: #FFD700;
-        font-size: 34px !important;
+        font-size: 30px !important;
         font-weight: 900 !important;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
     }
 
     .metric-container {
         display: flex;
         justify-content: space-between;
-        gap: 15px;
-        margin: 15px 0;
+        gap: 10px;
+        margin: 10px 0;
     }
     .metric-box {
         flex: 1;
         background-color: #1E293B;
         border: 2px solid #334155;
-        border-radius: 12px;
-        padding: 15px;
+        border-radius: 10px;
+        padding: 10px;
         text-align: center;
     }
     .metric-label {
-        font-size: 16px !important;
+        font-size: 14px !important;
         font-weight: 900 !important;
         color: #FFD700 !important;
-        margin-bottom: 5px;
     }
     .metric-val {
-        font-size: 32px !important;
+        font-size: 26px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
     }
 
     input[type="text"] {
         text-align: center !important;
-        font-size: 24px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -59,39 +58,28 @@ st.markdown("""
 
     .pred-card {
         background: linear-gradient(135deg, #1E293B, #0F172A);
-        padding: 22px;
-        border-radius: 16px;
+        padding: 18px;
+        border-radius: 14px;
         border: 2px solid #FFD700;
         text-align: center;
-        margin: 15px 0;
+        margin: 12px 0;
     }
 
     .history-card {
         background-color: #151C28;
-        padding: 14px 16px;
-        border-radius: 10px;
-        margin-bottom: 10px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin-bottom: 8px;
         border-left: 5px solid #FFD700;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: #FFFFFF;
-        font-size: 17px;
+        font-size: 15px;
     }
     
-    .win-text { color: #00E676 !important; font-size: 18px !important; font-weight: 900 !important; }
-    .loss-text { color: #FF5252 !important; font-size: 18px !important; font-weight: 900 !important; }
-
-    /* Streamlit columns mobile override to force 5 buttons side-by-side */
-    [data-testid="column"] {
-        width: 20% !important;
-        flex: 1 1 20% !important;
-        min-width: 20% !important;
-        padding: 0 2px !important;
-    }
-    [data-testid="horizontal-box"] {
-        gap: 4px !important;
-    }
+    .win-text { color: #00E676 !important; font-weight: 900 !important; }
+    .loss-text { color: #FF5252 !important; font-weight: 900 !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -138,15 +126,13 @@ if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 5
 if 'current_level' not in st.session_state: st.session_state.current_level = 1
 if 'is_skip' not in st.session_state: st.session_state.is_skip = False
 
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 16px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
     wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed")
     if wallet_input.isdigit():
         val_w = int(wallet_input)
         if val_w > 0: st.session_state.wallet_balance = val_w
-
-st.write("")
 
 st.markdown(f"""
     <div class="metric-container">
@@ -175,8 +161,6 @@ if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.is_skip = False
     st.rerun()
 
-st.write("")
-
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
@@ -197,7 +181,7 @@ def handle_number_click(val):
 
     num_win_str = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
-        num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
+        num_win_str = " <span style='color:#00E676; font-size:12px; font-weight:900;'>[🎯 Number Win]</span>"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
@@ -231,36 +215,26 @@ def handle_number_click(val):
         st.session_state.last_prediction_bs = next_pred
         st.session_state.last_predicted_numbers = [n for n, c in collections.Counter(num_hist[-12:]).most_common(2)]
 
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 16px; margin-top: 15px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Row 1: Numbers 0 to 4
-cols1 = st.columns(5)
-r1_nums = [
-    (0, "0 🟣🔴"),
-    (1, "1 🟢"),
-    (2, "2 🔴"),
-    (3, "3 🟢"),
-    (4, "4 🔴")
+# 5 Rows x 2 Columns Layout (10 Numbers: 0 to 9)
+buttons_info = [
+    (0, "0  (🟣 🔴)", 5, "5  (🟢 🟣)"),
+    (1, "1  (🟢)",    6, "6  (🔴)"),
+    (2, "2  (🔴)",    7, "7  (🟢)"),
+    (3, "3  (🟢)",    8, "8  (🔴)"),
+    (4, "4  (🔴)",    9, "9  (🟢)")
 ]
-for idx, (num_val, num_label) in enumerate(r1_nums):
-    with cols1[idx]:
-        if st.button(num_label, key=f"b_{num_val}", use_container_width=True):
-            handle_number_click(num_val)
+
+for num1, label1, num2, label2 in buttons_info:
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button(label1, key=f"btn_{num1}", use_container_width=True):
+            handle_number_click(num1)
             st.rerun()
-
-# Row 2: Numbers 5 to 9
-cols2 = st.columns(5)
-r2_nums = [
-    (5, "5 🟢🟣"),
-    (6, "6 🔴"),
-    (7, "7 🟢"),
-    (8, "8 🔴"),
-    (9, "9 🟢")
-]
-for idx, (num_val, num_label) in enumerate(r2_nums):
-    with cols2[idx]:
-        if st.button(num_label, key=f"b_{num_val}", use_container_width=True):
-            handle_number_click(num_val)
+    with col2:
+        if st.button(label2, key=f"btn_{num2}", use_container_width=True):
+            handle_number_click(num2)
             st.rerun()
 
 st.write("")
@@ -276,12 +250,12 @@ if st.session_state.last_prediction_bs is not None:
 
     st.markdown(f"""
         <div class="pred-card">
-            <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
-            <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
-            <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
-            <hr style="border-color: #334155; margin: 10px 0;">
-            <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>
-            <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
+            <div style="color: #94A3B8; font-size: 13px; font-weight: bold;">NEXT PREDICTION</div>
+            <div style="font-size: 28px; font-weight: 900; color: {color_code}; margin: 6px 0;">{pred_text}</div>
+            <div style="color: #E2E8F0; font-size: 14px; margin-bottom: 5px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+            <hr style="border-color: #334155; margin: 8px 0;">
+            <div style="color: #38BDF8; font-size: 15px; font-weight: bold;">🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>
+            <div style="color: #FFFFFF; font-size: 18px; font-weight: 900; margin-top: 4px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
         </div>
     """, unsafe_allow_html=True)
 else:
@@ -291,7 +265,7 @@ else:
 st.divider()
 
 if st.session_state.history_details:
-    st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#FFD700; font-size: 18px;'>📜 History Logs</h3>", unsafe_allow_html=True)
     for item in st.session_state.history_details[:10]:
         st.markdown(f"""
             <div class="history-card">
