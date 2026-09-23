@@ -3,7 +3,6 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Styling & Grid layout for numbers
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -14,7 +13,6 @@ st.markdown("""
         color: #FFD700;
         font-size: 34px !important;
         font-weight: 900 !important;
-        letter-spacing: 1px;
         margin-bottom: 20px;
         text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
     }
@@ -32,7 +30,6 @@ st.markdown("""
         border-radius: 12px;
         padding: 15px;
         text-align: center;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
     }
     .metric-label {
         font-size: 16px !important;
@@ -67,7 +64,6 @@ st.markdown("""
         border: 2px solid #FFD700;
         text-align: center;
         margin: 15px 0;
-        box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
     }
 
     .history-card {
@@ -83,63 +79,46 @@ st.markdown("""
         font-size: 17px;
     }
     
-    .win-text {
-        color: #00E676 !important;
-        font-size: 18px !important;
-        font-weight: 900 !important;
-        text-shadow: 0px 0px 8px rgba(0, 230, 118, 0.4);
-    }
+    .win-text { color: #00E676 !important; font-size: 18px !important; font-weight: 900 !important; }
+    .loss-text { color: #FF5252 !important; font-size: 18px !important; font-weight: 900 !important; }
 
-    .loss-text {
-        color: #FF5252 !important;
-        font-size: 18px !important;
-        font-weight: 900 !important;
-        text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.4);
+    /* Streamlit columns mobile override to force 5 buttons side-by-side */
+    [data-testid="column"] {
+        width: 20% !important;
+        flex: 1 1 20% !important;
+        min-width: 20% !important;
+        padding: 0 2px !important;
     }
-
-    /* Fixed Grid for Number Buttons to prevent vertical stretching */
-    .num-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-        margin-bottom: 15px;
+    [data-testid="horizontal-box"] {
+        gap: 4px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATE FOR ACCESS KEYS -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 
-# ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
 st.sidebar.title("🔐 Access Control")
-
 user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
 
 st.sidebar.divider()
 st.sidebar.subheader("🛠️ Admin Settings")
 admin_pass = st.sidebar.text_input("Admin Password:", type="password")
-
 admin_logged_in = (admin_pass == "bosco123")
 
 if admin_logged_in:
     st.sidebar.success("Admin Mode Active ✅")
-    st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
     st.sidebar.write(st.session_state.allowed_keys)
-    
     new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക:")
     if st.sidebar.button("Add Key"):
         if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
             st.session_state.allowed_keys.append(new_key_to_add)
-            st.sidebar.success(f"'{new_key_to_add}' ചേർത്തു!")
             st.rerun()
-            
     key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
-    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":	
+    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":    
         st.session_state.allowed_keys.remove(key_to_remove)
-        st.sidebar.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
         st.rerun()
 
 if user_key in st.session_state.allowed_keys or admin_logged_in:
@@ -148,41 +127,27 @@ else:
     st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
     st.stop()
 
-# ----------------- SESSION STATES -----------------
-if 'history_details' not in st.session_state:
-    st.session_state.history_details = []
-if 'history' not in st.session_state:
-    st.session_state.history = []
-if 'num_history' not in st.session_state:
-    st.session_state.num_history = []
-if 'wins' not in st.session_state:
-    st.session_state.wins = 0
-if 'losses' not in st.session_state:
-    st.session_state.losses = 0
-if 'last_prediction_bs' not in st.session_state:
-    st.session_state.last_prediction_bs = None
-if 'last_predicted_numbers' not in st.session_state:
-    st.session_state.last_predicted_numbers = []
-if 'wallet_balance' not in st.session_state:
-    st.session_state.wallet_balance = 5000
-if 'current_level' not in st.session_state:
-    st.session_state.current_level = 1
-if 'is_skip' not in st.session_state:
-    st.session_state.is_skip = False
+if 'history_details' not in st.session_state: st.session_state.history_details = []
+if 'history' not in st.session_state: st.session_state.history = []
+if 'num_history' not in st.session_state: st.session_state.num_history = []
+if 'wins' not in st.session_state: st.session_state.wins = 0
+if 'losses' not in st.session_state: st.session_state.losses = 0
+if 'last_prediction_bs' not in st.session_state: st.session_state.last_prediction_bs = None
+if 'last_predicted_numbers' not in st.session_state: st.session_state.last_predicted_numbers = []
+if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 5000
+if 'current_level' not in st.session_state: st.session_state.current_level = 1
+if 'is_skip' not in st.session_state: st.session_state.is_skip = False
 
-# ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
     wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed")
     if wallet_input.isdigit():
         val_w = int(wallet_input)
-        if val_w > 0:
-            st.session_state.wallet_balance = val_w
+        if val_w > 0: st.session_state.wallet_balance = val_w
 
 st.write("")
 
-# ----------------- WINS & LOSSES -----------------
 st.markdown(f"""
     <div class="metric-container">
         <div class="metric-box">
@@ -198,7 +163,6 @@ st.markdown(f"""
 
 st.divider()
 
-# ----------------- RESET BUTTON -----------------
 if st.button("🔄 Reset Data", use_container_width=True):
     st.session_state.history_details = []
     st.session_state.history = []
@@ -213,11 +177,9 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number selection
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
-
     status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
     
     if st.session_state.last_prediction_bs is not None:
@@ -229,27 +191,17 @@ def handle_number_click(val):
             else:
                 st.session_state.losses += 1
                 status_str = "<span class='loss-text'>🔴 LOSS</span>"
-                if st.session_state.current_level < 8:
-                    st.session_state.current_level += 1
-                else:
-                    st.session_state.current_level = 1
+                st.session_state.current_level = st.session_state.current_level + 1 if st.session_state.current_level < 8 else 1
         else:
             status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
 
     num_win_str = ""
-    if st.session_state.last_predicted_numbers:
-        if val in st.session_state.last_predicted_numbers:
-            num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
+    if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
+        num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
-    
-    st.session_state.history_details.insert(0, {
-        "num": val,
-        "type": current_bs,
-        "status": status_str,
-        "num_win": num_win_str
-    })
+    st.session_state.history_details.insert(0, {"num": val, "type": current_bs, "status": status_str, "num_win": num_win_str})
 
     hist = st.session_state.history
     num_hist = st.session_state.num_history
@@ -260,97 +212,67 @@ def handle_number_click(val):
         st.session_state.is_skip = False
     else:
         recent_four = hist[-4:] if len(hist) >= 4 else hist
-        is_choppy = False
-        if len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]:
-            is_choppy = True
+        is_choppy = (len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3])
+        is_heavy_repeat = (len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3])
 
-        is_heavy_repeat = False
-        if len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]:
-            is_heavy_repeat = True
+        st.session_state.is_skip = True if (is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0) else False
 
-        if is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0:
-            st.session_state.is_skip = True
-        else:
-            st.session_state.is_skip = False
-
-        is_alternating = False
-        if len(hist) >= 4:
-            if hist[-1] != hist[-2] and hist[-2] != hist[-3] and hist[-3] != hist[-4]:
-                is_alternating = True
-        elif len(hist) == 3:
-            if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
-                is_alternating = True
+        is_alternating = (len(hist) >= 4 and hist[-1] != hist[-2] and hist[-2] != hist[-3] and hist[-3] != hist[-4]) or (len(hist) == 3 and hist[-1] != hist[-2] and hist[-2] != hist[-3])
 
         if is_alternating:
             next_pred = "S" if hist[-1] == "B" else "B"
         elif is_heavy_repeat:
-            if st.session_state.current_level >= 3:
-                next_pred = "S" if hist[-1] == "B" else "B"
-            else:
-                next_pred = hist[-1]
+            next_pred = "S" if (hist[-1] == "B" and st.session_state.current_level >= 3) else ("B" if st.session_state.current_level >= 3 else hist[-1])
         else:
             recent_window = hist[-6:] if len(hist) >= 6 else hist
-            b_count = recent_window.count('B')
-            s_count = recent_window.count('S')
-            
-            if b_count > s_count:
-                next_pred = "B"
-            elif s_count > b_count:
-                next_pred = "S"
-            else:
-                next_pred = "S" if hist[-1] == "B" else "B"
+            b_count, s_count = recent_window.count('B'), recent_window.count('S')
+            next_pred = "B" if b_count > s_count else ("S" if s_count > b_count else ("S" if hist[-1] == "B" else "B"))
 
         st.session_state.last_prediction_bs = next_pred
+        st.session_state.last_predicted_numbers = [n for n, c in collections.Counter(num_hist[-12:]).most_common(2)]
 
-        num_counts = collections.Counter(num_hist[-12:])
-        likely_nums = [n for n, c in num_counts.most_common(2)]
-        st.session_state.last_predicted_numbers = likely_nums
-
-# ----------------- COMPACT NUMBERS GRID UI (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Using st.container with columns or native buttons inside proper loop to avoid stretching
-numbers_data = [
-    (0, "0 🟣🔴"), (1, "1 🟢"), (2, "2 🔴"), (3, "3 🟢"), (4, "4 🔴"),
-    (5, "5 🟢🟣"), (6, "6 🔴"), (7, "7 🟢"), (8, "8 🔴"), (9, "9 🟢")
-]
-
-# Row 1 (0 to 4)
+# Row 1: Numbers 0 to 4
 cols1 = st.columns(5)
-for idx in range(5):
-    num_val, num_label = numbers_data[idx]
+r1_nums = [
+    (0, "0 🟣🔴"),
+    (1, "1 🟢"),
+    (2, "2 🔴"),
+    (3, "3 🟢"),
+    (4, "4 🔴")
+]
+for idx, (num_val, num_label) in enumerate(r1_nums):
     with cols1[idx]:
-        if st.button(num_label, key=f"num_btn_{num_val}", use_container_width=True):
+        if st.button(num_label, key=f"b_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
-# Row 2 (5 to 9)
+# Row 2: Numbers 5 to 9
 cols2 = st.columns(5)
-for idx in range(5, 10):
-    num_val, num_label = numbers_data[idx]
-    with cols2[idx - 5]:
-        if st.button(num_label, key=f"num_btn_{num_val}", use_container_width=True):
+r2_nums = [
+    (5, "5 🟢🟣"),
+    (6, "6 🔴"),
+    (7, "7 🟢"),
+    (8, "8 🔴"),
+    (9, "9 🟢")
+]
+for idx, (num_val, num_label) in enumerate(r2_nums):
+    with cols2[idx]:
+        if st.button(num_label, key=f"b_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
 st.write("")
 
-# ----------------- DISPLAY PREDICTION CARD -----------------
 if st.session_state.last_prediction_bs is not None:
     next_pred = st.session_state.last_prediction_bs
     likely_nums = st.session_state.last_predicted_numbers
-
-    if st.session_state.is_skip:
-        pred_text = "⚠️ SMART SKIP (ഈ റൗണ്ട് സുരക്ഷിതമായി വിടുക)"
-        color_code = "#38BDF8"
-    else:
-        pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
-        color_code = "#00E676" if next_pred == "B" else "#FF5252"
+    pred_text = "⚠️ SMART SKIP (ഈ റൗണ്ട് സുരക്ഷിതമായി വിടുക)" if st.session_state.is_skip else ("BIG 🟢" if next_pred == "B" else "SMALL 🔴")
+    color_code = "#38BDF8" if st.session_state.is_skip else ("#00E676" if next_pred == "B" else "#FF5252")
 
     base_unit = st.session_state.wallet_balance / 255
-    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
-    current_multiplier = multipliers[st.session_state.current_level - 1]
-    suggested_bet = max(1, round(base_unit * current_multiplier))
+    suggested_bet = max(1, round(base_unit * [1, 2, 4, 8, 16, 32, 64, 128][st.session_state.current_level - 1]))
 
     st.markdown(f"""
         <div class="pred-card">
@@ -358,12 +280,8 @@ if st.session_state.last_prediction_bs is not None:
             <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
             <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
             <hr style="border-color: #334155; margin: 10px 0;">
-            <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">
-                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8
-            </div>
-            <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">
-                Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span>
-            </div>
+            <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>
+            <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
         </div>
     """, unsafe_allow_html=True)
 else:
