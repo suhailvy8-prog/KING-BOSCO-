@@ -276,7 +276,7 @@ if st.session_state.last_prediction_bs is not None:
             <div style="font-size: 20px; font-weight: 900; color: {color_code}; margin: 2px 0;">{pred_text}</div>
             <div style="color: #E2E8F0; font-size: 12px; margin-bottom: 2px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
             <hr style="border-color: #334155; margin: 4px 0;">
-            <div style="color: #38BDF8; font-size: 11px; font-weight: bold;">🛡️ Level {st.session_state.current_level}/8</div>
+            <div style="color: #38BDF8; font-size: 11px; font-weight: bold;">🛡️ 8-Level Plan (Win within 5 prioritized) | Level {st.session_state.current_level}/8</div>
             <div style="color: #FFFFFF; font-size: 14px; font-weight: 900; margin-top: 1px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
         </div>
     """, unsafe_allow_html=True)
@@ -295,4 +295,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
+        
