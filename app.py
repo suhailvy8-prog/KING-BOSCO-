@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Styling
+# Custom CSS for Styling & Grid layout for numbers
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -95,6 +95,14 @@ st.markdown("""
         font-size: 18px !important;
         font-weight: 900 !important;
         text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.4);
+    }
+
+    /* Fixed Grid for Number Buttons to prevent vertical stretching */
+    .num-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -298,36 +306,30 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- COLOR BALLS GRID UI (5 in a row, Compact & Neat) -----------------
+# ----------------- COMPACT NUMBERS GRID UI (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# Row 1: Numbers 0 to 4
-r1_cols = st.columns(5)
-r1_data = [
-    (0, "0", "🟣🔴"),
-    (1, "1", "🟢"),
-    (2, "2", "🔴"),
-    (3, "3", "🟢"),
-    (4, "4", "🔴")
+# Using st.container with columns or native buttons inside proper loop to avoid stretching
+numbers_data = [
+    (0, "0 🟣🔴"), (1, "1 🟢"), (2, "2 🔴"), (3, "3 🟢"), (4, "4 🔴"),
+    (5, "5 🟢🟣"), (6, "6 🔴"), (7, "7 🟢"), (8, "8 🔴"), (9, "9 🟢")
 ]
-for idx, (num_val, num_str, badge) in enumerate(r1_data):
-    with r1_cols[idx]:
-        if st.button(f"{num_str}\n{badge}", key=f"ball_{num_val}", use_container_width=True):
+
+# Row 1 (0 to 4)
+cols1 = st.columns(5)
+for idx in range(5):
+    num_val, num_label = numbers_data[idx]
+    with cols1[idx]:
+        if st.button(num_label, key=f"num_btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
-# Row 2: Numbers 5 to 9
-r2_cols = st.columns(5)
-r2_data = [
-    (5, "5", "🟢🟣"),
-    (6, "6", "🔴"),
-    (7, "7", "🟢"),
-    (8, "8", "🔴"),
-    (9, "9", "🟢")
-]
-for idx, (num_val, num_str, badge) in enumerate(r2_data):
-    with r2_cols[idx]:
-        if st.button(f"{num_str}\n{badge}", key=f"ball_{num_val}", use_container_width=True):
+# Row 2 (5 to 9)
+cols2 = st.columns(5)
+for idx in range(5, 10):
+    num_val, num_label = numbers_data[idx]
+    with cols2[idx - 5]:
+        if st.button(num_label, key=f"num_btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
