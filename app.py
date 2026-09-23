@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Circular Color Balls and Styling
+# Custom CSS for Circular Color Balls and Removing Focus White Border
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -46,22 +46,40 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* Circular Ball Button Styling */
+    /* Circular Color Ball Button Styling & Removing White Outline/Focus */
     .stButton button {
-        background: linear-gradient(135deg, #1E293B, #0F172A) !important;
         color: #FFFFFF !important;
-        border: 2px solid #3B82F6 !important;
         font-weight: 900 !important;
-        border-radius: 20px !important;
-        height: 65px !important;
-        font-size: 16px !important;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+        border-radius: 50% !important;
+        width: 60px !important;
+        height: 60px !important;
+        min-height: 60px !important;
+        font-size: 18px !important;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        border: none !important;
     }
+    
+    /* Specific Colors for Balls */
+    div[data-testid="column"]:nth-child(1) .stButton button { background: radial-gradient(circle, #9c27b0, #f44336) !important; }
+    div[data-testid="column"]:nth-child(2) .stButton button { background: #4caf50 !important; }
+    div[data-testid="column"]:nth-child(3) .stButton button { background: #f44336 !important; }
+    div[data-testid="column"]:nth-child(4) .stButton button { background: #4caf50 !important; }
+    div[data-testid="column"]:nth-child(5) .stButton button { background: #f44336 !important; }
+
+    /* Remove focus/active white border completely */
+    .stButton button:focus, .stButton button:active, .stButton button:visited {
+        border: none !important;
+        outline: none !important;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.4) !important;
+    }
+    
     .stButton button:hover {
-        background: linear-gradient(135deg, #334155, #1E293B) !important;
-        border-color: #FFD700 !important;
-        color: #FFD700 !important;
-        transform: scale(1.05);
+        transform: scale(1.1);
+        border: none !important;
     }
 
     input[type="text"] {
@@ -317,37 +335,21 @@ def handle_number_click(val):
         st.session_state.last_predicted_numbers = likely_nums
 
 # ----------------- CIRCULAR COLOR BALLS GRID BUTTONS UI (0 to 9) -----------------
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക (Color Balls):</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
 # Grid row 1: Numbers 0 to 4
 cols_top = st.columns(5)
-nums_top = [
-    (0, "0", "🟣 🔴 (Violet/Red)"),
-    (1, "1", "🟢 (Green)"),
-    (2, "2", "🔴 (Red)"),
-    (3, "3", "🟢 (Green)"),
-    (4, "4", "🔴 (Red)")
-]
-
-for idx, (num_val, num_str, badge) in enumerate(nums_top):
+for idx, num_val in enumerate(range(5)):
     with cols_top[idx]:
-        if st.button(f"{num_val}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+        if st.button(f"{num_val}", key=f"btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
 # Grid row 2: Numbers 5 to 9
 cols_bottom = st.columns(5)
-nums_bottom = [
-    (5, "5", "🟢 🟣 (Green/Violet)"),
-    (6, "6", "🔴 (Red)"),
-    (7, "7", "🟢 (Green)"),
-    (8, "8", "🔴 (Red)"),
-    (9, "9", "🟢 (Green)")
-]
-
-for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
+for idx, num_val in enumerate(range(5, 10)):
     with cols_bottom[idx]:
-        if st.button(f"{num_val}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+        if st.button(f"{num_val}", key=f"btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
@@ -399,4 +401,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
+        
