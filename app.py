@@ -45,7 +45,6 @@ st.markdown("""
         border-radius: 10px !important;
         height: 45px !important;
     }
-    /* Active/Clicked button yellow border effect */
     .stButton button:active, .stButton button:focus {
         border: 2px solid #FFD700 !important;
         color: #FFD700 !important;
@@ -205,7 +204,18 @@ elif st.session_state.auth_role == 'target':
         </div>
     """, unsafe_allow_html=True)
 
-    st.markdown(f"**Wins:** <span style='color:#00E676; font-weight:bold;'>{st.session_state.target_wins}</span> | **Losses:** <span style='color:#FF5252; font-weight:bold;'>{st.session_state.target_losses}</span>", unsafe_allow_html=True)
+    st.markdown(f"""
+        <div class='metric-container'>
+            <div class='metric-box'>
+                <div class='metric-label'>WINS</div>
+                <div class='metric-val' style='color:#00E676;'>{st.session_state.target_wins}</div>
+            </div>
+            <div class='metric-box'>
+                <div class='metric-label'>LOSSES</div>
+                <div class='metric-val' style='color:#FF5252;'>{st.session_state.target_losses}</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     pred_display = st.session_state.target_pred if st.session_state.target_pred else "WAITING..."
     pred_full = "BIG (5-9)" if pred_display == "B" else ("SMALL (0-4)" if pred_display == "S" else "WAITING FOR 3 INPUTS")
@@ -245,10 +255,10 @@ elif st.session_state.auth_role == 'target':
 
     st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
     cols = st.columns(2)
-    nums = [(0, "0"), (1, "1"), (2, "2"), (3, "3"), (4, "4"), (5, "5"), (6, "6"), (7, "7"), (8, "8"), (9, "9")]
-    for i, (n, label) in enumerate(nums):
+    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for i, n in enumerate(nums_t):
         with cols[i % 2]:
-            if st.button(label, key=f"t_{n}", use_container_width=True):
+            if st.button(str(n), key=f"t_{n}", use_container_width=True):
                 handle_target_click(n)
                 st.rerun()
 
@@ -265,35 +275,59 @@ elif st.session_state.auth_role == 'target':
     else:
         st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
 
-# ================= USER SECTION (Original Setup Restored) =================
+# ================= USER SECTION =================
 elif st.session_state.auth_role == 'user':
     st.markdown("<h2>👑 King Bosco Predictor</h2>", unsafe_allow_html=True)
     
-    if 'history' not in st.session_state: st.session_state.history = []
-    if 'wins' not in st.session_state: st.session_state.wins = 0
-    if 'losses' not in st.session_state: st.session_state.losses = 0
-    if 'last_pred' not in st.session_state: st.session_state.last_pred = None
+    if 'user_history' not in st.session_state: st.session_state.user_history = []
+    if 'user_wins' not in st.session_state: st.session_state.user_wins = 0
+    if 'user_losses' not in st.session_state: st.session_state.user_losses = 0
+    if 'user_pred' not in st.session_state: st.session_state.user_pred = None
 
-    st.markdown(f"**Wins:** {st.session_state.wins} | **Losses:** {st.session_state.losses}")
+    st.markdown(f"""
+        <div class='metric-container'>
+            <div class='metric-box'>
+                <div class='metric-label'>WINS</div>
+                <div class='metric-val' style='color:#00E676;'>{st.session_state.user_wins}</div>
+            </div>
+            <div class='metric-box'>
+                <div class='metric-label'>LOSSES</div>
+                <div class='metric-val' style='color:#FF5252;'>{st.session_state.user_losses}</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    def handle_click(val):
+    pred_display_u = st.session_state.user_pred if st.session_state.user_pred else "WAITING..."
+    pred_full_u = "BIG (5-9)" if pred_display_u == "B" else ("SMALL (0-4)" if pred_display_u == "S" else "WAITING FOR 3 INPUTS")
+    st.markdown(f"""
+        <div class='pred-card'>
+            <div style='font-size: 12px; color: #FFD700; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full_u}</div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    def handle_user_click(val):
         cbs = "B" if val >= 5 else "S"
-        if st.session_state.last_pred:
-            if cbs == st.session_state.last_pred:
-                st.session_state.wins += 1
+        if st.session_state.user_pred is not None:
+            if cbs == st.session_state.user_pred:
+                st.session_state.user_wins += 1
             else:
-                st.session_state.losses += 1
-        st.session_state.history.append(cbs)
-        if len(st.session_state.history) >= 3:
-            st.session_state.last_pred = "S" if st.session_state.history[-1] == "B" else "B"
+                st.session_state.user_losses += 1
 
+        st.session_state.user_history.append(cbs)
+        th_u = st.session_state.user_history
+
+        if len(th_u) >= 3:
+            st.session_state.user_pred = "S" if th_u[-1] == "B" else "B"
+        else:
+            st.session_state.user_pred = None
+
+    st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
     cols = st.columns(2)
-    for n in range(10):
-        with cols[n % 2]:
+    nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for i, n in enumerate(nums_u):
+        with cols[i % 2]:
             if st.button(str(n), key=f"u_{n}", use_container_width=True):
-                handle_click(n)
+                handle_user_click(n)
                 st.rerun()
-                
-    if st.session_state.last_pred:
-        st.success(f"Prediction: {st.session_state.last_pred}")
         
