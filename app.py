@@ -4,12 +4,14 @@ st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="
 
 st.markdown("""
     <style>
-    .main { background-color: #0B0E14; }
-    .stApp { background-color: #0B0E14; color: #FFFFFF; }
+    .main { background: linear-gradient(135deg, #0B0E14, #1a1c29); }
+    .stApp { background: linear-gradient(135deg, #0B0E14, #1a1c29); color: #FFFFFF; }
     .app-title {
         text-align: center;
-        color: #FFD700;
-        font-size: 24px !important;
+        background: linear-gradient(45deg, #FFD700, #FF4500);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 26px !important;
         font-weight: 900 !important;
         letter-spacing: 1px;
     }
@@ -21,63 +23,68 @@ st.markdown("""
     }
     .metric-box {
         flex: 1;
-        background-color: #1E293B;
-        border: 2px solid #334155;
-        border-radius: 10px;
-        padding: 10px;
+        background: linear-gradient(135deg, #1e1b4b, #311042);
+        border: 2px solid #a855f7;
+        border-radius: 12px;
+        padding: 12px;
         text-align: center;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
     }
     .metric-label {
-        font-size: 12px !important;
+        font-size: 11px !important;
         font-weight: 900 !important;
-        color: #FFD700 !important;
+        color: #f43f5e !important;
     }
     .metric-val {
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
+        color: #38bdf8 !important;
     }
     .stButton button {
-        background-color: #1E293B !important;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
         color: #FFFFFF !important;
-        border: 2px solid #334155 !important;
+        border: 2px solid #60a5fa !important;
         font-weight: bold !important;
-        border-radius: 10px !important;
-        height: 45px !important;
+        border-radius: 12px !important;
+        height: 48px !important;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
     }
     .stButton button:active, .stButton button:focus {
         border: 2px solid #FFD700 !important;
         color: #FFD700 !important;
+        background: linear-gradient(135deg, #2563eb, #1e40af) !important;
     }
     .pred-card {
-        background: linear-gradient(135deg, #1E293B, #0F172A);
-        padding: 15px;
-        border-radius: 14px;
-        border: 2px solid #FFD700;
+        background: linear-gradient(135deg, #312e81, #581c87);
+        padding: 18px;
+        border-radius: 16px;
+        border: 2px solid #fbbf24;
         text-align: center;
-        margin: 10px 0;
+        margin: 12px 0;
+        box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
     }
     .history-card {
-        background-color: #151C28;
-        padding: 10px 12px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        padding: 10px 14px;
+        border-radius: 10px;
         margin-bottom: 8px;
-        border-left: 4px solid #FFD700;
+        border-left: 5px solid #10b981;
         display: flex;
         justify-content: space-between;
         color: #FFFFFF;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     .custom-box {
-        background-color: #1E293B;
-        border: 1px solid #334155;
-        padding: 10px;
-        border-radius: 8px;
-        color: #FFFFFF;
+        background-color: #1e293b;
+        border: 1px solid #475569;
+        padding: 12px;
+        border-radius: 10px;
+        color: #38bdf8;
         font-family: monospace;
         margin-bottom: 10px;
     }
-    .win-text { color: #00E676 !important; font-weight: 900 !important; }
-    .loss-text { color: #FF5252 !important; font-weight: 900 !important; }
+    .win-text { color: #10b981 !important; font-weight: 900 !important; }
+    .loss-text { color: #f43f5e !important; font-weight: 900 !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -123,7 +130,7 @@ if st.session_state.auth_role is None:
                 st.error("❌ തെറ്റായ അഡ്മിൻ പാസ്‌വേഡ്!")
     st.stop()
 
-# Top Bar with Title and Small Logout Icon (🚪)
+# Top Bar with Title and Small Logout Icon (🚪) for all sections
 col_title, col_logout = st.columns([0.88, 0.12])
 with col_title:
     st.markdown("<div class='app-title' style='text-align: left;'>👑 KING BOSCO</div>", unsafe_allow_html=True)
@@ -208,11 +215,11 @@ elif st.session_state.auth_role == 'target':
         <div class='metric-container'>
             <div class='metric-box'>
                 <div class='metric-label'>WINS</div>
-                <div class='metric-val' style='color:#00E676;'>{st.session_state.target_wins}</div>
+                <div class='metric-val' style='color:#10b981;'>{st.session_state.target_wins}</div>
             </div>
             <div class='metric-box'>
                 <div class='metric-label'>LOSSES</div>
-                <div class='metric-val' style='color:#FF5252;'>{st.session_state.target_losses}</div>
+                <div class='metric-val' style='color:#f43f5e;'>{st.session_state.target_losses}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -221,8 +228,9 @@ elif st.session_state.auth_role == 'target':
     pred_full = "BIG (5-9)" if pred_display == "B" else ("SMALL (0-4)" if pred_display == "S" else "WAITING FOR 3 INPUTS")
     st.markdown(f"""
         <div class='pred-card'>
-            <div style='font-size: 12px; color: #FFD700; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 12px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
             <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full}</div>
+            <div style='font-size: 13px; color: #38bdf8; margin-top: 5px;'>Bet Amount: <b>₹ {current_bet}</b> (Level {st.session_state.target_level})</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -282,17 +290,22 @@ elif st.session_state.auth_role == 'user':
     if 'user_history' not in st.session_state: st.session_state.user_history = []
     if 'user_wins' not in st.session_state: st.session_state.user_wins = 0
     if 'user_losses' not in st.session_state: st.session_state.user_losses = 0
+    if 'user_level' not in st.session_state: st.session_state.user_level = 1
     if 'user_pred' not in st.session_state: st.session_state.user_pred = None
+
+    # Base bet calculation for user too if needed, or default multiplier steps
+    user_bets = [10, 20, 40, 80, 160, 320, 640, 1280]
+    current_u_bet = user_bets[st.session_state.user_level - 1]
 
     st.markdown(f"""
         <div class='metric-container'>
             <div class='metric-box'>
                 <div class='metric-label'>WINS</div>
-                <div class='metric-val' style='color:#00E676;'>{st.session_state.user_wins}</div>
+                <div class='metric-val' style='color:#10b981;'>{st.session_state.user_wins}</div>
             </div>
             <div class='metric-box'>
                 <div class='metric-label'>LOSSES</div>
-                <div class='metric-val' style='color:#FF5252;'>{st.session_state.user_losses}</div>
+                <div class='metric-val' style='color:#f43f5e;'>{st.session_state.user_losses}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -301,8 +314,9 @@ elif st.session_state.auth_role == 'user':
     pred_full_u = "BIG (5-9)" if pred_display_u == "B" else ("SMALL (0-4)" if pred_display_u == "S" else "WAITING FOR 3 INPUTS")
     st.markdown(f"""
         <div class='pred-card'>
-            <div style='font-size: 12px; color: #FFD700; font-weight: bold;'>NEXT PREDICTION</div>
+            <div style='font-size: 12px; color: #fbbf24; font-weight: bold;'>NEXT PREDICTION</div>
             <div style='font-size: 22px; font-weight: 900; color: #FFFFFF;'>{pred_full_u}</div>
+            <div style='font-size: 13px; color: #38bdf8; margin-top: 5px;'>Bet Amount: <b>₹ {current_u_bet}</b> (Level {st.session_state.user_level})</div>
         </div>
     """, unsafe_allow_html=True)
 
@@ -311,8 +325,10 @@ elif st.session_state.auth_role == 'user':
         if st.session_state.user_pred is not None:
             if cbs == st.session_state.user_pred:
                 st.session_state.user_wins += 1
+                st.session_state.user_level = 1
             else:
                 st.session_state.user_losses += 1
+                st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
 
         st.session_state.user_history.append(cbs)
         th_u = st.session_state.user_history
@@ -330,4 +346,4 @@ elif st.session_state.auth_role == 'user':
             if st.button(str(n), key=f"u_{n}", use_container_width=True):
                 handle_user_click(n)
                 st.rerun()
-        
+                
