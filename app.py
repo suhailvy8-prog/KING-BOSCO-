@@ -212,19 +212,19 @@ elif st.session_state.auth_role == 'target':
 
     # Check Target Reached (500 to 600 auto-back / alert)
     if st.session_state.target_wallet >= 600:
-        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! Target 600 досяг (Target Achieved). വാലറ്റ് റീസെറ്റ് ചെയ്യുന്നു!")
+        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! Target 600 reached. വാലറ്റ് റീസെറ്റ് ചെയ്യുന്നു!")
         st.session_state.target_wallet = 500
         st.session_state.target_level = 1
         st.session_state.target_pred = None
         st.rerun()
 
-    new_t_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet - 500 to 600 Target)", min_value=10, value=int(st.session_state.target_wallet), step=50, key="t_wal_input")
+    new_t_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet - 500 to 600 Target)", min_value=-10000, value=int(st.session_state.target_wallet), step=50, key="t_wal_input")
     if new_t_wallet != st.session_state.target_wallet:
         st.session_state.target_wallet = new_t_wallet
         st.session_state.target_level = 1
         st.rerun()
 
-    base = st.session_state.target_wallet / 255
+    base = st.session_state.target_wallet / 255 if st.session_state.target_wallet > 0 else 2.0
     mults = [1, 2, 4, 8, 16, 32, 64, 128]
     current_bet = max(1, round(base * mults[st.session_state.target_level - 1]))
 
@@ -279,7 +279,7 @@ elif st.session_state.auth_role == 'target':
             else:
                 st.session_state.target_losses += 1
                 status = "🔴 LOSS"
-                st.session_state.target_wallet = max(100, st.session_state.target_wallet - bet)
+                st.session_state.target_wallet -= bet  # Wallet can decrease / go negative properly now
                 st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
 
         st.session_state.target_history.append(cbs)
@@ -292,13 +292,12 @@ elif st.session_state.auth_role == 'target':
             st.session_state.target_pred = None
 
     st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
-    cols = st.columns(2)
-    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Correct 0 to 9 order
-    for i, n in enumerate(nums_t):
-        with cols[i % 2]:
-            if st.button(str(n), key=f"t_{n}", use_container_width=True):
-                handle_target_click(n)
-                st.rerun()
+    # Correct vertical order: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 stacked vertically one by one
+    nums_t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for n in nums_t:
+        if st.button(str(n), key=f"t_{n}", use_container_width=True):
+            handle_target_click(n)
+            st.rerun()
 
     st.markdown("### 📊 ഹിസ്റ്ററി")
     if st.session_state.target_history_details:
@@ -325,13 +324,13 @@ elif st.session_state.auth_role == 'user':
     if 'user_level' not in st.session_state: st.session_state.user_level = 1
     if 'user_pred' not in st.session_state: st.session_state.user_pred = None
 
-    new_u_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=10, value=int(st.session_state.user_wallet), step=50, key="u_wal_input")
+    new_u_wallet = st.number_input("വാലറ്റ് ബാലൻസ് മാറ്റുക (Update Wallet)", min_value=-10000, value=int(st.session_state.user_wallet), step=50, key="u_wal_input")
     if new_u_wallet != st.session_state.user_wallet:
         st.session_state.user_wallet = new_u_wallet
         st.session_state.user_level = 1
         st.rerun()
 
-    base_u = st.session_state.user_wallet / 255
+    base_u = st.session_state.user_wallet / 255 if st.session_state.user_wallet > 0 else 2.0
     mults_u = [1, 2, 4, 8, 16, 32, 64, 128]
     current_u_bet = max(1, round(base_u * mults_u[st.session_state.user_level - 1]))
 
@@ -386,7 +385,7 @@ elif st.session_state.auth_role == 'user':
             else:
                 st.session_state.user_losses += 1
                 status = "🔴 LOSS"
-                st.session_state.user_wallet = max(100, st.session_state.user_wallet - bet)
+                st.session_state.user_wallet -= bet  # Wallet decreases / goes negative properly
                 st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
 
         st.session_state.user_history.append(cbs)
@@ -399,13 +398,12 @@ elif st.session_state.auth_role == 'user':
             st.session_state.user_pred = None
 
     st.markdown("### നമ്പറുകൾ തിരഞ്ഞെടുക്കുക (0-9)")
-    cols = st.columns(2)
-    nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]  # Correct 0 to 9 order
-    for i, n in enumerate(nums_u):
-        with cols[i % 2]:
-            if st.button(str(n), key=f"u_{n}", use_container_width=True):
-                handle_user_click(n)
-                st.rerun()
+    # Correct vertical order: 0 to 9 strictly one below the other
+    nums_u = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for n in nums_u:
+        if st.button(str(n), key=f"u_{n}", use_container_width=True):
+            handle_user_click(n)
+            st.rerun()
 
     st.markdown("### 📊 ഹിസ്റ്ററി")
     if st.session_state.user_history_details:
