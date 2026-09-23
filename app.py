@@ -108,7 +108,6 @@ st.markdown("""
         font-weight: 900 !important;
     }
 
-    /* Strict mobile fitting without horizontal scroll */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
@@ -137,7 +136,7 @@ if 'admin_keys' not in st.session_state:
     st.session_state.admin_keys = ["bosco123"]
 
 if 'auth_role' not in st.session_state:
-    st.session_state.auth_role = None  # None, 'user', 'target', 'admin'
+    st.session_state.auth_role = None
 
 # ----------------- MAIN SCREEN 3 LOGIN BOXES -----------------
 if st.session_state.auth_role is None:
@@ -177,7 +176,6 @@ if st.session_state.auth_role is None:
                 
     st.stop()
 
-# Logout button on top corner if logged in
 if st.button("🚪 Logout / Switch Access"):
     st.session_state.auth_role = None
     st.rerun()
@@ -448,4 +446,7 @@ if st.session_state.auth_role == 'user':
 
     def handle_number_click(val):
         current_bs = "BIG" if val >= 5 else "SMALL"
-        current_bs_short = 
+        current_bs_short = "B" if val >= 5 else "S"
+        status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
+        
+        if st.ses
