@@ -3,7 +3,7 @@ import collections
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Styling
+# Custom CSS for Circular Color Balls and Styling
 st.markdown("""
     <style>
     .main { background-color: #0B0E14; }
@@ -46,19 +46,22 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
+    /* Circular Ball Button Styling */
     .stButton button {
-        background-color: #1E293B !important;
+        background: linear-gradient(135deg, #1E293B, #0F172A) !important;
         color: #FFFFFF !important;
-        border: 2px solid #334155 !important;
-        font-weight: bold !important;
-        border-radius: 12px !important;
-        height: 50px !important;
-        font-size: 18px !important;
+        border: 2px solid #3B82F6 !important;
+        font-weight: 900 !important;
+        border-radius: 20px !important;
+        height: 65px !important;
+        font-size: 16px !important;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
     }
     .stButton button:hover {
-        background-color: #334155 !important;
+        background: linear-gradient(135deg, #334155, #1E293B) !important;
         border-color: #FFD700 !important;
         color: #FFD700 !important;
+        transform: scale(1.05);
     }
 
     input[type="text"] {
@@ -232,7 +235,7 @@ def handle_number_click(val):
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
                 status_str = "<span class='win-text'>🟢 WIN</span>"
-                st.session_state.current_level = 1  # Reset on Win (Within 5 levels preferred)
+                st.session_state.current_level = 1  # Reset on Win
             else:
                 st.session_state.losses += 1
                 status_str = "<span class='loss-text'>🔴 LOSS</span>"
@@ -266,28 +269,20 @@ def handle_number_click(val):
         st.session_state.last_predicted_numbers = []
         st.session_state.is_skip = False
     else:
-        # ---- SMART DYNAMIC SKIP & PROBABILITY LOGIC ----
-        # If trend is clear and repeating properly, follow the trend.
-        # If it's heavily fluctuating/choppy without pattern, use conditional temporary SKIP.
         recent_four = hist[-4:] if len(hist) >= 4 else hist
-        
-        # Check high-choppiness (e.g. B S B S or S B S B)
         is_choppy = False
         if len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]:
             is_choppy = True
 
-        # Check consecutive repeats (e.g. 3 or 4 same results in a row)
         is_heavy_repeat = False
         if len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]:
             is_heavy_repeat = True
 
-        # If it's dangerously choppy and level is low, trigger a smart skip occasionally, but not full-time.
         if is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0:
             st.session_state.is_skip = True
         else:
             st.session_state.is_skip = False
 
-        # Pattern evaluation based on Trend and Probability
         is_alternating = False
         if len(hist) >= 4:
             if hist[-1] != hist[-2] and hist[-2] != hist[-3] and hist[-3] != hist[-4]:
@@ -297,16 +292,13 @@ def handle_number_click(val):
                 is_alternating = True
 
         if is_alternating:
-            # Follow alternation trend
             next_pred = "S" if hist[-1] == "B" else "B"
         elif is_heavy_repeat:
-            # If a trend repeats strongly, follow probability to break or continue based on level
             if st.session_state.current_level >= 3:
-                next_pred = "S" if hist[-1] == "B" else "B" # Reverse for safety on higher levels
+                next_pred = "S" if hist[-1] == "B" else "B"
             else:
-                next_pred = hist[-1] # Follow repeat trend
+                next_pred = hist[-1]
         else:
-            # General Probability balance from recent window
             recent_window = hist[-6:] if len(hist) >= 6 else hist
             b_count = recent_window.count('B')
             s_count = recent_window.count('S')
@@ -324,38 +316,38 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- CIRCULAR GRID BUTTONS UI (0 to 9) -----------------
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
+# ----------------- CIRCULAR COLOR BALLS GRID BUTTONS UI (0 to 9) -----------------
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക (Color Balls):</p>", unsafe_allow_html=True)
 
 # Grid row 1: Numbers 0 to 4
 cols_top = st.columns(5)
 nums_top = [
-    (0, "0", "🟣 🔴"),
-    (1, "1", "🟢"),
-    (2, "2", "🔴"),
-    (3, "3", "🟢"),
-    (4, "4", "🔴")
+    (0, "0", "🟣 🔴 (Violet/Red)"),
+    (1, "1", "🟢 (Green)"),
+    (2, "2", "🔴 (Red)"),
+    (3, "3", "🟢 (Green)"),
+    (4, "4", "🔴 (Red)")
 ]
 
 for idx, (num_val, num_str, badge) in enumerate(nums_top):
     with cols_top[idx]:
-        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+        if st.button(f"{num_val}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
 # Grid row 2: Numbers 5 to 9
 cols_bottom = st.columns(5)
 nums_bottom = [
-    (5, "5", "🟢 🟣"),
-    (6, "6", "🔴"),
-    (7, "7", "🟢"),
-    (8, "8", "🔴"),
-    (9, "9", "🟢")
+    (5, "5", "🟢 🟣 (Green/Violet)"),
+    (6, "6", "🔴 (Red)"),
+    (7, "7", "🟢 (Green)"),
+    (8, "8", "🔴 (Red)"),
+    (9, "9", "🟢 (Green)")
 ]
 
 for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
     with cols_bottom[idx]:
-        if st.button(f"{num_str}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
+        if st.button(f"{num_val}\n{badge}", key=f"btn_{num_val}", use_container_width=True):
             handle_number_click(num_val)
             st.rerun()
 
@@ -374,7 +366,7 @@ if st.session_state.last_prediction_bs is not None:
         color_code = "#00E676" if next_pred == "B" else "#FF5252"
 
     base_unit = st.session_state.wallet_balance / 255  # 8-level optimal base calculation
-    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]  # 8-Level Plan (Targeting wins within early levels)
+    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]  # 8-Level Plan
     current_multiplier = multipliers[st.session_state.current_level - 1]
     suggested_bet = max(1, round(base_unit * current_multiplier))
 
@@ -407,4 +399,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-        
+    
