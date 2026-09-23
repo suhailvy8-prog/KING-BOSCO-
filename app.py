@@ -11,39 +11,39 @@ st.markdown("""
     .app-title {
         text-align: center;
         color: #FFD700;
-        font-size: 26px !important;
+        font-size: 22px !important;
         font-weight: 900 !important;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .metric-container {
         display: flex;
         justify-content: space-between;
-        gap: 10px;
-        margin: 10px 0;
+        gap: 6px;
+        margin: 6px 0;
     }
     .metric-box {
         flex: 1;
         background-color: #1E293B;
         border: 2px solid #334155;
-        border-radius: 10px;
-        padding: 8px;
+        border-radius: 6px;
+        padding: 5px;
         text-align: center;
     }
     .metric-label {
-        font-size: 13px !important;
+        font-size: 11px !important;
         font-weight: 900 !important;
         color: #FFD700 !important;
     }
     .metric-val {
-        font-size: 22px !important;
+        font-size: 18px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
     }
 
     input[type="text"] {
         text-align: center !important;
-        font-size: 18px !important;
+        font-size: 14px !important;
         font-weight: bold !important;
         background-color: #1E293B !important;
         color: #FFFFFF !important;
@@ -52,45 +52,56 @@ st.markdown("""
     
     div[data-baseweb="input"] {
         background-color: #1E293B !important;
-        border-radius: 8px !important;
+        border-radius: 6px !important;
     }
 
     .pred-card {
         background: linear-gradient(135deg, #1E293B, #0F172A);
-        padding: 15px;
-        border-radius: 12px;
+        padding: 10px;
+        border-radius: 8px;
         border: 2px solid #FFD700;
         text-align: center;
-        margin: 10px 0;
+        margin: 6px 0;
     }
 
     .history-card {
         background-color: #151C28;
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 6px;
-        border-left: 4px solid #FFD700;
+        padding: 6px 8px;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        border-left: 3px solid #FFD700;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: #FFFFFF;
-        font-size: 14px;
+        font-size: 12px;
     }
     
     .win-text { color: #00E676 !important; font-weight: 900 !important; }
     .loss-text { color: #FF5252 !important; font-weight: 900 !important; }
 
-    /* Force columns to stay side by side on mobile */
-    [data-testid="column"] {
-        width: 50% !important;
-        flex: 50% !important;
-        min-width: 50% !important;
-        padding: 0 4px !important;
-    }
+    /* Strict mobile fitting without horizontal scroll or vertical stacking */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
+        gap: 4px !important;
+    }
+    [data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
+        max-width: 50% !important;
+        padding: 0 !important;
+    }
+    
+    /* Compact buttons to fit phone screen width perfectly */
+    .stButton > button {
+        width: 100% !important;
+        font-size: 13px !important;
+        padding: 5px 2px !important;
+        border-radius: 5px !important;
+        white-space: nowrap !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -138,7 +149,7 @@ if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 5
 if 'current_level' not in st.session_state: st.session_state.current_level = 1
 if 'is_skip' not in st.session_state: st.session_state.is_skip = False
 
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 15px;'>💰 ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 13px;'>💰 ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
 wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
 with wallet_col2:
     wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed")
@@ -193,7 +204,7 @@ def handle_number_click(val):
 
     num_win_str = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
-        num_win_str = " <span style='color:#00E676; font-size:11px; font-weight:900;'>[🎯 Win]</span>"
+        num_win_str = " <span style='color:#00E676; font-size:10px; font-weight:900;'>[🎯 Win]</span>"
 
     st.session_state.history.append(current_bs_short)
     st.session_state.num_history.append(val)
@@ -227,15 +238,14 @@ def handle_number_click(val):
         st.session_state.last_prediction_bs = next_pred
         st.session_state.last_predicted_numbers = [n for n, c in collections.Counter(num_hist[-12:]).most_common(2)]
 
-st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 15px; margin-top: 10px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 13px; margin-top: 6px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
-# 5 Rows x 2 Columns layout strictly enforced via CSS
 buttons_info = [
-    (0, "0  (🟣 🔴)", 5, "5  (🟢 🟣)"),
-    (1, "1  (🟢)",    6, "6  (🔴)"),
-    (2, "2  (🔴)",    7, "7  (🟢)"),
-    (3, "3  (🟢)",    8, "8  (🔴)"),
-    (4, "4  (🔴)",    9, "9  (🟢)")
+    (0, "0 (🟣🔴)", 5, "5 (🟢🟣)"),
+    (1, "1 (🟢)",   6, "6 (🔴)"),
+    (2, "2 (🔴)",   7, "7 (🟢)"),
+    (3, "3 (🟢)",   8, "8 (🔴)"),
+    (4, "4 (🔴)",   9, "9 (🟢)")
 ]
 
 for num1, label1, num2, label2 in buttons_info:
@@ -262,12 +272,12 @@ if st.session_state.last_prediction_bs is not None:
 
     st.markdown(f"""
         <div class="pred-card">
-            <div style="color: #94A3B8; font-size: 12px; font-weight: bold;">NEXT PREDICTION</div>
-            <div style="font-size: 24px; font-weight: 900; color: {color_code}; margin: 4px 0;">{pred_text}</div>
-            <div style="color: #E2E8F0; font-size: 13px; margin-bottom: 4px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
-            <hr style="border-color: #334155; margin: 6px 0;">
-            <div style="color: #38BDF8; font-size: 13px; font-weight: bold;">🛡️ Level {st.session_state.current_level}/8</div>
-            <div style="color: #FFFFFF; font-size: 16px; font-weight: 900; margin-top: 2px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
+            <div style="color: #94A3B8; font-size: 11px; font-weight: bold;">NEXT PREDICTION</div>
+            <div style="font-size: 20px; font-weight: 900; color: {color_code}; margin: 2px 0;">{pred_text}</div>
+            <div style="color: #E2E8F0; font-size: 12px; margin-bottom: 2px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+            <hr style="border-color: #334155; margin: 4px 0;">
+            <div style="color: #38BDF8; font-size: 11px; font-weight: bold;">🛡️ Level {st.session_state.current_level}/8</div>
+            <div style="color: #FFFFFF; font-size: 14px; font-weight: 900; margin-top: 1px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
         </div>
     """, unsafe_allow_html=True)
 else:
@@ -277,7 +287,7 @@ else:
 st.divider()
 
 if st.session_state.history_details:
-    st.markdown("<h3 style='color:#FFD700; font-size: 16px;'>📜 History Logs</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#FFD700; font-size: 14px;'>📜 History Logs</h3>", unsafe_allow_html=True)
     for item in st.session_state.history_details[:10]:
         st.markdown(f"""
             <div class="history-card">
