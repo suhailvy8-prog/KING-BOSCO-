@@ -61,18 +61,13 @@ st.markdown("""
         color: #FFD700 !important;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="password"] {
         text-align: center !important;
-        font-size: 24px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
         background-color: #1E293B !important;
         color: #FFFFFF !important;
         border: 2px solid #3B82F6 !important;
-    }
-    
-    div[data-baseweb="input"] {
-        background-color: #1E293B !important;
-        border-radius: 8px !important;
     }
 
     .pred-card {
@@ -102,60 +97,21 @@ st.markdown("""
         color: #00E676 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
-        text-shadow: 0px 0px 8px rgba(0, 230, 118, 0.4);
     }
 
     .loss-text {
         color: #FF5252 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
-        text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATE FOR ACCESS KEYS -----------------
+# ----------------- SESSION STATES -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
-
-# ----------------- SIDEBAR ACCESS & ADMIN CONTROL -----------------
-st.sidebar.title("🔐 Access Control")
-
-user_key = st.sidebar.text_input("നിങ്ങളുടെ Access Key നൽകുക:", type="password")
-
-st.sidebar.divider()
-st.sidebar.subheader("🛠️ Admin Settings")
-admin_pass = st.sidebar.text_input("Admin Password:", type="password")
-
-admin_logged_in = (admin_pass == "bosco123")
-
-if admin_logged_in:
-    st.sidebar.success("Admin Mode Active ✅")
-    st.sidebar.write("നിലവിലെ ആക്സസ് കീകൾ:")
-    st.sidebar.write(st.session_state.allowed_keys)
-    
-    new_key_to_add = st.sidebar.text_input("പുതിയ കീ ചേർക്കുക:")
-    if st.sidebar.button("Add Key"):
-        if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
-            st.session_state.allowed_keys.append(new_key_to_add)
-            st.sidebar.success(f"'{new_key_to_add}' ചേർത്തു!")
-            st.rerun()
-            
-    key_to_remove = st.sidebar.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
-    if st.sidebar.button("Remove Key") and key_to_remove != "-- Select --":	
-        st.session_state.allowed_keys.remove(key_to_remove)
-        st.sidebar.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
-        st.rerun()
-
-if user_key in st.session_state.allowed_keys or admin_logged_in:
-    st.sidebar.success("✅ Access Granted!")
-else:
-    st.warning("🔒 ദയവായി ശരിയായ Access Key നൽകുക.")
-    st.stop()
-
-# ----------------- SESSION STATES -----------------
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -176,6 +132,56 @@ if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 if 'is_skip' not in st.session_state:
     st.session_state.is_skip = False
+if 'auth_granted' not in st.session_state:
+    st.session_state.auth_granted = False
+
+# ----------------- MAIN SCREEN ACCESS & ADMIN LOGIN -----------------
+if not st.session_state.auth_granted:
+    st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
+    st.markdown("<h3>🔐 ലോങ്ങിൻ / ആക്സസ് കീ നൽകുക</h3>", unsafe_allow_html=True)
+    
+    main_key_input = st.text_input("Enter Access Key / Admin Password", type="password")
+    
+    col_l1, col_l2 = st.columns(2)
+    with col_l1:
+        if st.button("Login", use_container_width=True):
+            if main_key_input == "bosco123":  # Admin password
+                st.session_state.auth_granted = True
+                st.success("Admin Login Success! ✅")
+                st.rerun()
+            elif main_key_input in st.session_state.allowed_keys:
+                st.session_state.auth_granted = True
+                st.success("Access Granted! ✅")
+                st.rerun()
+            else:
+                st.error("❌ തെറ്റായ കീ അല്ലെങ്കിൽ പാസ്‌വേർഡ്!")
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
+
+# Admin Settings expander inside main screen if logged in as admin
+if st.session_state.auth_granted:
+    with st.expander("🛠️ Admin Settings (Manage Keys)"):
+        st.write("നിലവിലെ ആക്സസ് കീകൾ:")
+        st.write(st.session_state.allowed_keys)
+        
+        new_key_to_add = st.text_input("പുതിയ കീ ചേർക്കുക:")
+        if st.button("Add Key"):
+            if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
+                st.session_state.allowed_keys.append(new_key_to_add)
+                st.success(f"'{new_key_to_add}' ചേർത്തു!")
+                st.rerun()
+                
+        key_to_remove = st.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
+        if st.button("Remove Key") and key_to_remove != "-- Select --":    
+            st.session_state.allowed_keys.remove(key_to_remove)
+            st.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
+            st.rerun()
+            
+        if st.button("Logout"):
+            st.session_state.auth_granted = False
+            st.rerun()
+
+st.divider()
 
 # ----------------- WALLET INPUT -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
@@ -220,7 +226,7 @@ if st.button("🔄 Reset Data", use_container_width=True):
 
 st.write("")
 
-# Function to handle number selection with Dynamic Trend, Repeat & Smart Skip Logic
+# Function to handle number selection
 def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
@@ -232,14 +238,14 @@ def handle_number_click(val):
             if current_bs_short == st.session_state.last_prediction_bs:
                 st.session_state.wins += 1
                 status_str = "<span class='win-text'>🟢 WIN</span>"
-                st.session_state.current_level = 1  # Reset on Win (Within 5 levels preferred)
+                st.session_state.current_level = 1  
             else:
                 st.session_state.losses += 1
                 status_str = "<span class='loss-text'>🔴 LOSS</span>"
                 if st.session_state.current_level < 8:
-                    st.session_state.current_level += 1  # Max up to Level 8
+                    st.session_state.current_level += 1  
                 else:
-                    st.session_state.current_level = 1  # Reset after Level 8
+                    st.session_state.current_level = 1  
         else:
             status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
 
@@ -267,14 +273,8 @@ def handle_number_click(val):
         st.session_state.is_skip = False
     else:
         recent_four = hist[-4:] if len(hist) >= 4 else hist
-        
-        is_choppy = False
-        if len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]:
-            is_choppy = True
-
-        is_heavy_repeat = False
-        if len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]:
-            is_heavy_repeat = True
+        is_choppy = len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]
+        is_heavy_repeat = len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]
 
         if is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0:
             st.session_state.is_skip = True
@@ -314,17 +314,11 @@ def handle_number_click(val):
         likely_nums = [n for n, c in num_counts.most_common(2)]
         st.session_state.last_predicted_numbers = likely_nums
 
-# ----------------- CIRCULAR GRID BUTTONS UI (0 to 9) -----------------
+# ----------------- BUTTONS UI (0 to 9) -----------------
 st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
 
 cols_top = st.columns(5)
-nums_top = [
-    (0, "0", "🟣 🔴"),
-    (1, "1", "🟢"),
-    (2, "2", "🔴"),
-    (3, "3", "🟢"),
-    (4, "4", "🔴")
-]
+nums_top = [(0, "0", "🟣 🔴"), (1, "1", "🟢"), (2, "2", "🔴"), (3, "3", "🟢"), (4, "4", "🔴")]
 
 for idx, (num_val, num_str, badge) in enumerate(nums_top):
     with cols_top[idx]:
@@ -333,13 +327,7 @@ for idx, (num_val, num_str, badge) in enumerate(nums_top):
             st.rerun()
 
 cols_bottom = st.columns(5)
-nums_bottom = [
-    (5, "5", "🟢 🟣"),
-    (6, "6", "🔴"),
-    (7, "7", "🟢"),
-    (8, "8", "🔴"),
-    (9, "9", "🟢")
-]
+nums_bottom = [(5, "5", "🟢 🟣"), (6, "6", "🔴"), (7, "7", "🟢"), (8, "8", "🔴"), (9, "9", "🟢")]
 
 for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
     with cols_bottom[idx]:
@@ -373,7 +361,7 @@ if st.session_state.last_prediction_bs is not None:
             <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
             <hr style="border-color: #334155; margin: 10px 0;">
             <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">
-                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8 (Win within 5 prioritized)
+                🛡️ 8-Level Plan | Level {st.session_state.current_level}/8
             </div>
             <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">
                 Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span>
@@ -395,3 +383,4 @@ if st.session_state.history_details:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
+        
