@@ -198,7 +198,7 @@ if st.session_state.auth_role == 'admin':
         st.success("Target key removed!")
         st.rerun()
 
-# ================= TARGET SECTION (With Number Buttons & Predictions & Wallet Updates) =================
+# ================= TARGET SECTION =================
 elif st.session_state.auth_role == 'target':
     st.markdown("<h2>🎯 Target Profit & Wallet Tracker (500 ➡️ 600)</h2>", unsafe_allow_html=True)
     
@@ -288,7 +288,10 @@ elif st.session_state.auth_role == 'target':
                 st.session_state.target_wallet -= bet
                 st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
             else:
-                status = "➖ START"
+                status = "🔴 LOSS" # First click loss also incrementing level now properly
+                st.session_state.target_losses += 1
+                st.session_state.target_wallet -= bet
+                st.session_state.target_level = st.session_state.target_level + 1 if st.session_state.target_level < 8 else 1
 
         st.session_state.target_history.append(cbs)
         st.session_state.target_history_details.insert(0, {"num": val, "type": cb, "status": status})
@@ -394,13 +397,11 @@ elif st.session_state.auth_role == 'user':
                 st.session_state.user_wallet -= bet
                 st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
         else:
-            if len(st.session_state.user_history) > 0:
-                st.session_state.user_losses += 1
-                status = "🔴 LOSS"
-                st.session_state.user_wallet -= bet
-                st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
-            else:
-                status = "➖ START"
+            # Whenever user inputs numbers without prediction or during initial phase treating as loss/failed steps to progress level properly
+            st.session_state.user_losses += 1
+            status = "🔴 LOSS"
+            st.session_state.user_wallet -= bet
+            st.session_state.user_level = st.session_state.user_level + 1 if st.session_state.user_level < 8 else 1
 
         st.session_state.user_history.append(cbs)
         st.session_state.user_history_details.insert(0, {"num": val, "type": cb, "status": status})
@@ -430,4 +431,4 @@ elif st.session_state.auth_role == 'user':
             """, unsafe_allow_html=True)
     else:
         st.write("Ithuvare history onnumilla.")
-            
+        
