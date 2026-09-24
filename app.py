@@ -124,7 +124,7 @@ if 'auth_type' not in st.session_state:
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
 
-# User Session States (Untouched)
+# User Session States (Completely Untouched)
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -257,7 +257,7 @@ if st.session_state.auth_type in ["user", "target"]:
 
 st.divider()
 
-# ----------------- USER SECTION (UNTOUCHED AS REQUESTED) -----------------
+# ----------------- USER SECTION (UNTOUCHED) -----------------
 if st.session_state.auth_type == "user":
     st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
     wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
@@ -426,8 +426,24 @@ if st.session_state.auth_type == "user":
                 </div>
             """, unsafe_allow_html=True)
 
-# ----------------- TARGET SECTION (FIXED & FULLY LOADED) -----------------
+# ----------------- TARGET SECTION (FIXED WITH AUTO 600+ RESET) -----------------
 elif st.session_state.auth_type == "target":
+    # Check if target wallet reached 600 or more (Automatic Reset / Logout)
+    if st.session_state.target_wallet_balance >= 600:
+        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! ടാർഗറ്റ് ബാലൻസ് ₹600 കവിഞ്ഞു!")
+        st.balloons()
+        st.session_state.target_wallet_balance = 500
+        st.session_state.target_history_details = []
+        st.session_state.target_history = []
+        st.session_state.target_num_history = []
+        st.session_state.target_wins = 0
+        st.session_state.target_losses = 0
+        st.session_state.target_last_prediction_bs = None
+        st.session_state.target_last_predicted_numbers = []
+        st.session_state.target_current_level = 1
+        st.session_state.target_is_skip = False
+        st.rerun()
+
     st.markdown("<h3 style='color: #38BDF8; text-align: center;'>🎯 TARGET DASHBOARD</h3>", unsafe_allow_html=True)
     
     st.markdown("<p style='text-align: center; font-weight: bold; color: #38BDF8; font-size: 18px;'>💰 ടാർഗറ്റ് വാലറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
@@ -449,23 +465,4 @@ elif st.session_state.auth_type == "target":
             </div>
             <div class="metric-box">
                 <div class="metric-label" style="color: #38BDF8 !important;">TARGET LOSSES 🔴</div>
-                <div class="metric-val">{st.session_state.target_losses}</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if st.button("🔄 Reset Target Data", use_container_width=True, key="t_reset"):
-        st.session_state.target_history_details = []
-        st.session_state.target_history = []
-        st.session_state.target_num_history = []
-        st.session_state.target_wins = 0
-        st.session_state.target_losses = 0
-        st.session_state.target_last_prediction_bs = None
-        st.session_state.target_last_predicted_numbers = []
-        st.session_state.target_current_level = 1
-        st.session_state.target_is_skip = False
-        st.rerun()
-
-    def handle_number_click_target(val):
-        current_bs = "BIG" if val >= 5 else "SMALL"
-        current_bs_sh
+                <div class="metric-val">{st.session
