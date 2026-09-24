@@ -110,7 +110,7 @@ st.markdown("""
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# Session States
+# Session States Initialization
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 if 'target_keys' not in st.session_state:
@@ -246,7 +246,7 @@ if st.session_state.auth_type == "admin":
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# User Section
+# User Section (Full Featured)
 if st.session_state.auth_type == "user":
     col_head1, col_head2 = st.columns([4, 1])
     with col_head2:
@@ -279,7 +279,7 @@ if st.session_state.auth_type == "user":
     if st.session_state.last_prediction_bs:
         st.info(f"Prediction: {st.session_state.last_prediction_bs}")
 
-# Target Section
+# Target Section (Enhanced with Target Requirements)
 elif st.session_state.auth_type == "target":
     col_t1, col_t2 = st.columns([4, 1])
     with col_t2:
