@@ -124,7 +124,7 @@ if 'auth_type' not in st.session_state:
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
 
-# User Session States (Completely Untouched)
+# User Session States
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -163,6 +163,8 @@ if 'target_last_predicted_numbers' not in st.session_state:
     st.session_state.target_last_predicted_numbers = []
 if 'target_wallet_balance' not in st.session_state:
     st.session_state.target_wallet_balance = 500
+if 'target_initial_balance' not in st.session_state:
+    st.session_state.target_initial_balance = 500
 if 'target_current_level' not in st.session_state:
     st.session_state.target_current_level = 1
 if 'target_is_skip' not in st.session_state:
@@ -257,7 +259,7 @@ if st.session_state.auth_type in ["user", "target"]:
 
 st.divider()
 
-# ----------------- USER SECTION (UNTOUCHED) -----------------
+# ----------------- USER SECTION -----------------
 if st.session_state.auth_type == "user":
     st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
     wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
@@ -268,19 +270,18 @@ if st.session_state.auth_type == "user":
             if val_w > 0:
                 st.session_state.wallet_balance = val_w
 
-    st.markdown(
-        "<div class='metric-container'>"
-        "<div class='metric-box'>"
-        "<div class='metric-label'>WINS 🟢</div>"
-        f"<div class='metric-val'>{st.session_state.wins}</div>"
-        "</div>"
-        "<div class='metric-box'>"
-        "<div class='metric-label'>LOSSES 🔴</div>"
-        f"<div class='metric-val'>{st.session_state.losses}</div>"
-        "</div>"
-        "</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"""
+        <div class="metric-container">
+            <div class="metric-box">
+                <div class="metric-label">WINS 🟢</div>
+                <div class="metric-val">{st.session_state.wins}</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">LOSSES 🔴</div>
+                <div class="metric-val">{st.session_state.losses}</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     if st.button("🔄 Reset Data", use_container_width=True, key="u_reset"):
         st.session_state.history_details = []
@@ -376,8 +377,7 @@ if st.session_state.auth_type == "user":
     nums_top = [(0, "0", "🟣 🔴"), (1, "1", "🟢"), (2, "2", "🔴"), (3, "3", "🟢"), (4, "4", "🔴")]
     for idx, (num_val, num_str, badge) in enumerate(nums_top):
         with cols_top[idx]:
-            btn_label = num_str + " \n " + badge
-            if st.button(btn_label, key=f"u_btn_{num_val}", use_container_width=True):
+            if st.button(f"{num_str}\n{badge}", key=f"u_btn_{num_val}", use_container_width=True):
                 handle_number_click_user(num_val)
                 st.rerun()
 
@@ -385,8 +385,7 @@ if st.session_state.auth_type == "user":
     nums_bottom = [(5, "5", "🟢 🟣"), (6, "6", "🔴"), (7, "7", "🟢"), (8, "8", "🔴"), (9, "9", "🟢")]
     for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
         with cols_bottom[idx]:
-            btn_label = num_str + " \n " + badge
-            if st.button(btn_label, key=f"u_btn_{num_val}", use_container_width=True):
+            if st.button(f"{num_str}\n{badge}", key=f"u_btn_{num_val}", use_container_width=True):
                 handle_number_click_user(num_val)
                 st.rerun()
 
@@ -404,17 +403,16 @@ if st.session_state.auth_type == "user":
         multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
         suggested_bet = max(1, round(base_unit * multipliers[st.session_state.current_level - 1]))
 
-        st.markdown(
-            "<div class='pred-card'>"
-            "<div style='color: #94A3B8; font-size: 14px; font-weight: bold;'>NEXT PREDICTION</div>"
-            f"<div style='font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;'>{pred_text}</div>"
-            f"<div style='color: #E2E8F0; font-size: 15px; margin-bottom: 6px;'>📊 Likely Numbers: <b style='color:#FFD700;'>{likely_nums}</b></div>"
-            "<hr style='border-color: #334155; margin: 10px 0;'>"
-            f"<div style='color: #38BDF8; font-size: 16px; font-weight: bold;'>🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>"
-            f"<div style='color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;'>Suggested Bet: <span style='color: #FFD700;'>₹{suggested_bet}</span></div>"
-            "</div>",
-            unsafe_allow_html=True
-        )
+        st.markdown(f"""
+            <div class="pred-card">
+                <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
+                <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
+                <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
+                <hr style="border-color: #334155; margin: 10px 0;">
+                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>
+                <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
+            </div>
+        """, unsafe_allow_html=True)
     else:
         if len(st.session_state.history) < 3:
             st.info(f"കുറഞ്ഞത് {3 - len(st.session_state.history)} ഡാറ്റ കൂടി നൽകുക...")
@@ -423,31 +421,15 @@ if st.session_state.auth_type == "user":
     if st.session_state.history_details:
         st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
         for item in st.session_state.history_details[:10]:
-            st.markdown(
-                "<div class='history-card'>"
-                f"<span><b>Number: {item['num']}</b> ({item['type']}){item.get('num_win', '')}</span>"
-                f"<span>{item['status']}</span>"
-                "</div>",
-                unsafe_allow_html=True
-            )
+            st.markdown(f"""
+                <div class="history-card">
+                    <span><b>Number: {item['num']}</b> ({item['type']}){item.get('num_win', '')}</span>
+                    <span>{item['status']}</span>
+                </div>
+            """, unsafe_allow_html=True)
 
-# ----------------- TARGET SECTION (FIXED WITH AUTO 600+ RESET) -----------------
+# ----------------- TARGET SECTION -----------------
 elif st.session_state.auth_type == "target":
-    if st.session_state.target_wallet_balance >= 600:
-        st.success("🎉 ലക്ഷ്യം വിജയിച്ചിരിക്കുന്നു! ടാർഗറ്റ് ബാലൻസ് ₹600 കവിഞ്ഞു!")
-        st.balloons()
-        st.session_state.target_wallet_balance = 500
-        st.session_state.target_history_details = []
-        st.session_state.target_history = []
-        st.session_state.target_num_history = []
-        st.session_state.target_wins = 0
-        st.session_state.target_losses = 0
-        st.session_state.target_last_prediction_bs = None
-        st.session_state.target_last_predicted_numbers = []
-        st.session_state.target_current_level = 1
-        st.session_state.target_is_skip = False
-        st.rerun()
-
     st.markdown("<h3 style='color: #38BDF8; text-align: center;'>🎯 TARGET DASHBOARD</h3>", unsafe_allow_html=True)
     
     st.markdown("<p style='text-align: center; font-weight: bold; color: #38BDF8; font-size: 18px;'>💰 ടാർഗറ്റ് വാലറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
@@ -458,17 +440,31 @@ elif st.session_state.auth_type == "target":
             val_tw = int(target_wallet_input)
             if val_tw >= 500:
                 st.session_state.target_wallet_balance = val_tw
+                st.session_state.target_initial_balance = val_tw
             else:
                 st.warning("⚠️ കുറഞ്ഞത് ₹500 എങ്കിലും നൽകുക!")
 
-    st.markdown(
-        "<div class='metric-container'>"
-        "<div class='metric-box'>"
-        "<div class='metric-label' style='color: #38BDF8 !important;'>TARGET WINS 🟢</div>"
-        f"<div class='metric-val'>{st.session_state.target_wins}</div>"
-        "</div>"
-        "<div class='metric-box'>"
-        "<div class='metric-label' style='color: #38BDF8 !important;'>TARGET LOSSES 🔴</div>"
-        f"<div class='metric-val'>{st.session_state.target_losses}</div>"
-        "</div>"
-    
+    st.markdown(f"""
+        <div class="metric-container">
+            <div class="metric-box">
+                <div class="metric-label" style="color: #38BDF8 !important;">TARGET WINS 🟢</div>
+                <div class="metric-val">{st.session_state.target_wins}</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label" style="color: #38BDF8 !important;">TARGET LOSSES 🔴</div>
+                <div class="metric-val">{st.session_state.target_losses}</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("🔄 Reset Target Data", use_container_width=True, key="t_reset"):
+        st.session_state.target_history_details = []
+        st.session_state.target_history = []
+        st.session_state.target_num_history = []
+        st.session_state.target_wins = 0
+        st.session_state.target_losses = 0
+        st.session_state.target_last_prediction_bs = None
+        st.session_state.target_last_predicted_numbers = []
+        st.session_state.target_current_level = 1
+        st.session_state.target_is_skip = False
+        st.session_state.t
