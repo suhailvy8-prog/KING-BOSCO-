@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-import time
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
@@ -61,7 +60,7 @@ st.markdown("""
         padding: 12px;
         border-radius: 12px;
         text-align: center;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: bold;
         color: #FFFFFF;
     }
@@ -71,7 +70,7 @@ st.markdown("""
         padding: 12px;
         border-radius: 12px;
         text-align: center;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: bold;
         color: #FFFFFF;
     }
@@ -90,7 +89,7 @@ st.markdown("""
     .number-badge {
         background-color: #1f2937;
         border: 2px solid #3b82f6;
-        padding: 10px;
+        padding: 12px;
         text-align: center;
         border-radius: 10px;
         font-weight: bold;
@@ -126,6 +125,10 @@ if 'loss_count' not in st.session_state:
     st.session_state.loss_count = 0
 if 'history' not in st.session_state:
     st.session_state.history = []
+
+# Persistent automated numbers so they don't shuffle wildly on every click unless updated
+if 'current_numbers' not in st.session_state:
+    st.session_state.current_numbers = [random.randint(0, 9) for _ in range(4)]
 
 # ==================== 1. LOGIN PAGE ====================
 if st.session_state.auth_role is None:
@@ -244,15 +247,15 @@ if st.session_state.auth_role == 'admin':
 # ==================== 3. USER SECTION ====================
 if st.session_state.auth_role == 'user':
     st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-text'>User Section - 8 Level Smart Prediction Plan</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-text'>User Section - Automated Smart Prediction Plan</div>", unsafe_allow_html=True)
     st.markdown("<hr style='border: 1px solid #475569;'>", unsafe_allow_html=True)
     
-    # 1. Win / Loss Count Side-by-Side Boxes
+    # 1. Side-by-Side Win / Loss Count Boxes
     col_stat1, col_stat2 = st.columns(2)
     with col_stat1:
-        st.markdown(f"<div class='stat-box-win'>✅ WIN Count: {st.session_state.win_count}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-box-win'>✅ WIN: {st.session_state.win_count}</div>", unsafe_allow_html=True)
     with col_stat2:
-        st.markdown(f"<div class='stat-box-loss'>❌ LOSS Count: {st.session_state.loss_count}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-box-loss'>❌ LOSS: {st.session_state.loss_count}</div>", unsafe_allow_html=True)
     
     st.write("")
     
@@ -263,51 +266,52 @@ if st.session_state.auth_role == 'user':
     with col_w2:
         st.session_state.custom_bet = st.number_input("Custom Bet Amount", min_value=1.0, value=float(st.session_state.custom_bet), step=10.0)
 
-    # Current Level & Bet Amount
+    # Current Level & Active Bet Amount
     current_active_bet = st.session_state.custom_bet * (2 ** (st.session_state.user_level - 1))
-    st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='dark-data-box'>📈 ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
 
-    # 3. AUTOMATIC GENERATION OF NUMBERS & PREDICTION
-    # Automatically generate 4 random recent numbers (0 to 9) for live analysis
-    auto_numbers = [random.randint(0, 9) for _ in range(4)]
-    total_sum = sum(auto_numbers)
+    # 3. AUTOMATIC PREDICTION GENERATION
+    active_nums = st.session_state.current_numbers
+    total_sum = sum(active_nums)
     
-    if all(n == auto_numbers[0] for n in auto_numbers):
+    if all(n == active_nums[0] for n in active_nums):
         auto_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
     else:
         res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
-        auto_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
+        auto_prediction = f"🎯 ഓട്ടോ പ്രെഡിക്ഷൻ: {res} (Level {st.session_state.user_level})"
 
-    # 4. PREDICTION DISPLAY (Mugalilayittu)
+    # 4. PREDICTION DISPLAY TOP
     st.markdown(f"<div class='prediction-display'>{auto_prediction}</div>", unsafe_allow_html=True)
 
-    # 5. Number Grid (0 to 9 side-by-side display badges)
+    # 5. Number Grid (0 to 9 side-by-side display badges highlighting active numbers)
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
-    st.subheader("🔢 ലൈവ് നമ്പറുകൾ (0 - 9)")
+    st.subheader("🔢 ലൈവ് നമ്പറുകൾ ഗ്രീഡ് (0 - 9)")
     
     row1 = st.columns(5)
     row2 = st.columns(5)
     
     for i in range(5):
         with row1[i]:
-            active_border = "border: 2px solid #34d399;" if i in auto_numbers else "border: 1px solid #3b82f6;"
+            active_border = "border: 3px solid #34d399; background-color: #064e3b;" if i in active_nums else "border: 1px solid #3b82f6;"
             st.markdown(f"<div class='number-badge' style='{active_border}'>{i}</div>", unsafe_allow_html=True)
                 
     for i in range(5, 10):
         with row2[i - 5]:
-            active_border = "border: 2px solid #34d399;" if i in auto_numbers else "border: 1px solid #3b82f6;"
+            active_border = "border: 3px solid #34d399; background-color: #064e3b;" if i in active_nums else "border: 1px solid #3b82f6;"
             st.markdown(f"<div class='number-badge' style='{active_border}'>{i}</div>", unsafe_allow_html=True)
             
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Win / Loss Control Buttons for Level Progression
+    # Win / Loss Control Buttons for Level Progression & Auto-generating next numbers
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
         if st.button("🟢 WIN (വിൻ അടിച്ചു)", use_container_width=True):
             st.session_state.wallet_balance += current_active_bet
             st.session_state.win_count += 1
             st.session_state.user_level = 1  # Reset to Level 1 on Win
-            st.success("🎉 വിജയം! ലെവൽ 1 ലേക്ക് റീസെറ്റ് ചെയ്തു.")
+            # Generate new random numbers for the next round
+            st.session_state.current_numbers = [random.randint(0, 9) for _ in range(4)]
+            st.success("🎉 വിജയം! പുതിയ നമ്പറുകൾ ജനറേറ്റ് ചെയ്തു.")
             st.rerun()
             
     with col_btn2:
@@ -320,11 +324,13 @@ if st.session_state.auth_role == 'user':
             else:
                 st.error("🚨 മാക്സിമം ലെവൽ 8 എത്തി! വീണ്ടും ലെവൽ 1 ലേക്ക് മാറ്റുന്നു.")
                 st.session_state.user_level = 1
+            # Generate new random numbers for the next round
+            st.session_state.current_numbers = [random.randint(0, 9) for _ in range(4)]
             st.rerun()
 
     # History Section
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
-    st.subheader("📜 പ്രെഡിക്ഷൻ ഹിസ്റ്ററി (History)")
+    st.subheader("📜 പ്രെഡിക്ഷൻ ഹിസ്റ്ററി")
     if st.session_state.history:
         for h in reversed(st.session_state.history[-5:]):
             st.write(f"• {h}")
@@ -337,4 +343,4 @@ if st.session_state.auth_role == 'user':
         st.rerun()
         
     st.stop()
-    
+                
