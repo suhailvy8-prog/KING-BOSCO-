@@ -114,8 +114,15 @@ if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 if 'target_keys' not in st.session_state:
     st.session_state.target_keys = ["target123", "boscotarget"]
+    
+# Track currently active keys to prevent multi-device usage
+if 'active_sessions' not in st.session_state:
+    st.session_state.active_sessions = {}  # key -> session identifier
+
 if 'auth_type' not in st.session_state:
     st.session_state.auth_type = None  # Can be 'user', 'target', or 'admin'
+if 'logged_in_key' not in st.session_state:
+    st.session_state.logged_in_key = None
 
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
@@ -138,6 +145,20 @@ if 'current_level' not in st.session_state:
 if 'is_skip' not in st.session_state:
     st.session_state.is_skip = False
 
+# Unique session identifier for this browser tab/client
+if 'client_session_id' not in st.session_state:
+    import uuid
+    st.session_state.client_session_id = str(uuid.uuid4())
+
+# If already logged in with a key, verify if it was kicked out by another device
+if st.session_state.logged_in_key and st.session_state.auth_type in ["user", "target"]:
+    current_key = st.session_state.logged_in_key
+    if st.session_state.active_sessions.get(current_key) != st.session_state.client_session_id:
+        # Force logout because same key was used elsewhere
+        st.session_state.auth_type = None
+        st.session_state.logged_in_key = None
+        st.warning("⚠️ ഈ കീ ഇപ്പോൾ മറ്റൊരു ഡിവൈസിൽ ഉപയോഗത്തിലാണ്! അതിനാൽ ഇവിടെ നിന്ന് ലോഗ് ഔട്ട് ആയിരിക്കുന്നു.")
+
 # ----------------- FIRST STEP: ACCESS / LOGIN SCREEN -----------------
 if st.session_state.auth_type is None:
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
@@ -149,9 +170,15 @@ if st.session_state.auth_type is None:
         user_input_key = st.text_input("User Access Key നൽകുക:", type="password")
         if st.button("Login as User", use_container_width=True):
             if user_input_key in st.session_state.allowed_keys:
-                st.session_state.auth_type = "user"
-                st.success("User Access Granted! ✅")
-                st.rerun()
+                # Check if already active on another device
+                if user_input_key in st.session_state.active_sessions and st.session_state.active_sessions[user_input_key] != st.session_state.client_session_id:
+                    st.error("❌ ഈ കീ നിലവിൽ വേറെയൊരു ഫോണിൽ/ബ്രൗസറിൽ ആക്ടീവ് ആണ്! ഒരേ കീ ഒരേ സമയം രണ്ടുപേർക്ക് ഉപയോഗിക്കാൻ കഴിയില്ല.")
+                else:
+                    st.session_state.active_sessions[user_input_key] = st.session_state.client_session_id
+                    st.session_state.auth_type = "user"
+                    st.session_state.logged_in_key = user_input_key
+                    st.success("User Access Granted! ✅")
+                    st.rerun()
             else:
                 st.error("❌ തെറ്റായ User Key!")
                 
@@ -159,9 +186,14 @@ if st.session_state.auth_type is None:
         target_input_key = st.text_input("Target Access Key നൽകുക:", type="password")
         if st.button("Login as Target", use_container_width=True):
             if target_input_key in st.session_state.target_keys:
-                st.session_state.auth_type = "target"
-                st.success("Target Access Granted! ✅")
-                st.rerun()
+                if target_input_key in st.session_state.active_sessions and st.session_state.active_sessions[target_input_key] != st.session_state.client_session_id:
+                    st.error("❌ ഈ ടാർഗറ്റ് കീ നിലവിൽ വേറെയൊരു ഫോണിൽ ആക്ടീവ് ആണ്!")
+                else:
+                    st.session_state.active_sessions[target_input_key] = st.session_state.client_session_id
+                    st.session_state.auth_type = "target"
+                    st.session_state.logged_in_key = target_input_key
+                    st.success("Target Access Granted! ✅")
+                    st.rerun()
             else:
                 st.error("❌ തെറ്റായ Target Key!")
                 
@@ -201,6 +233,8 @@ if st.session_state.auth_type == "admin":
                 
         rem_u_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട/നീക്കം ചെയ്യേണ്ട യൂസർ കീ:", ["-- Select --"] + st.session_state.allowed_keys, key="rem_u")
         if st.button("Block/Delete User Key", use_container_width=True) and rem_u_key != "-- Select --":
+            if rem_u_key in st.session_state.active_sessions:
+                del st.session_state.active_sessions[rem_u_key]
             st.session_state.allowed_keys.remove(rem_u_key)
             st.success(f"🚫 User Key '{rem_u_key}' ബ്ലോക്ക്/നീക്കം ചെയ്തു!")
             st.rerun()
@@ -220,6 +254,8 @@ if st.session_state.auth_type == "admin":
                 
         rem_t_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട/നീക്കം ചെയ്യേണ്ട ടാർഗറ്റ് കീ:", ["-- Select --"] + st.session_state.target_keys, key="rem_t")
         if st.button("Block/Delete Target Key", use_container_width=True) and rem_t_key != "-- Select --":
+            if rem_t_key in st.session_state.active_sessions:
+                del st.session_state.active_sessions[rem_t_key]
             st.session_state.target_keys.remove(rem_t_key)
             st.success(f"🚫 Target Key '{rem_t_key}' ബ്ലോക്ക്/നീക്കം ചെയ്തു!")
             st.rerun()
@@ -234,7 +270,10 @@ if st.session_state.auth_type == "admin":
 # Logout button for User / Target
 if st.session_state.auth_type in ["user", "target"]:
     if st.button("🚪 Logout"):
+        if st.session_state.logged_in_key in st.session_state.active_sessions:
+            del st.session_state.active_sessions[st.session_state.logged_in_key]
         st.session_state.auth_type = None
+        st.session_state.logged_in_key = None
         st.rerun()
 
 st.divider()
