@@ -109,9 +109,14 @@ st.markdown("""
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATES -----------------
+# ----------------- SESSION STATES FOR ACCESS & KEYS -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
+if 'target_keys' not in st.session_state:
+    st.session_state.target_keys = ["target123", "boscotarget"]
+if 'auth_type' not in st.session_state:
+    st.session_state.auth_type = None  # Can be 'user', 'target', or 'admin'
+
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -132,54 +137,105 @@ if 'current_level' not in st.session_state:
     st.session_state.current_level = 1
 if 'is_skip' not in st.session_state:
     st.session_state.is_skip = False
-if 'auth_granted' not in st.session_state:
-    st.session_state.auth_granted = False
 
-# ----------------- MAIN SCREEN ACCESS & ADMIN LOGIN -----------------
-if not st.session_state.auth_granted:
+# ----------------- FIRST STEP: ACCESS / LOGIN SCREEN -----------------
+if st.session_state.auth_type is None:
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
-    st.markdown("<h3>🔐 ലോങ്ങിൻ / ആക്സസ് കീ നൽകുക</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>🔐 ആക്സസ് ടൈപ്പ് തിരഞ്ഞെടുക്കുക</h3>", unsafe_allow_html=True)
     
-    main_key_input = st.text_input("Enter Access Key / Admin Password", type="password")
+    login_option = st.selectbox("ലോഗിൻ വിഭാഗം തിരഞ്ഞെടുക്കുക:", ["-- Select --", "User Login", "Target Login", "Admin Login"])
     
-    col_l1, col_l2 = st.columns(2)
-    with col_l1:
-        if st.button("Login", use_container_width=True):
-            if main_key_input == "bosco123":  # Admin password
-                st.session_state.auth_granted = True
-                st.success("Admin Login Success! ✅")
-                st.rerun()
-            elif main_key_input in st.session_state.allowed_keys:
-                st.session_state.auth_granted = True
-                st.success("Access Granted! ✅")
+    if login_option == "User Login":
+        user_input_key = st.text_input("User Access Key നൽകുക:", type="password")
+        if st.button("Login as User", use_container_width=True):
+            if user_input_key in st.session_state.allowed_keys:
+                st.session_state.auth_type = "user"
+                st.success("User Access Granted! ✅")
                 st.rerun()
             else:
-                st.error("❌ തെറ്റായ കീ അല്ലെങ്കിൽ പാസ്‌വേർഡ്!")
+                st.error("❌ തെറ്റായ User Key!")
+                
+    elif login_option == "Target Login":
+        target_input_key = st.text_input("Target Access Key നൽകുക:", type="password")
+        if st.button("Login as Target", use_container_width=True):
+            if target_input_key in st.session_state.target_keys:
+                st.session_state.auth_type = "target"
+                st.success("Target Access Granted! ✅")
+                st.rerun()
+            else:
+                st.error("❌ തെറ്റായ Target Key!")
+                
+    elif login_option == "Admin Login":
+        admin_input_pass = st.text_input("Admin Password നൽകുക:", type="password")
+        if st.button("Login as Admin", use_container_width=True):
+            if admin_input_pass == "bosco123":
+                st.session_state.auth_type = "admin"
+                st.success("Admin Login Success! ✅")
+                st.rerun()
+            else:
+                st.error("❌ തെറ്റായ Admin Password!")
+                
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# Admin Settings expander inside main screen if logged in as admin
-if st.session_state.auth_granted:
-    with st.expander("🛠️ Admin Settings (Manage Keys)"):
-        st.write("നിലവിലെ ആക്സസ് കീകൾ:")
+# ----------------- ADMIN PANEL (ADD & BLOCK/REMOVE KEYS) -----------------
+if st.session_state.auth_type == "admin":
+    st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#FFD700;'>🛠️ KING BOSCO ADMIN PANEL</h2>", unsafe_allow_html=True)
+    st.write("ഇവിടെ നിങ്ങൾക്ക് യൂസർ കീകളും ടാർഗറ്റ് കീകളും നിയന്ത്രിക്കാം (Add / Block / Delete).")
+    
+    tab_u, tab_t = st.tabs(["👤 User Keys Management", "🎯 Target Keys Management"])
+    
+    with tab_u:
+        st.write("<b>നിലവിലെ യൂസർ കീകൾ:</b>", unsafe_allow_html=True)
         st.write(st.session_state.allowed_keys)
         
-        new_key_to_add = st.text_input("പുതിയ കീ ചേർക്കുക:")
-        if st.button("Add Key"):
-            if new_key_to_add and new_key_to_add not in st.session_state.allowed_keys:
-                st.session_state.allowed_keys.append(new_key_to_add)
-                st.success(f"'{new_key_to_add}' ചേർത്തു!")
+        new_u_key = st.text_input("പുതിയ യൂസർ കീ ചേർക്കുക:")
+        if st.button("Add User Key", use_container_width=True):
+            if new_u_key and new_u_key not in st.session_state.allowed_keys:
+                st.session_state.allowed_keys.append(new_u_key)
+                st.success(f"✅ User Key '{new_u_key}' വിജയകരമായി ചേർത്തു!")
                 st.rerun()
+            else:
+                st.warning("⚠️ ദയവായി പുതിയൊരു കീ നൽകുക.")
                 
-        key_to_remove = st.selectbox("ഒഴിവാക്കേണ്ട കീ:", ["-- Select --"] + st.session_state.allowed_keys)
-        if st.button("Remove Key") and key_to_remove != "-- Select --":    
-            st.session_state.allowed_keys.remove(key_to_remove)
-            st.success(f"'{key_to_remove}' നീക്കം ചെയ്തു!")
+        rem_u_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട/നീക്കം ചെയ്യേണ്ട യൂസർ കീ:", ["-- Select --"] + st.session_state.allowed_keys, key="rem_u")
+        if st.button("Block/Delete User Key", use_container_width=True) and rem_u_key != "-- Select --":
+            st.session_state.allowed_keys.remove(rem_u_key)
+            st.success(f"🚫 User Key '{rem_u_key}' ബ്ലോക്ക്/നീക്കം ചെയ്തു!")
             st.rerun()
-            
-        if st.button("Logout"):
-            st.session_state.auth_granted = False
+
+    with tab_t:
+        st.write("<b>നിലവിലെ ടാർഗറ്റ് കീകൾ:</b>", unsafe_allow_html=True)
+        st.write(st.session_state.target_keys)
+        
+        new_t_key = st.text_input("പുതിയ ടാർഗറ്റ് കീ ചേർക്കുക:")
+        if st.button("Add Target Key", use_container_width=True):
+            if new_t_key and new_t_key not in st.session_state.target_keys:
+                st.session_state.target_keys.append(new_t_key)
+                st.success(f"✅ Target Key '{new_t_key}' വിജയകരമായി ചേർത്തു!")
+                st.rerun()
+            else:
+                st.warning("⚠️ ദയവായി പുതിയൊരു ടാർഗറ്റ് കീ നൽകുക.")
+                
+        rem_t_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട/നീക്കം ചെയ്യേണ്ട ടാർഗറ്റ് കീ:", ["-- Select --"] + st.session_state.target_keys, key="rem_t")
+        if st.button("Block/Delete Target Key", use_container_width=True) and rem_t_key != "-- Select --":
+            st.session_state.target_keys.remove(rem_t_key)
+            st.success(f"🚫 Target Key '{rem_t_key}' ബ്ലോക്ക്/നീക്കം ചെയ്തു!")
             st.rerun()
+
+    st.write("")
+    if st.button("🚪 Logout Admin", use_container_width=True):
+        st.session_state.auth_type = None
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
+
+# Logout button for User / Target
+if st.session_state.auth_type in ["user", "target"]:
+    if st.button("🚪 Logout"):
+        st.session_state.auth_type = None
+        st.rerun()
 
 st.divider()
 
