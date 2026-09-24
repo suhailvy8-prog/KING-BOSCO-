@@ -3,7 +3,7 @@ import random
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Dark, Colorful & Attractive UI (Fixing all white boxes)
+# Custom CSS for Professional Dark & Colorful UI
 st.markdown("""
     <style>
     .main { background: linear-gradient(135deg, #0B0E14, #1a1c29); }
@@ -33,11 +33,6 @@ st.markdown("""
         height: 48px !important;
         box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
     }
-    .stButton button:active, .stButton button:focus {
-        border: 2px solid #FFD700 !important;
-        color: #FFD700 !important;
-        background: linear-gradient(135deg, #2563eb, #1e40af) !important;
-    }
     .custom-box {
         background: linear-gradient(135deg, #1e1b4b, #311042);
         border: 2px solid #a855f7;
@@ -47,14 +42,39 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
         margin-bottom: 20px;
     }
+    .prediction-display {
+        background: linear-gradient(135deg, #065f46, #047857);
+        border: 3px solid #34d399;
+        padding: 25px;
+        border-radius: 20px;
+        text-align: center;
+        color: #FFFFFF;
+        font-size: 26px;
+        font-weight: bold;
+        box-shadow: 0 0 25px rgba(52, 211, 153, 0.5);
+        margin: 20px 0;
+    }
+    .stat-box {
+        background-color: #111827;
+        border: 2px solid #374151;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        color: #38bdf8;
+    }
     .dark-data-box {
         background-color: #111827;
-        border: 1px solid #374151;
-        padding: 12px;
-        border-radius: 10px;
+        border: 2px solid #4f46e5;
+        padding: 15px;
+        border-radius: 12px;
         color: #34d399;
-        font-family: monospace;
-        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -76,13 +96,21 @@ if 'user_level' not in st.session_state:
     st.session_state.user_level = 1
 if 'wallet_balance' not in st.session_state:
     st.session_state.wallet_balance = 1000.0
-if 'base_bet' not in st.session_state:
-    st.session_state.base_bet = 10.0
+if 'custom_bet' not in st.session_state:
+    st.session_state.custom_bet = 10.0
+if 'win_count' not in st.session_state:
+    st.session_state.win_count = 0
+if 'loss_count' not in st.session_state:
+    st.session_state.loss_count = 0
+if 'history' not in st.session_state:
+    st.session_state.history = []
+if 'last_prediction' not in st.session_state:
+    st.session_state.last_prediction = "നമ്പർ തിരഞ്ഞെടുത്ത് പ്രെഡിക്ഷൻ എടുക്കുക"
 
 # ==================== 1. LOGIN PAGE ====================
 if st.session_state.auth_role is None:
     st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
-    st.markdown("<div class='sub-text'>Access Key ലഭിക്കാൻ അഡ്മിനെ ബന്ധപ്പെടുക (Contact Admin for Access Key)</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-text'>Access Key ലഭിക്കാൻ അഡ്മിനെ ബന്ധപ്പെടുക</div>", unsafe_allow_html=True)
     st.markdown("<hr style='border: 1px solid #475569;'>", unsafe_allow_html=True)
     
     tab_user, tab_admin, tab_target = st.tabs(["👤 1. User Access", "🛠️ 2. Admin Access", "🎯 3. Target Access"])
@@ -187,13 +215,6 @@ if st.session_state.auth_role == 'admin':
                 st.error("❌ കീ കണ്ടെത്താൻ കഴിഞ്ഞില്ല!")
         st.markdown("</div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
-    st.subheader("📊 നിലവിലുള്ള കീകളുടെ വിവരങ്ങൾ")
-    st.markdown(f"<div class='dark-data-box'><b>User Keys:</b> {st.session_state.user_keys}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='dark-data-box'><b>Target Keys:</b> {st.session_state.target_keys}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='dark-data-box'><b>Used/Active Keys:</b> {list(st.session_state.used_keys)}</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
     if st.button("🚪 Logout Admin", use_container_width=True):
         st.session_state.auth_role = None
         st.rerun()
@@ -202,61 +223,89 @@ if st.session_state.auth_role == 'admin':
 
 # ==================== 3. USER SECTION ====================
 if st.session_state.auth_role == 'user':
-    st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR - USER SECTION</div>", unsafe_allow_html=True)
+    st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sub-text'>User Section - 8 Level Smart Prediction Plan</div>", unsafe_allow_html=True)
     st.markdown("<hr style='border: 1px solid #475569;'>", unsafe_allow_html=True)
     
+    # Win / Loss Count Side-by-Side Boxes
+    col_stat1, col_stat2 = st.columns(2)
+    with col_stat1:
+        st.markdown(f"<div class='stat-box'>✅ WIN Count: {st.session_state.win_count}</div>", unsafe_allow_html=True)
+    with col_stat2:
+        st.markdown(f"<div class='stat-box'>❌ LOSS Count: {st.session_state.loss_count}</div>", unsafe_allow_html=True)
+    
+    st.write("")
+    
+    # Wallet & Custom Bet Input
     col_w1, col_w2 = st.columns(2)
     with col_w1:
-        st.markdown(f"<div class='dark-data-box'>💰 Wallet Balance: ₹ {st.session_state.wallet_balance}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='dark-data-box' style='padding: 10px;'>💰 Wallet: ₹ {st.session_state.wallet_balance}</div>", unsafe_allow_html=True)
     with col_w2:
-        st.markdown(f"<div class='dark-data-box'>📈 Current Level: Level {st.session_state.user_level} / 8</div>", unsafe_allow_html=True)
-    
+        st.session_state.custom_bet = st.number_input("इഷ്ടമുള്ള തുക (Custom Bet Amount)", min_value=1.0, value=float(st.session_state.custom_bet), step=10.0)
+
+    # Current Level & Bet Amount in Single Bold Row
+    current_active_bet = st.session_state.custom_bet * (2 ** (st.session_state.user_level - 1))
+    st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
+
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
-    st.subheader("🔢 നമ്പർ ബോക്സ് ഇൻപുട്ട് & പ്രെഡിക്ഷൻ")
+    st.subheader("🔢 0 മുതൽ 9 വരെയുള്ള നമ്പറുകൾ തിരഞ്ഞെടുക്കുക")
     
-    # Number input boxes like user requested
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        n1 = st.number_input("Num 1", 0, 9, 5, key="box_n1")
-    with c2:
-        n2 = st.number_input("Num 2", 0, 9, 3, key="box_n2")
-    with c3:
-        n3 = st.number_input("Num 3", 0, 9, 8, key="box_n3")
-    with c4:
-        n4 = st.number_input("Num 4", 0, 9, 1, key="box_n4")
+    # Number Grid (0 to 9 boxes style in two columns/rows)
+    cols_n = st.columns(5)
+    selected_numbers = []
+    for i in range(10):
+        with cols_n[i % 5]:
+            if st.checkbox(f"Num {i}", key=f"grid_num_{i}"):
+                selected_numbers.append(i)
 
-    # Calculated Bet Amount based on level (Double amount logic)
-    current_bet_amount = st.session_state.base_bet * (2 ** (st.session_state.user_level - 1))
-    st.info(推奨 := f"💡 ഈ ലെവലിലെ ബെറ്റ് തുക (Bet Amount): ₹ {current_bet_amount}")
+    st.markdown("</div>", unsafe_allow_html=True)
 
+    # Prediction Action Button & Center Display
+    if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Get Prediction)", use_container_width=True):
+        if len(selected_numbers) == 0:
+            st.warning("⚠️ ദയവായി ഏതെങ്കിലും നമ്പറുകൾ തിരഞ്ഞെടുക്കൂ!")
+        else:
+            total_sum = sum(selected_numbers)
+            if len(selected_numbers) >= 3 and all(n == selected_numbers[0] for n in selected_numbers):
+                st.session_state.last_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
+            else:
+                res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
+                st.session_state.last_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
+                st.session_state.history.append(f"Level {st.session_state.user_level} -> {res}")
+
+    # Center Big Attractive Prediction Display Box
+    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
+
+    # Win / Loss Control Buttons for Level Progression
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
         if st.button("🟢 WIN (വിൻ അടിച്ചു)", use_container_width=True):
-            st.session_state.wallet_balance += current_bet_amount
+            st.session_state.wallet_balance += current_active_bet
+            st.session_state.win_count += 1
             st.session_state.user_level = 1  # Reset to Level 1 on Win
             st.success("🎉 വിജയം! ലെവൽ 1 ലേക്ക് റീസെറ്റ് ചെയ്തു.")
             st.rerun()
             
     with col_btn2:
         if st.button("🔴 LOSS (ലോസ് അടിച്ചു)", use_container_width=True):
-            st.session_state.wallet_balance -= current_bet_amount
+            st.session_state.wallet_balance -= current_active_bet
+            st.session_state.loss_count += 1
             if st.session_state.user_level < 8:
-                st.session_state.user_level += 1  # Move to next level (Double amount)
+                st.session_state.user_level += 1  # Move to next level
                 st.warning(f"⚠️ ലോസ്! അടുത്ത ലെവലിലേക്ക് ഉയർന്നു: Level {st.session_state.user_level}")
             else:
                 st.error("🚨 മാക്സിമം ലെവൽ 8 എത്തി! വീണ്ടും ലെവൽ 1 ലേക്ക് മാറ്റുന്നു.")
                 st.session_state.user_level = 1
             st.rerun()
 
-    # Prediction & Trend Skip Logic
-    if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Check Prediction)", use_container_width=True):
-        # Trend check simulation (Skip if ambiguous)
-        if n1 == n2 and n2 == n3:
-            st.warning("⚠️ ട്രെൻഡ് വ്യക്തമല്ല (Skip Trend)! അടുത്ത റൗണ്ട് സ്കിപ്പ് ചെയ്യുക.")
-        else:
-            pred_res = random.choice(["BIG 🟢", "SMALL 🔴"])
-            st.success(f"🎯 പ്രെഡിക്ഷൻ ഫലം: **{pred_res}** (Level {st.session_state.user_level} പ്ലാൻ പ്രകാരം)")
-            
+    # History Section
+    st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
+    st.subheader("📜 പ്രെഡിക്ഷൻ ഹിസ്റ്ററി (History)")
+    if st.session_state.history:
+        for h in reversed(st.session_state.history[-5:]):
+            st.write(f"• {h}")
+    else:
+        st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
     st.markdown("</div>", unsafe_allow_html=True)
 
     if st.button("🚪 Logout User", use_container_width=True):
@@ -264,4 +313,4 @@ if st.session_state.auth_role == 'user':
         st.rerun()
         
     st.stop()
-    
+        
