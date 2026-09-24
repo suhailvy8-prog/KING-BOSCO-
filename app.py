@@ -4,62 +4,70 @@ import uuid
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Styling
+# Custom CSS for Vibrant & Colorful UI Styling
 st.markdown("""
     <style>
-    .main { background-color: #0B0E14; }
-    .stApp { background-color: #0B0E14; color: #FFFFFF; }
+    .main { background: linear-gradient(135deg, #07090E, #111827); }
+    .stApp { background: linear-gradient(135deg, #07090E, #111827); color: #FFFFFF; }
     
     .app-title {
         text-align: center;
-        color: #FFD700;
-        font-size: 34px !important;
+        background: linear-gradient(90deg, #FFD700, #FF4500, #00E676, #38BDF8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 38px !important;
         font-weight: 900 !important;
-        letter-spacing: 1px;
-        margin-bottom: 20px;
-        text-shadow: 0px 2px 10px rgba(255, 215, 0, 0.3);
+        letter-spacing: 1.5px;
+        margin-bottom: 25px;
+        text-shadow: 0px 4px 20px rgba(255, 215, 0, 0.4);
     }
 
     .metric-container {
         display: flex;
         justify-content: space-between;
         gap: 15px;
-        margin: 15px 0;
+        margin: 20px 0;
     }
     .metric-box {
         flex: 1;
-        background-color: #1E293B;
-        border: 2px solid #334155;
-        border-radius: 12px;
-        padding: 15px;
+        background: linear-gradient(145deg, #1E293B, #0F172A);
+        border: 2px solid #3B82F6;
+        border-radius: 16px;
+        padding: 18px;
         text-align: center;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+        box-shadow: 0px 8px 25px rgba(59, 130, 246, 0.25);
     }
     .metric-label {
         font-size: 16px !important;
         font-weight: 900 !important;
-        color: #FFD700 !important;
-        margin-bottom: 5px;
+        color: #38BDF8 !important;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
     }
     .metric-val {
-        font-size: 32px !important;
+        font-size: 34px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
+        color: #00E676 !important;
+        text-shadow: 0px 0px 10px rgba(0, 230, 118, 0.4);
     }
 
     .stButton button {
-        background-color: #1E293B !important;
+        background: linear-gradient(135deg, #1E293B, #334155) !important;
         color: #FFFFFF !important;
-        border: 2px solid #334155 !important;
+        border: 2px solid #FFD700 !important;
         font-weight: bold !important;
-        border-radius: 12px !important;
-        height: 50px !important;
+        border-radius: 14px !important;
+        height: 55px !important;
         font-size: 18px !important;
+        box-shadow: 0px 4px 15px rgba(255, 215, 0, 0.2);
+        transition: all 0.3s ease;
     }
     .stButton button:hover {
-        background-color: #334155 !important;
-        border-color: #FFD700 !important;
-        color: #FFD700 !important;
+        background: linear-gradient(135deg, #334155, #1E293B) !important;
+        border-color: #00E676 !important;
+        color: #00E676 !important;
+        transform: translateY(-2px);
+        box-shadow: 0px 6px 20px rgba(0, 230, 118, 0.4);
     }
 
     input[type="text"], input[type="password"] {
@@ -67,48 +75,55 @@ st.markdown("""
         font-size: 20px !important;
         font-weight: bold !important;
         background-color: #1E293B !important;
-        color: #FFFFFF !important;
-        border: 2px solid #3B82F6 !important;
+        color: #FFD700 !important;
+        border: 2px solid #FFD700 !important;
+        border-radius: 12px !important;
     }
 
     .pred-card {
         background: linear-gradient(135deg, #1E293B, #0F172A);
-        padding: 22px;
-        border-radius: 16px;
-        border: 2px solid #FFD700;
+        padding: 25px;
+        border-radius: 20px;
+        border: 3px solid #FFD700;
         text-align: center;
-        margin: 15px 0;
-        box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
+        margin: 20px 0;
+        box-shadow: 0px 10px 30px rgba(255, 215, 0, 0.3);
     }
 
     .history-card {
-        background-color: #151C28;
-        padding: 14px 16px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-        border-left: 5px solid #FFD700;
+        background: linear-gradient(135deg, #151C28, #1E293B);
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        border-left: 6px solid #FFD700;
+        border-right: 2px solid #334155;
+        border-top: 2px solid #334155;
+        border-bottom: 2px solid #334155;
         display: flex;
         justify-content: space-between;
         align-items: center;
         color: #FFFFFF;
         font-size: 17px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
     }
     
     .win-text {
         color: #00E676 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(0, 230, 118, 0.5);
     }
 
     .loss-text {
         color: #FF5252 !important;
         font-size: 18px !important;
         font-weight: 900 !important;
+        text-shadow: 0px 0px 8px rgba(255, 82, 82, 0.5);
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
+st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR 👑</div>", unsafe_allow_html=True)
 
 # ----------------- SESSION STATES -----------------
 if 'allowed_keys' not in st.session_state:
@@ -139,7 +154,7 @@ if 'client_session_id' not in st.session_state:
 def handle_number_click_user(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
-    status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
+    status_str = "<span style='color:#38BDF8; font-weight:bold;'>➖ START</span>"
     
     if st.session_state.last_prediction_bs is not None:
         if not st.session_state.is_skip:
@@ -155,7 +170,7 @@ def handle_number_click_user(val):
                 else:
                     st.session_state.current_level = 1  
         else:
-            status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
+            status_str = "<span style='color:#FFD700; font-weight:bold;'>🔄 SKIPPED</span>"
 
     num_win_str = ""
     if st.session_state.last_predicted_numbers and val in st.session_state.last_predicted_numbers:
@@ -200,7 +215,7 @@ def handle_number_click_user(val):
 # ----------------- LOGIN SCREEN -----------------
 if st.session_state.auth_type is None:
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
-    st.markdown("<h3>🔐 ആക്സസ് ടൈപ്പ് തിരഞ്ഞെടുക്കുക</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: #FFD700;'>🔐 ആക്സസ് ടൈപ്പ് തിരഞ്ഞെടുക്കുക</h3>", unsafe_allow_html=True)
     
     login_option = st.selectbox("ലോഗിൻ വിഭാഗം തിരഞ്ഞെടുക്കുക:", ["-- Select --", "User Login", "Admin Login"])
     
@@ -272,7 +287,7 @@ if st.session_state.auth_type == "user":
             </div>
             <div class="metric-box">
                 <div class="metric-label">LOSSES 🔴</div>
-                <div class="metric-val">{st.session_state.losses}</div>
+                <div class="metric-val" style="color: #FF5252 !important; text-shadow: 0px 0px 10px rgba(255, 82, 82, 0.4);">{st.session_state.losses}</div>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -318,12 +333,12 @@ if st.session_state.auth_type == "user":
 
         st.markdown(f"""
             <div class="pred-card">
-                <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
-                <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
-                <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
-                <hr style="border-color: #334155; margin: 10px 0;">
+                <div style="color: #38BDF8; font-size: 15px; font-weight: bold; letter-spacing: 1px;">NEXT PREDICTION</div>
+                <div style="font-size: 34px; font-weight: 900; color: {color_code}; margin: 10px 0; text-shadow: 0px 0px 15px rgba(255,255,255,0.2);">{pred_text}</div>
+                <div style="color: #E2E8F0; font-size: 16px; margin-bottom: 8px;">📊 Likely Numbers: <b style="color:#FFD700; font-size: 18px;">{likely_nums}</b></div>
+                <hr style="border-color: #334155; margin: 12px 0;">
                 <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">🛡️ 8-Level Plan | Level {st.session_state.current_level}/8</div>
-                <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span></div>
+                <div style="color: #FFFFFF; font-size: 22px; font-weight: 900; margin-top: 6px;">Suggested Bet: <span style="color: #FFD700; text-shadow: 0px 0px 10px rgba(255,215,0,0.5);">₹{suggested_bet}</span></div>
             </div>
         """, unsafe_allow_html=True)
     else:
