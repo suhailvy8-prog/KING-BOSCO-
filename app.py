@@ -210,7 +210,7 @@ if st.session_state.auth_role == 'admin':
         
         if st.button("Block/Delete Key", use_container_width=True):
             if key_to_remove in st.session_state.user_keys:
-                st.session_state.user_keys.remove(key_to_remove)
+                st.(key_to_remove)
                 if key_to_remove in st.session_state.used_keys:
                     st.session_state.used_keys.remove(key_to_remove)
                 st.success(f"🚫 User Key '{key_to_remove}' ബ്ലോക്ക് ചെയ്തു!")
@@ -258,7 +258,7 @@ if st.session_state.auth_role == 'user':
     st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
 
     # 3. PREDICTION DISPLAY (Mugalilayittu)
-    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
+    st.markdown(f"<display in king bosco predictor'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
 
     # 4. Number Grid (0 to 9 with colors)
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
@@ -285,7 +285,7 @@ if st.session_state.auth_role == 'user':
             if len(selected_numbers) >= 3 and all(n == selected_numbers[0] for n in selected_numbers):
                 st.session_state.last_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
             else:
-                res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
+                res = "small🟢" if total_sum % 2 != 0 else "SMALL 🔴"
                 st.session_state.last_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
                 st.session_state.history.append(f"Level {st.session_state.user_level} -> {res}")
             st.rerun()
@@ -316,7 +316,7 @@ if st.session_state.auth_role == 'user':
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
     st.subheader("📜 പ്രെഡിക്ഷൻ ഹിസ്റ്ററി (History)")
     if st.session_state.history:
-        for h in reversed(st.session_state.history[-5:]):
+        for j in reversed(st.session_state.history[-5:]):
             st.write(f"• {h}")
     else:
         st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
