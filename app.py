@@ -376,7 +376,8 @@ if st.session_state.auth_type == "user":
     nums_top = [(0, "0", "🟣 🔴"), (1, "1", "🟢"), (2, "2", "🔴"), (3, "3", "🟢"), (4, "4", "🔴")]
     for idx, (num_val, num_str, badge) in enumerate(nums_top):
         with cols_top[idx]:
-            if st.button(f"{num_str}\n{badge}", key=f"u_btn_{num_val}", use_container_width=True):
+            btn_label = num_str + " \n " + badge
+            if st.button(btn_label, key=f"u_btn_{num_val}", use_container_width=True):
                 handle_number_click_user(num_val)
                 st.rerun()
 
@@ -384,7 +385,8 @@ if st.session_state.auth_type == "user":
     nums_bottom = [(5, "5", "🟢 🟣"), (6, "6", "🔴"), (7, "7", "🟢"), (8, "8", "🔴"), (9, "9", "🟢")]
     for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
         with cols_bottom[idx]:
-            if st.button(f"{num_str}\n{badge}", key=f"u_btn_{num_val}", use_container_width=True):
+            btn_label = num_str + " \n " + badge
+            if st.button(btn_label, key=f"u_btn_{num_val}", use_container_width=True):
                 handle_number_click_user(num_val)
                 st.rerun()
 
@@ -469,8 +471,4 @@ elif st.session_state.auth_type == "target":
         "<div class='metric-label' style='color: #38BDF8 !important;'>TARGET LOSSES 🔴</div>"
         f"<div class='metric-val'>{st.session_state.target_losses}</div>"
         "</div>"
-        "</div>",
-        unsafe_allow_html=True
-    )
-
-    if st.button("
+    
