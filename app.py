@@ -110,7 +110,7 @@ st.markdown("""
 
 st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_allow_html=True)
 
-# ----------------- SESSION STATES FOR ACCESS & KEYS -----------------
+# Session States
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
 if 'target_keys' not in st.session_state:
@@ -120,7 +120,7 @@ if 'active_sessions' not in st.session_state:
     st.session_state.active_sessions = {}
 
 if 'auth_type' not in st.session_state:
-    st.session_state.auth_type = None  # Can be 'user', 'target', or 'admin'
+    st.session_state.auth_type = None
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
 
@@ -176,9 +176,9 @@ if st.session_state.logged_in_key and st.session_state.auth_type in ["user", "ta
     if st.session_state.active_sessions.get(current_key) != st.session_state.client_session_id:
         st.session_state.auth_type = None
         st.session_state.logged_in_key = None
-        st.warning("⚠️ ഈ കീ ഇപ്പോൾ മറ്റൊരു ഡിവൈസിൽ ഉപയോഗത്തിലാണ്! അതിനാൽ ഇവിടെ നിന്ന് ലോഗ് ഔട്ട് ആയിരിക്കുന്നു.")
+        st.warning("⚠️ ഈ കീ ഇപ്പോൾ മറ്റൊരു ഡിവൈസിൽ ഉപയോഗത്തിലാണ്!")
 
-# ----------------- FIRST STEP: ACCESS / LOGIN SCREEN -----------------
+# Login Screen
 if st.session_state.auth_type is None:
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
     st.markdown("<h3>🔐 ആക്സസ് ടൈപ്പ് തിരഞ്ഞെടുക്കുക</h3>", unsafe_allow_html=True)
@@ -189,14 +189,10 @@ if st.session_state.auth_type is None:
         user_input_key = st.text_input("User Access Key നൽകുക:", type="password")
         if st.button("Login as User", use_container_width=True):
             if user_input_key in st.session_state.allowed_keys:
-                if user_input_key in st.session_state.active_sessions and st.session_state.active_sessions[user_input_key] != st.session_state.client_session_id:
-                    st.error("❌ ഈ കീ നിലവിൽ വേറെയൊരു ഫോണിൽ ആക്ടീവ് ആണ്!")
-                else:
-                    st.session_state.active_sessions[user_input_key] = st.session_state.client_session_id
-                    st.session_state.auth_type = "user"
-                    st.session_state.logged_in_key = user_input_key
-                    st.success("User Access Granted! ✅")
-                    st.rerun()
+                st.session_state.active_sessions[user_input_key] = st.session_state.client_session_id
+                st.session_state.auth_type = "user"
+                st.session_state.logged_in_key = user_input_key
+                st.rerun()
             else:
                 st.error("❌ തെറ്റായ User Key!")
                 
@@ -204,14 +200,10 @@ if st.session_state.auth_type is None:
         target_input_key = st.text_input("Target Access Key നൽകുക:", type="password")
         if st.button("Login as Target", use_container_width=True):
             if target_input_key in st.session_state.target_keys:
-                if target_input_key in st.session_state.active_sessions and st.session_state.active_sessions[target_input_key] != st.session_state.client_session_id:
-                    st.error("❌ ഈ ടാർഗറ്റ് കീ നിലവിൽ വേറെയൊരു ഫോണിൽ ആക്ടീവ് ആണ്!")
-                else:
-                    st.session_state.active_sessions[target_input_key] = st.session_state.client_session_id
-                    st.session_state.auth_type = "target"
-                    st.session_state.logged_in_key = target_input_key
-                    st.success("Target Access Granted! ✅")
-                    st.rerun()
+                st.session_state.active_sessions[target_input_key] = st.session_state.client_session_id
+                st.session_state.auth_type = "target"
+                st.session_state.logged_in_key = target_input_key
+                st.rerun()
             else:
                 st.error("❌ തെറ്റായ Target Key!")
                 
@@ -220,7 +212,6 @@ if st.session_state.auth_type is None:
         if st.button("Login as Admin", use_container_width=True):
             if admin_input_pass == "bosco123":
                 st.session_state.auth_type = "admin"
-                st.success("Admin Login Success! ✅")
                 st.rerun()
             else:
                 st.error("❌ തെറ്റായ Admin Password!")
@@ -228,240 +219,109 @@ if st.session_state.auth_type is None:
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# ----------------- ADMIN PANEL -----------------
+# Admin Panel
 if st.session_state.auth_type == "admin":
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
-    st.markdown("<h2 style='color:#FFD700;'>🛠️ KING BOSCO ADMIN PANEL</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#FFD700;'>🛠️ ADMIN PANEL</h2>", unsafe_allow_html=True)
     
-    tab_u, tab_t = st.tabs(["👤 User Keys Management", "🎯 Target Keys Management"])
+    tab_u, tab_t = st.tabs(["👤 User Keys", "🎯 Target Keys"])
     
     with tab_u:
-        st.write("<b>നിലവിലെ യൂസർ കീകൾ:</b>", unsafe_allow_html=True)
         st.write(st.session_state.allowed_keys)
-        
-        new_u_key = st.text_input("പുതിയ യൂസർ കീ ചേർക്കുക:")
-        if st.button("Add User Key", use_container_width=True):
-            if new_u_key and new_u_key not in st.session_state.allowed_keys:
-                st.session_state.allowed_keys.append(new_u_key)
-                st.success(f"✅ User Key '{new_u_key}' ചേർത്തു!")
-                st.rerun()
-                
-        rem_u_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട യൂസർ കീ:", ["-- Select --"] + st.session_state.allowed_keys, key="rem_u")
-        if st.button("Block/Delete User Key", use_container_width=True) and rem_u_key != "-- Select --":
-            if rem_u_key in st.session_state.active_sessions:
-                del st.session_state.active_sessions[rem_u_key]
-            st.session_state.allowed_keys.remove(rem_u_key)
-            st.success(f"🚫 User Key '{rem_u_key}' ബ്ലോക്ക് ചെയ്തു!")
+        new_u = st.text_input("New User Key:")
+        if st.button("Add User", use_container_width=True) and new_u:
+            st.session_state.allowed_keys.append(new_u)
             st.rerun()
-
+            
     with tab_t:
-        st.write("<b>നിലവിലെ ടാർഗറ്റ് കീകൾ:</b>", unsafe_allow_html=True)
         st.write(st.session_state.target_keys)
-        
-        new_t_key = st.text_input("പുതിയ ടാർഗറ്റ് കീ ചേർക്കുക:")
-        if st.button("Add Target Key", use_container_width=True):
-            if new_t_key and new_t_key not in st.session_state.target_keys:
-                st.session_state.target_keys.append(new_t_key)
-                st.success(f"✅ Target Key '{new_t_key}' ചേർത്തു!")
-                st.rerun()
-                
-        rem_t_key = st.selectbox("ബ്ലോക്ക് ചെയ്യേണ്ട ടാർഗറ്റ് കീ:", ["-- Select --"] + st.session_state.target_keys, key="rem_t")
-        if st.button("Block/Delete Target Key", use_container_width=True) and rem_t_key != "-- Select --":
-            if rem_t_key in st.session_state.active_sessions:
-                del st.session_state.active_sessions[rem_t_key]
-            st.session_state.target_keys.remove(rem_t_key)
-            st.success(f"🚫 Target Key '{rem_t_key}' ബ്ലോക്ക് ചെയ്തു!")
+        new_t = st.text_input("New Target Key:")
+        if st.button("Add Target", use_container_width=True) and new_t:
+            st.session_state.target_keys.append(new_t)
             st.rerun()
 
-    st.write("")
     if st.button("🚪 Logout Admin", use_container_width=True):
         st.session_state.auth_type = None
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# =========================================================================
-# ----------------- 1. USER SECTION (UNTOUCHED / AS IT IS) ----------------
-# =========================================================================
+# User Section
 if st.session_state.auth_type == "user":
     col_head1, col_head2 = st.columns([4, 1])
     with col_head2:
         if st.button("🚪 Logout", key="logout_user"):
-            if st.session_state.logged_in_key in st.session_state.active_sessions:
-                del st.session_state.active_sessions[st.session_state.logged_in_key]
             st.session_state.auth_type = None
-            st.session_state.logged_in_key = None
             st.rerun()
 
     st.divider()
+    wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), key="w_inp_user")
+    if wallet_input.isdigit():
+        st.session_state.wallet_balance = int(wallet_input)
 
-    st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
-    wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
-    with wallet_col2:
-        wallet_input = st.text_input("Wallet Input", value=str(st.session_state.wallet_balance), label_visibility="collapsed", key="w_inp_user")
-        if wallet_input.isdigit():
-            val_w = int(wallet_input)
-            if val_w > 0:
-                st.session_state.wallet_balance = val_w
+    st.markdown(f"**Wins:** {st.session_state.wins} | **Losses:** {st.session_state.losses}")
+    
+    def handle_number_click_user(val):
+        curr_bs = "B" if val >= 5 else "S"
+        st.session_state.history.append(curr_bs)
+        st.session_state.num_history.append(val)
+        st.session_state.history_details.insert(0, {"num": val, "type": "BIG" if val>=5 else "SMALL", "status": "OK"})
+        if len(st.session_state.history) >= 3:
+            st.session_state.last_prediction_bs = "B" if st.session_state.history[-1] == "S" else "S"
 
-    st.write("")
+    cols = st.columns(5)
+    for i in range(10):
+        with cols[i % 5]:
+            if st.button(str(i), key=f"u_{i}", use_container_width=True):
+                handle_number_click_user(i)
+                st.rerun()
 
-    st.markdown(f"""
-        <div class="metric-container">
-            <div class="metric-box">
-                <div class="metric-label">WINS 🟢</div>
-                <div class="metric-val">{st.session_state.wins}</div>
-            </div>
-            <div class="metric-box">
-                <div class="metric-label">LOSSES 🔴</div>
-                <div class="metric-val">{st.session_state.losses}</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
+    if st.session_state.last_prediction_bs:
+        st.info(f"Prediction: {st.session_state.last_prediction_bs}")
 
+# Target Section
+elif st.session_state.auth_type == "target":
+    col_t1, col_t2 = st.columns([4, 1])
+    with col_t2:
+        if st.button("🚪 Logout", key="logout_target"):
+            st.session_state.auth_type = None
+            st.rerun()
+
+    st.markdown("<h3 style='color: #38BDF8;'>🎯 TARGET DASHBOARD</h3>", unsafe_allow_html=True)
     st.divider()
 
-    if st.button("🔄 Reset Data", use_container_width=True, key="reset_user"):
-        st.session_state.history_details = []
-        st.session_state.history = []
-        st.session_state.num_history = []
-        st.session_state.wins = 0
-        st.session_state.losses = 0
-        st.session_state.last_prediction_bs = None
-        st.session_state.last_predicted_numbers = []
-        st.session_state.current_level = 1
-        st.session_state.is_skip = False
-        st.rerun()
-
-    st.write("")
-
-    def handle_number_click_user(val):
-        current_bs = "BIG" if val >= 5 else "SMALL"
-        current_bs_short = "B" if val >= 5 else "S"
-        status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
-        
-        if st.session_state.last_prediction_bs is not None:
-            if not st.session_state.is_skip:
-                if current_bs_short == st.session_state.last_prediction_bs:
-                    st.session_state.wins += 1
-                    status_str = "<span class='win-text'>🟢 WIN</span>"
-                    st.session_state.current_level = 1  
-                else:
-                    st.session_state.losses += 1
-                    status_str = "<span class='loss-text'>🔴 LOSS</span>"
-                    if st.session_state.current_level < 8:
-                        st.session_state.current_level += 1  
-                    else:
-                        st.session_state.current_level = 1  
-            else:
-                status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
-
-        num_win_str = ""
-        if st.session_state.last_predicted_numbers:
-            if val in st.session_state.last_predicted_numbers:
-                num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
-
-        st.session_state.history.append(current_bs_short)
-        st.session_state.num_history.append(val)
-        
-        st.session_state.history_details.insert(0, {
-            "num": val, "type": current_bs, "status": status_str, "num_win": num_win_str
-        })
-
-        hist = st.session_state.history
-        num_hist = st.session_state.num_history
-
-        if len(hist) < 3:
-            st.session_state.last_prediction_bs = None
-            st.session_state.last_predicted_numbers = []
-            st.session_state.is_skip = False
+    target_wallet_input = st.text_input("Target Wallet (Min 500):", value=str(st.session_state.target_wallet_balance), key="tw_inp")
+    if target_wallet_input.isdigit():
+        val_tw = int(target_wallet_input)
+        if val_tw >= 500:
+            st.session_state.target_wallet_balance = val_tw
         else:
-            recent_four = hist[-4:] if len(hist) >= 4 else hist
-            is_choppy = len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]
-            is_heavy_repeat = len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]
+            st.warning("⚠️ കുറഞ്ഞത് ₹500 എങ്കിലും നൽകുക!")
 
-            if is_choppy and st.session_state.current_level == 1 and len(hist) % 2 == 0:
-                st.session_state.is_skip = True
-            else:
-                st.session_state.is_skip = False
+    st.markdown(f"**Wins:** {st.session_state.target_wins} | **Losses:** {st.session_state.target_losses}")
 
-            is_alternating = False
-            if len(hist) >= 4:
-                if hist[-1] != hist[-2] and hist[-2] != hist[-3] and hist[-3] != hist[-4]:
-                    is_alternating = True
-            elif len(hist) == 3:
-                if hist[-1] != hist[-2] and hist[-2] != hist[-3]:
-                    is_alternating = True
+    def handle_number_click_target(val):
+        curr_bs = "B" if val >= 5 else "S"
+        st.session_state.target_history.append(curr_bs)
+        st.session_state.target_num_history.append(val)
+        st.session_state.target_history_details.insert(0, {"num": val, "type": "BIG" if val>=5 else "SMALL", "status": "OK"})
+        if len(st.session_state.target_history) >= 3:
+            st.session_state.target_last_prediction_bs = "B" if st.session_state.target_history[-1] == "S" else "S"
 
-            if is_alternating:
-                next_pred = "S" if hist[-1] == "B" else "B"
-            elif is_heavy_repeat:
-                if st.session_state.current_level >= 3:
-                    next_pred = "S" if hist[-1] == "B" else "B"
-                else:
-                    next_pred = hist[-1]
-            else:
-                recent_window = hist[-6:] if len(hist) >= 6 else hist
-                b_count = recent_window.count('B')
-                s_count = recent_window.count('S')
-                if b_count > s_count:
-                    next_pred = "B"
-                elif s_count > b_count:
-                    next_pred = "S"
-                else:
-                    next_pred = "S" if hist[-1] == "B" else "B"
-
-            st.session_state.last_prediction_bs = next_pred
-            num_counts = collections.Counter(num_hist[-12:])
-            likely_nums = [n for n, c in num_counts.most_common(2)]
-            st.session_state.last_predicted_numbers = likely_nums
-
-    st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>വന്ന നമ്പർ തിരഞ്ഞെടുക്കുക:</p>", unsafe_allow_html=True)
-
-    cols_top = st.columns(5)
-    nums_top = [(0, "0", "🟣 🔴"), (1, "1", "🟢"), (2, "2", "🔴"), (3, "3", "🟢"), (4, "4", "🔴")]
-    for idx, (num_val, num_str, badge) in enumerate(nums_top):
-        with cols_top[idx]:
-            if st.button(f"{num_str}\n{badge}", key=f"btn_u_{num_val}", use_container_width=True):
-                handle_number_click_user(num_val)
+    cols_t = st.columns(5)
+    for i in range(10):
+        with cols_t[i % 5]:
+            if st.button(str(i), key=f"t_{i}", use_container_width=True):
+                handle_number_click_target(i)
                 st.rerun()
 
-    cols_bottom = st.columns(5)
-    nums_bottom = [(5, "5", "🟢 🟣"), (6, "6", "🔴"), (7, "7", "🟢"), (8, "8", "🔴"), (9, "9", "🟢")]
-    for idx, (num_val, num_str, badge) in enumerate(nums_bottom):
-        with cols_bottom[idx]:
-            if st.button(f"{num_str}\n{badge}", key=f"btn_u_{num_val}", use_container_width=True):
-                handle_number_click_user(num_val)
-                st.rerun()
-
-    st.write("")
-
-    if st.session_state.last_prediction_bs is not None:
-        next_pred = st.session_state.last_prediction_bs
-        likely_nums = st.session_state.last_predicted_numbers
-
-        if st.session_state.is_skip:
-            pred_text = "⚠️ SMART SKIP (ഈ റൗണ്ട് സുരക്ഷിതമായി വിടുക)"
-            color_code = "#38BDF8"
-        else:
-            pred_text = "BIG 🟢" if next_pred == "B" else "SMALL 🔴"
-            color_code = "#00E676" if next_pred == "B" else "#FF5252"
-
-        base_unit = st.session_state.wallet_balance / 255
-        multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
-        current_multiplier = multipliers[st.session_state.current_level - 1]
-        suggested_bet = max(1, round(base_unit * current_multiplier))
-
+    if st.session_state.target_last_prediction_bs:
+        base_unit = st.session_state.target_wallet_balance / 255
+        suggested_bet = max(1, round(base_unit))
         st.markdown(f"""
             <div class="pred-card">
-                <div style="color: #94A3B8; font-size: 14px; font-weight: bold;">NEXT PREDICTION</div>
-                <div style="font-size: 32px; font-weight: 900; color: {color_code}; margin: 8px 0;">{pred_text}</div>
-                <div style="color: #E2E8F0; font-size: 15px; margin-bottom: 6px;">📊 Likely Numbers: <b style="color:#FFD700;">{likely_nums}</b></div>
-                <hr style="border-color: #334155; margin: 10px 0;">
-                <div style="color: #38BDF8; font-size: 16px; font-weight: bold;">
-                    🛡️ 8-Level Plan | Level {st.session_state.current_level}/8
-                </div>
-                <div style="color: #FFFFFF; font-size: 20px; font-weight: 900; margin-top: 4px;">
-                    Suggested Bet: <span style="color: #FFD700;">₹{suggested_bet}</span>
-                </div>
-            </div
+                <div style="font-size: 24px; color: #FFD700;">Target Prediction: {st.session_state.target_last_prediction_bs}</div>
+                <div>Suggested Bet: ₹{suggested_bet}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
