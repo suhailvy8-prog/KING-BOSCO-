@@ -1,8 +1,9 @@
 import streamlit as st
+import random
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
-# Custom CSS for Dark, Colorful & Attractive UI
+# Custom CSS for Dark, Colorful & Attractive UI (Fixing all white boxes)
 st.markdown("""
     <style>
     .main { background: linear-gradient(135deg, #0B0E14, #1a1c29); }
@@ -12,14 +13,14 @@ st.markdown("""
         background: linear-gradient(45deg, #FFD700, #FF4500);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 30px !important;
+        font-size: 28px !important;
         font-weight: 900 !important;
         letter-spacing: 1px;
     }
     .sub-text {
         text-align: center;
         color: #38bdf8;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         margin-bottom: 15px;
     }
@@ -46,6 +47,15 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
         margin-bottom: 20px;
     }
+    .dark-data-box {
+        background-color: #111827;
+        border: 1px solid #374151;
+        padding: 12px;
+        border-radius: 10px;
+        color: #34d399;
+        font-family: monospace;
+        margin-bottom: 10px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -55,11 +65,19 @@ if 'user_keys' not in st.session_state:
 if 'target_keys' not in st.session_state:
     st.session_state.target_keys = ["target999"]
 if 'admin_keys' not in st.session_state:
-    st.session_state.admin_keys = ["bosco123"]  # Admin key as requested
+    st.session_state.admin_keys = ["bosco123"]
 if 'used_keys' not in st.session_state:
     st.session_state.used_keys = set()
 if 'auth_role' not in st.session_state:
     st.session_state.auth_role = None
+
+# User Section States
+if 'user_level' not in st.session_state:
+    st.session_state.user_level = 1
+if 'wallet_balance' not in st.session_state:
+    st.session_state.wallet_balance = 1000.0
+if 'base_bet' not in st.session_state:
+    st.session_state.base_bet = 10.0
 
 # ==================== 1. LOGIN PAGE ====================
 if st.session_state.auth_role is None:
@@ -171,12 +189,77 @@ if st.session_state.auth_role == 'admin':
     
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
     st.subheader("📊 നിലവിലുള്ള കീകളുടെ വിവരങ്ങൾ")
-    st.write("**User Keys:**", st.session_state.user_keys)
-    st.write("**Target Keys:**", st.session_state.target_keys)
-    st.write("**Used/Active Keys:**", list(st.session_state.used_keys))
+    st.markdown(f"<div class='dark-data-box'><b>User Keys:</b> {st.session_state.user_keys}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='dark-data-box'><b>Target Keys:</b> {st.session_state.target_keys}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='dark-data-box'><b>Used/Active Keys:</b> {list(st.session_state.used_keys)}</div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     if st.button("🚪 Logout Admin", use_container_width=True):
+        st.session_state.auth_role = None
+        st.rerun()
+        
+    st.stop()
+
+# ==================== 3. USER SECTION ====================
+if st.session_state.auth_role == 'user':
+    st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR - USER SECTION</div>", unsafe_allow_html=True)
+    st.markdown("<hr style='border: 1px solid #475569;'>", unsafe_allow_html=True)
+    
+    col_w1, col_w2 = st.columns(2)
+    with col_w1:
+        st.markdown(f"<div class='dark-data-box'>💰 Wallet Balance: ₹ {st.session_state.wallet_balance}</div>", unsafe_allow_html=True)
+    with col_w2:
+        st.markdown(f"<div class='dark-data-box'>📈 Current Level: Level {st.session_state.user_level} / 8</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
+    st.subheader("🔢 നമ്പർ ബോക്സ് ഇൻപുട്ട് & പ്രെഡിക്ഷൻ")
+    
+    # Number input boxes like user requested
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        n1 = st.number_input("Num 1", 0, 9, 5, key="box_n1")
+    with c2:
+        n2 = st.number_input("Num 2", 0, 9, 3, key="box_n2")
+    with c3:
+        n3 = st.number_input("Num 3", 0, 9, 8, key="box_n3")
+    with c4:
+        n4 = st.number_input("Num 4", 0, 9, 1, key="box_n4")
+
+    # Calculated Bet Amount based on level (Double amount logic)
+    current_bet_amount = st.session_state.base_bet * (2 ** (st.session_state.user_level - 1))
+    st.info(推奨 := f"💡 ഈ ലെവലിലെ ബെറ്റ് തുക (Bet Amount): ₹ {current_bet_amount}")
+
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        if st.button("🟢 WIN (വിൻ അടിച്ചു)", use_container_width=True):
+            st.session_state.wallet_balance += current_bet_amount
+            st.session_state.user_level = 1  # Reset to Level 1 on Win
+            st.success("🎉 വിജയം! ലെവൽ 1 ലേക്ക് റീസെറ്റ് ചെയ്തു.")
+            st.rerun()
+            
+    with col_btn2:
+        if st.button("🔴 LOSS (ലോസ് അടിച്ചു)", use_container_width=True):
+            st.session_state.wallet_balance -= current_bet_amount
+            if st.session_state.user_level < 8:
+                st.session_state.user_level += 1  # Move to next level (Double amount)
+                st.warning(f"⚠️ ലോസ്! അടുത്ത ലെവലിലേക്ക് ഉയർന്നു: Level {st.session_state.user_level}")
+            else:
+                st.error("🚨 മാക്സിമം ലെവൽ 8 എത്തി! വീണ്ടും ലെവൽ 1 ലേക്ക് മാറ്റുന്നു.")
+                st.session_state.user_level = 1
+            st.rerun()
+
+    # Prediction & Trend Skip Logic
+    if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Check Prediction)", use_container_width=True):
+        # Trend check simulation (Skip if ambiguous)
+        if n1 == n2 and n2 == n3:
+            st.warning("⚠️ ട്രെൻഡ് വ്യക്തമല്ല (Skip Trend)! അടുത്ത റൗണ്ട് സ്കിപ്പ് ചെയ്യുക.")
+        else:
+            pred_res = random.choice(["BIG 🟢", "SMALL 🔴"])
+            st.success(f"🎯 പ്രെഡിക്ഷൻ ഫലം: **{pred_res}** (Level {st.session_state.user_level} പ്ലാൻ പ്രകാരം)")
+            
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if st.button("🚪 Logout User", use_container_width=True):
         st.session_state.auth_role = None
         st.rerun()
         
