@@ -45,24 +45,34 @@ st.markdown("""
     .prediction-display {
         background: linear-gradient(135deg, #065f46, #047857);
         border: 3px solid #34d399;
-        padding: 25px;
+        padding: 20px;
         border-radius: 20px;
         text-align: center;
         color: #FFFFFF;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: bold;
         box-shadow: 0 0 25px rgba(52, 211, 153, 0.5);
-        margin: 20px 0;
+        margin: 15px 0;
     }
-    .stat-box {
-        background-color: #111827;
-        border: 2px solid #374151;
+    .stat-box-win {
+        background: linear-gradient(135deg, #065f46, #047857);
+        border: 2px solid #34d399;
         padding: 12px;
         border-radius: 12px;
         text-align: center;
         font-size: 16px;
         font-weight: bold;
-        color: #38bdf8;
+        color: #FFFFFF;
+    }
+    .stat-box-loss {
+        background: linear-gradient(135deg, #7f1d1d, #991b1b);
+        border: 2px solid #f87171;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        color: #FFFFFF;
     }
     .dark-data-box {
         background-color: #111827;
@@ -227,32 +237,38 @@ if st.session_state.auth_role == 'user':
     st.markdown("<div class='sub-text'>User Section - 8 Level Smart Prediction Plan</div>", unsafe_allow_html=True)
     st.markdown("<hr style='border: 1px solid #475569;'>", unsafe_allow_html=True)
     
-    # Win / Loss Count Side-by-Side Boxes
+    # 1. Win / Loss Count Side-by-Side Boxes
     col_stat1, col_stat2 = st.columns(2)
     with col_stat1:
-        st.markdown(f"<div class='stat-box'>✅ WIN Count: {st.session_state.win_count}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-box-win'>✅ WIN Count: {st.session_state.win_count}</div>", unsafe_allow_html=True)
     with col_stat2:
-        st.markdown(f"<div class='stat-box'>❌ LOSS Count: {st.session_state.loss_count}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='stat-box-loss'>❌ LOSS Count: {st.session_state.loss_count}</div>", unsafe_allow_html=True)
     
     st.write("")
     
-    # Wallet & Custom Bet Input
+    # 2. Wallet & Custom Bet Input
     col_w1, col_w2 = st.columns(2)
     with col_w1:
         st.markdown(f"<div class='dark-data-box' style='padding: 10px;'>💰 Wallet: ₹ {st.session_state.wallet_balance}</div>", unsafe_allow_html=True)
     with col_w2:
-        st.session_state.custom_bet = st.number_input("इഷ്ടമുള്ള തുക (Custom Bet Amount)", min_value=1.0, value=float(st.session_state.custom_bet), step=10.0)
+        st.session_state.custom_bet = st.number_input("Custom Bet Amount", min_value=1.0, value=float(st.session_state.custom_bet), step=10.0)
 
-    # Current Level & Bet Amount in Single Bold Row
+    # Current Level & Bet Amount
     current_active_bet = st.session_state.custom_bet * (2 ** (st.session_state.user_level - 1))
     st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
 
+    # 3. PREDICTION DISPLAY (Mugalilayittu)
+    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
+
+    # 4. Number Grid (0 to 9 with colors)
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
     st.subheader("🔢 0 മുതൽ 9 വരെയുള്ള നമ്പറുകൾ തിരഞ്ഞെടുക്കുക")
     
-    # Number Grid (0 to 9 boxes style in two columns/rows)
     cols_n = st.columns(5)
     selected_numbers = []
+    
+    num_colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16", "#eab308", "#6366f1"]
+    
     for i in range(10):
         with cols_n[i % 5]:
             if st.checkbox(f"Num {i}", key=f"grid_num_{i}"):
@@ -260,7 +276,7 @@ if st.session_state.auth_role == 'user':
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Prediction Action Button & Center Display
+    # Prediction Action Button
     if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Get Prediction)", use_container_width=True):
         if len(selected_numbers) == 0:
             st.warning("⚠️ ദയവായി ഏതെങ്കിലും നമ്പറുകൾ തിരഞ്ഞെടുക്കൂ!")
@@ -272,9 +288,7 @@ if st.session_state.auth_role == 'user':
                 res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
                 st.session_state.last_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
                 st.session_state.history.append(f"Level {st.session_state.user_level} -> {res}")
-
-    # Center Big Attractive Prediction Display Box
-    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
+            st.rerun()
 
     # Win / Loss Control Buttons for Level Progression
     col_btn1, col_btn2 = st.columns(2)
@@ -313,4 +327,4 @@ if st.session_state.auth_role == 'user':
         st.rerun()
         
     st.stop()
-        
+                        
