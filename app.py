@@ -36,11 +36,11 @@ st.markdown("""
     .custom-box {
         background: linear-gradient(135deg, #1e1b4b, #311042);
         border: 2px solid #a855f7;
-        padding: 20px;
+        padding: 15px;
         border-radius: 15px;
         color: #FFFFFF;
         box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     .prediction-display {
         background: linear-gradient(135deg, #065f46, #047857);
@@ -60,7 +60,7 @@ st.markdown("""
         padding: 12px;
         border-radius: 12px;
         text-align: center;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: bold;
         color: #FFFFFF;
     }
@@ -70,21 +70,21 @@ st.markdown("""
         padding: 12px;
         border-radius: 12px;
         text-align: center;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: bold;
         color: #FFFFFF;
     }
     .dark-data-box {
         background-color: #111827;
         border: 2px solid #4f46e5;
-        padding: 15px;
+        padding: 12px;
         border-radius: 12px;
         color: #34d399;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: bold;
         text-align: center;
         box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        margin-bottom: 15px;
+        margin-bottom: 12px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -114,6 +114,8 @@ if 'loss_count' not in st.session_state:
     st.session_state.loss_count = 0
 if 'history' not in st.session_state:
     st.session_state.history = []
+if 'selected_numbers' not in st.session_state:
+    st.session_state.selected_numbers = []
 if 'last_prediction' not in st.session_state:
     st.session_state.last_prediction = "നമ്പർ തിരഞ്ഞെടുത്ത് പ്രെഡിക്ഷൻ എടുക്കുക"
 
@@ -210,7 +212,7 @@ if st.session_state.auth_role == 'admin':
         
         if st.button("Block/Delete Key", use_container_width=True):
             if key_to_remove in st.session_state.user_keys:
-                st.(key_to_remove)
+                st.session_state.user_keys.remove(key_to_remove)
                 if key_to_remove in st.session_state.used_keys:
                     st.session_state.used_keys.remove(key_to_remove)
                 st.success(f"🚫 User Key '{key_to_remove}' ബ്ലോക്ക് ചെയ്തു!")
@@ -257,35 +259,42 @@ if st.session_state.auth_role == 'user':
     current_active_bet = st.session_state.custom_bet * (2 ** (st.session_state.user_level - 1))
     st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
 
-    # 3. PREDICTION DISPLAY (Mugalilayittu)
-    st.markdown(f"<display in king bosco predictor'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
+    # 3. PREDICTION DISPLAY (Mugalilayittu - Above Numbers)
+    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
 
-    # 4. Number Grid (0 to 9 with colors)
+    # 4. Number Grid (0 to 9 in proper side-by-side rows/columns)
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
     st.subheader("🔢 0 മുതൽ 9 വരെയുള്ള നമ്പറുകൾ തിരഞ്ഞെടുക്കുക")
     
-    cols_n = st.columns(5)
-    selected_numbers = []
+    # Grid layout using multi-columns so they sit side by side neatly
+    row1 = st.columns(5)
+    row2 = st.columns(5)
     
-    num_colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16", "#eab308", "#6366f1"]
+    selected_nums = []
     
-    for i in range(10):
-        with cols_n[i % 5]:
-            if st.checkbox(f"Num {i}", key=f"grid_num_{i}"):
-                selected_numbers.append(i)
-
+    for i in range(5):
+        with row1[i]:
+            if st.checkbox(f"Num {i}", key=f"num_{i}"):
+                selected_nums.append(i)
+                
+    for i in range(5, 10):
+        with row2[i - 5]:
+            if st.checkbox(f"Num {i}", key=f"num_{i}"):
+                selected_nums.append(i)
+                
+    st.session_state.selected_numbers = selected_nums
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Prediction Action Button
     if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Get Prediction)", use_container_width=True):
-        if len(selected_numbers) == 0:
+        if len(st.session_state.selected_numbers) == 0:
             st.warning("⚠️ ദയവായി ഏതെങ്കിലും നമ്പറുകൾ തിരഞ്ഞെടുക്കൂ!")
         else:
-            total_sum = sum(selected_numbers)
-            if len(selected_numbers) >= 3 and all(n == selected_numbers[0] for n in selected_numbers):
+            total_sum = sum(st.session_state.selected_numbers)
+            if len(st.session_state.selected_numbers) >= 3 and all(n == st.session_state.selected_numbers[0] for n in st.session_state.selected_numbers):
                 st.session_state.last_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
             else:
-                res = "small🟢" if total_sum % 2 != 0 else "SMALL 🔴"
+                res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
                 st.session_state.last_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
                 st.session_state.history.append(f"Level {st.session_state.user_level} -> {res}")
             st.rerun()
@@ -316,7 +325,7 @@ if st.session_state.auth_role == 'user':
     st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
     st.subheader("📜 പ്രെഡിക്ഷൻ ഹിസ്റ്ററി (History)")
     if st.session_state.history:
-        for j in reversed(st.session_state.history[-5:]):
+        for h in reversed(st.session_state.history[-5:]):
             st.write(f"• {h}")
     else:
         st.write("ഇതുവരെ ഹിസ്റ്ററി ഒന്നുമില്ല.")
@@ -327,4 +336,4 @@ if st.session_state.auth_role == 'user':
         st.rerun()
         
     st.stop()
-                        
+            
