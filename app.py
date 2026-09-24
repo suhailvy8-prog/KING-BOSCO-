@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import time
 
 st.set_page_config(page_title="KING BOSCO PREDICTOR", page_icon="👑", layout="centered")
 
@@ -86,6 +87,17 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         margin-bottom: 12px;
     }
+    .number-badge {
+        background-color: #1f2937;
+        border: 2px solid #3b82f6;
+        padding: 10px;
+        text-align: center;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 18px;
+        color: #fbbf24;
+        margin-bottom: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -114,10 +126,6 @@ if 'loss_count' not in st.session_state:
     st.session_state.loss_count = 0
 if 'history' not in st.session_state:
     st.session_state.history = []
-if 'selected_numbers' not in st.session_state:
-    st.session_state.selected_numbers = []
-if 'last_prediction' not in st.session_state:
-    st.session_state.last_prediction = "നമ്പർ തിരഞ്ഞെടുത്ത് പ്രെഡിക്ഷൻ എടുക്കുക"
 
 # ==================== 1. LOGIN PAGE ====================
 if st.session_state.auth_role is None:
@@ -259,45 +267,38 @@ if st.session_state.auth_role == 'user':
     current_active_bet = st.session_state.custom_bet * (2 ** (st.session_state.user_level - 1))
     st.markdown(f"<div class='dark-data-box'>📈 നിലവിലെ ലെവൽ: Level {st.session_state.user_level} / 8 &nbsp;|&nbsp; 💵 ബെറ്റ് തുക: ₹ {current_active_bet}</div>", unsafe_allow_html=True)
 
-    # 3. PREDICTION DISPLAY (Mugalilayittu - Above Numbers)
-    st.markdown(f"<div class='prediction-display'>{st.session_state.last_prediction}</div>", unsafe_allow_html=True)
-
-    # 4. Number Grid (0 to 9 in proper side-by-side rows/columns)
-    st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
-    st.subheader("🔢 0 മുതൽ 9 വരെയുള്ള നമ്പറുകൾ തിരഞ്ഞെടുക്കുക")
+    # 3. AUTOMATIC GENERATION OF NUMBERS & PREDICTION
+    # Automatically generate 4 random recent numbers (0 to 9) for live analysis
+    auto_numbers = [random.randint(0, 9) for _ in range(4)]
+    total_sum = sum(auto_numbers)
     
-    # Grid layout using multi-columns so they sit side by side neatly
+    if all(n == auto_numbers[0] for n in auto_numbers):
+        auto_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
+    else:
+        res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
+        auto_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
+
+    # 4. PREDICTION DISPLAY (Mugalilayittu)
+    st.markdown(f"<div class='prediction-display'>{auto_prediction}</div>", unsafe_allow_html=True)
+
+    # 5. Number Grid (0 to 9 side-by-side display badges)
+    st.markdown("<div class='custom-box'>", unsafe_allow_html=True)
+    st.subheader("🔢 ലൈവ് നമ്പറുകൾ (0 - 9)")
+    
     row1 = st.columns(5)
     row2 = st.columns(5)
     
-    selected_nums = []
-    
     for i in range(5):
         with row1[i]:
-            if st.checkbox(f"Num {i}", key=f"num_{i}"):
-                selected_nums.append(i)
+            active_border = "border: 2px solid #34d399;" if i in auto_numbers else "border: 1px solid #3b82f6;"
+            st.markdown(f"<div class='number-badge' style='{active_border}'>{i}</div>", unsafe_allow_html=True)
                 
     for i in range(5, 10):
         with row2[i - 5]:
-            if st.checkbox(f"Num {i}", key=f"num_{i}"):
-                selected_nums.append(i)
-                
-    st.session_state.selected_numbers = selected_nums
+            active_border = "border: 2px solid #34d399;" if i in auto_numbers else "border: 1px solid #3b82f6;"
+            st.markdown(f"<div class='number-badge' style='{active_border}'>{i}</div>", unsafe_allow_html=True)
+            
     st.markdown("</div>", unsafe_allow_html=True)
-
-    # Prediction Action Button
-    if st.button("🔮 പ്രെഡിക്ഷൻ പരിശോധിക്കുക (Get Prediction)", use_container_width=True):
-        if len(st.session_state.selected_numbers) == 0:
-            st.warning("⚠️ ദയവായി ഏതെങ്കിലും നമ്പറുകൾ തിരഞ്ഞെടുക്കൂ!")
-        else:
-            total_sum = sum(st.session_state.selected_numbers)
-            if len(st.session_state.selected_numbers) >= 3 and all(n == st.session_state.selected_numbers[0] for n in st.session_state.selected_numbers):
-                st.session_state.last_prediction = "⚠️ SKIP (ട്രെൻഡ് വ്യക്തമല്ല)"
-            else:
-                res = "BIG 🟢" if total_sum % 2 != 0 else "SMALL 🔴"
-                st.session_state.last_prediction = f"🎯 ഫലം: {res} (Level {st.session_state.user_level})"
-                st.session_state.history.append(f"Level {st.session_state.user_level} -> {res}")
-            st.rerun()
 
     # Win / Loss Control Buttons for Level Progression
     col_btn1, col_btn2 = st.columns(2)
@@ -336,4 +337,4 @@ if st.session_state.auth_role == 'user':
         st.rerun()
         
     st.stop()
-            
+    
