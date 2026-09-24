@@ -124,7 +124,7 @@ if 'auth_type' not in st.session_state:
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
 
-# User Session States (Untouched as requested)
+# User Session States (Untouched)
 if 'history_details' not in st.session_state:
     st.session_state.history_details = []
 if 'history' not in st.session_state:
@@ -257,7 +257,7 @@ if st.session_state.auth_type in ["user", "target"]:
 
 st.divider()
 
-# ----------------- USER SECTION (UNTOUCHED) -----------------
+# ----------------- USER SECTION (UNTOUCHED AS REQUESTED) -----------------
 if st.session_state.auth_type == "user":
     st.markdown("<p style='text-align: center; font-weight: bold; color: #FFD700; font-size: 18px;'>💰 നിങ്ങളുടെ ഡെപ്പോസിറ്റ് ബാലൻസ് നൽകുക (₹):</p>", unsafe_allow_html=True)
     wallet_col1, wallet_col2, wallet_col3 = st.columns([1, 2, 1])
@@ -426,7 +426,7 @@ if st.session_state.auth_type == "user":
                 </div>
             """, unsafe_allow_html=True)
 
-# ----------------- TARGET SECTION (ENHANCED AS REQUESTED) -----------------
+# ----------------- TARGET SECTION (FIXED & FULLY LOADED) -----------------
 elif st.session_state.auth_type == "target":
     st.markdown("<h3 style='color: #38BDF8; text-align: center;'>🎯 TARGET DASHBOARD</h3>", unsafe_allow_html=True)
     
@@ -468,4 +468,4 @@ elif st.session_state.auth_type == "target":
 
     def handle_number_click_target(val):
         current_bs = "BIG" if val >= 5 else "SMALL"
-        current_bs_s
+        current_bs_sh
