@@ -113,8 +113,6 @@ st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_all
 # ----------------- SESSION STATES -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
-if 'target_keys' not in st.session_state:
-    st.session_state.target_keys = ["target123", "boscotarget"]
 if 'active_sessions' not in st.session_state:
     st.session_state.active_sessions = {}
 if 'auth_type' not in st.session_state:
@@ -133,19 +131,6 @@ if 'last_predicted_numbers' not in st.session_state: st.session_state.last_predi
 if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 5000
 if 'current_level' not in st.session_state: st.session_state.current_level = 1
 if 'is_skip' not in st.session_state: st.session_state.is_skip = False
-
-# Target States
-if 'target_history_details' not in st.session_state: st.session_state.target_history_details = []
-if 'target_history' not in st.session_state: st.session_state.target_history = []
-if 'target_num_history' not in st.session_state: st.session_state.target_num_history = []
-if 'target_wins' not in st.session_state: st.session_state.target_wins = 0
-if 'target_losses' not in st.session_state: st.session_state.target_losses = 0
-if 'target_last_prediction_bs' not in st.session_state: st.session_state.target_last_prediction_bs = None
-if 'target_last_predicted_numbers' not in st.session_state: st.session_state.target_last_predicted_numbers = []
-if 'target_wallet_balance' not in st.session_state: st.session_state.target_wallet_balance = 500
-if 'target_initial_balance' not in st.session_state: st.session_state.target_initial_balance = 500
-if 'target_current_level' not in st.session_state: st.session_state.target_current_level = 1
-if 'target_is_skip' not in st.session_state: st.session_state.target_is_skip = False
 
 if 'client_session_id' not in st.session_state:
     st.session_state.client_session_id = str(uuid.uuid4())
@@ -212,87 +197,12 @@ def handle_number_click_user(val):
         num_counts = collections.Counter(num_hist[-12:])
         st.session_state.last_predicted_numbers = [n for n, c in num_counts.most_common(2)]
 
-def handle_number_click_target(val):
-    current_bs = "BIG" if val >= 5 else "SMALL"
-    current_bs_short = "B" if val >= 5 else "S"
-    status_str = "<span style='color:#94A3B8; font-weight:bold;'>➖ START</span>"
-    
-    base_unit = st.session_state.target_wallet_balance / 255
-    multipliers = [1, 2, 4, 8, 16, 32, 64, 128]
-    current_bet = max(1, round(base_unit * multipliers[st.session_state.target_current_level - 1]))
-
-    if st.session_state.target_last_prediction_bs is not None:
-        if not st.session_state.target_is_skip:
-            if current_bs_short == st.session_state.target_last_prediction_bs:
-                st.session_state.target_wins += 1
-                status_str = "<span class='win-text'>🟢 WIN</span>"
-                st.session_state.target_wallet_balance += current_bet 
-                st.session_state.target_current_level = 1  
-            else:
-                st.session_state.target_losses += 1
-                status_str = "<span class='loss-text'>🔴 LOSS</span>"
-                st.session_state.target_wallet_balance = max(0, st.session_state.target_wallet_balance - current_bet)
-                if st.session_state.target_current_level < 8:
-                    st.session_state.target_current_level += 1  
-                else:
-                    st.session_state.target_current_level = 1  
-        else:
-            status_str = "<span style='color:#38BDF8; font-weight:bold;'>🔄 SKIPPED</span>"
-
-    target_goal = st.session_state.target_initial_balance + (st.session_state.target_initial_balance * 0.2)
-    
-    if st.session_state.target_wallet_balance >= target_goal:
-        st.balloons()
-        st.success(f"🎉 CONGRATULATIONS! Target Completed! വാലറ്റ് ₹{st.session_state.target_wallet_balance} എത്തിയിരിക്കുന്നു!")
-        st.session_state.target_wallet_balance = st.session_state.target_initial_balance
-        st.session_state.target_current_level = 1
-
-    num_win_str = ""
-    if st.session_state.target_last_predicted_numbers and val in st.session_state.target_last_predicted_numbers:
-        num_win_str = " <span style='color:#00E676; font-size:13px; font-weight:900;'>[🎯 Number Win]</span>"
-
-    st.session_state.target_history.append(current_bs_short)
-    st.session_state.target_num_history.append(val)
-    st.session_state.target_history_details.insert(0, {"num": val, "type": current_bs, "status": status_str, "num_win": num_win_str})
-
-    hist = st.session_state.target_history
-    num_hist = st.session_state.target_num_history
-
-    if len(hist) < 3:
-        st.session_state.target_last_prediction_bs = None
-        st.session_state.target_last_predicted_numbers = []
-        st.session_state.target_is_skip = False
-    else:
-        recent_four = hist[-4:] if len(hist) >= 4 else hist
-        is_choppy = len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]
-        is_heavy_repeat = len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3]
-
-        if is_choppy and st.session_state.target_current_level == 1 and len(hist) % 2 == 0:
-            st.session_state.target_is_skip = True
-        else:
-            st.session_state.target_is_skip = False
-
-        is_alternating = len(hist) >= 4 and hist[-1] != hist[-2] != hist[-3] != hist[-4]
-        if is_alternating:
-            next_pred = "S" if hist[-1] == "B" else "B"
-        elif is_heavy_repeat:
-            next_pred = "S" if (hist[-1] == "B" and st.session_state.target_current_level >= 3) else ("B" if st.session_state.target_current_level >= 3 else hist[-1])
-        else:
-            recent_window = hist[-6:] if len(hist) >= 6 else hist
-            b_count = recent_window.count('B')
-            s_count = recent_window.count('S')
-            next_pred = "B" if b_count > s_count else ("S" if s_count > b_count else ("S" if hist[-1] == "B" else "B"))
-
-        st.session_state.target_last_prediction_bs = next_pred
-        num_counts = collections.Counter(num_hist[-12:])
-        st.session_state.target_last_predicted_numbers = [n for n, c in num_counts.most_common(2)]
-
 # ----------------- LOGIN SCREEN -----------------
 if st.session_state.auth_type is None:
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
     st.markdown("<h3>🔐 ആക്സസ് ടൈപ്പ് തിരഞ്ഞെടുക്കുക</h3>", unsafe_allow_html=True)
     
-    login_option = st.selectbox("ലോഗിൻ വിഭാഗം തിരഞ്ഞെടുക്കുക:", ["-- Select --", "User Login", "Target Login", "Admin Login"])
+    login_option = st.selectbox("ലോഗിൻ വിഭാഗം തിരഞ്ഞെടുക്കുക:", ["-- Select --", "User Login", "Admin Login"])
     
     if login_option == "User Login":
         user_input_key = st.text_input("User Access Key നൽകുക:", type="password")
@@ -303,16 +213,6 @@ if st.session_state.auth_type is None:
                 st.rerun()
             else:
                 st.error("❌ തെറ്റായ User Key!")
-                
-    elif login_option == "Target Login":
-        target_input_key = st.text_input("Target Access Key നൽകുക:", type="password")
-        if st.button("Login as Target", use_container_width=True):
-            if target_input_key in st.session_state.target_keys:
-                st.session_state.auth_type = "target"
-                st.session_state.logged_in_key = target_input_key
-                st.rerun()
-            else:
-                st.error("❌ തെറ്റായ Target Key!")
                 
     elif login_option == "Admin Login":
         admin_input_pass = st.text_input("Admin Password നൽകുക:", type="password")
@@ -331,18 +231,13 @@ if st.session_state.auth_type == "admin":
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
     st.markdown("<h2 style='color:#FFD700;'>🛠️ ADMIN PANEL</h2>", unsafe_allow_html=True)
     
-    tab_u, tab_t = st.tabs(["👤 User Keys", "🎯 Target Keys"])
-    with tab_u:
-        st.write(st.session_state.allowed_keys)
-        new_u = st.text_input("New User Key:")
-        if st.button("Add User", use_container_width=True) and new_u:
+    st.write("### 👤 Allowed User Keys")
+    st.write(st.session_state.allowed_keys)
+    new_u = st.text_input("New User Key:")
+    if st.button("Add User Key", use_container_width=True) and new_u:
+        if new_u not in st.session_state.allowed_keys:
             st.session_state.allowed_keys.append(new_u)
-            st.rerun()
-    with tab_t:
-        st.write(st.session_state.target_keys)
-        new_t = st.text_input("New Target Key:")
-        if st.button("Add Target", use_container_width=True) and new_t:
-            st.session_state.target_keys.append(new_t)
+            st.success("Key successfully added!")
             st.rerun()
 
     if st.button("🚪 Logout Admin", use_container_width=True):
@@ -351,8 +246,8 @@ if st.session_state.auth_type == "admin":
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# Logout button for User / Target
-if st.session_state.auth_type in ["user", "target"]:
+# Logout button for User
+if st.session_state.auth_type == "user":
     if st.button("🚪 Logout"):
         st.session_state.auth_type = None
         st.session_state.logged_in_key = None
@@ -436,4 +331,13 @@ if st.session_state.auth_type == "user":
             st.info(f"കുറഞ്ഞത് {3 - len(st.session_state.history)} ഡാറ്റ കൂടി നൽകുക...")
 
     st.divider()
-    if st.session_state.history_detail
+    if st.session_state.history_details:
+        st.markdown("<h3 style='color:#FFD700;'>📜 History Logs</h3>", unsafe_allow_html=True)
+        for item in st.session_state.history_details[:10]:
+            st.markdown(f"""
+                <div class="history-card">
+                    <span><b>Number: {item['num']}</b> ({item['type']}){item.get('num_win', '')}</span>
+                    <span>{item['status']}</span>
+                </div>
+            """, unsafe_allow_html=True)
+            
