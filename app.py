@@ -177,12 +177,12 @@ def handle_number_click_user(val):
         recent_four = hist[-4:] if len(hist) >= 4 else hist
         is_choppy = len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]
         
-        # 2. Long Streak check (5 continuous B's or 5 continuous S's)
+        # 2. Long Streak check (5 continuous B's or 5 continuous S's) - ഏത് ലെവലിലും വർക്ക് ചെയ്യും
         recent_five = hist[-5:] if len(hist) >= 5 else hist
         is_long_streak = len(recent_five) >= 5 and all(x == recent_five[0] for x in recent_five)
 
-        # Level 1-ൽ ആയിരിക്കുമ്പോൾ ഈ രണ്ട് പാറ്റേണുകൾ വന്നാലും സ്കിപ്പ് ചെയ്യും
-        if (is_choppy or is_long_streak) and st.session_state.current_level == 1:
+        # ലെവൽ നോക്കാതെ ഏത് സമയത്തും പാറ്റേൺ കണ്ടായാൽ സ്കിപ്പ് ചെയ്യും
+        if is_choppy or is_long_streak:
             st.session_state.is_skip = True
         else:
             st.session_state.is_skip = False
@@ -347,4 +347,4 @@ if st.session_state.auth_type == "user":
                     <span>{item['status']}</span>
                 </div>
             """, unsafe_allow_html=True)
-        
+                         
