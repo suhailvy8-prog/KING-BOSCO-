@@ -113,12 +113,17 @@ st.markdown("<div class='app-title'>👑 KING BOSCO PREDICTOR</div>", unsafe_all
 # ----------------- SESSION STATES -----------------
 if 'allowed_keys' not in st.session_state:
     st.session_state.allowed_keys = ["bosco1234", "rahul123", "arun456", "vipin789"]
-if 'active_sessions' not in st.session_state:
-    st.session_state.active_sessions = {}
+if 'blocked_keys' not in st.session_state:
+    st.session_state.blocked_keys = []  # ബ്ലോക്ക് ചെയ്ത കീകളുടെ ലിസ്റ്റ്
+if 'bound_devices' not in st.session_state:
+    st.session_state.bound_devices = {}  # {key: unique_device_id}
 if 'auth_type' not in st.session_state:
     st.session_state.auth_type = None
 if 'logged_in_key' not in st.session_state:
     st.session_state.logged_in_key = None
+
+if 'my_device_id' not in st.session_state:
+    st.session_state.my_device_id = str(uuid.uuid4())
 
 # User States
 if 'history_details' not in st.session_state: st.session_state.history_details = []
@@ -131,9 +136,6 @@ if 'last_predicted_numbers' not in st.session_state: st.session_state.last_predi
 if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 5000
 if 'current_level' not in st.session_state: st.session_state.current_level = 1
 if 'is_skip' not in st.session_state: st.session_state.is_skip = False
-
-if 'client_session_id' not in st.session_state:
-    st.session_state.client_session_id = str(uuid.uuid4())
 
 # ----------------- FUNCTIONS -----------------
 def handle_number_click_user(val):
@@ -173,15 +175,12 @@ def handle_number_click_user(val):
         st.session_state.last_predicted_numbers = []
         st.session_state.is_skip = False
     else:
-        # 1. Choppy check (Alternating: B, S, B, S)
         recent_four = hist[-4:] if len(hist) >= 4 else hist
         is_choppy = len(recent_four) == 4 and recent_four[0] != recent_four[1] and recent_four[1] != recent_four[2] and recent_four[2] != recent_four[3]
         
-        # 2. Long Streak check (5 continuous B's or 5 continuous S's) - ഏത് ലെവലിലും വർക്ക് ചെയ്യും
         recent_five = hist[-5:] if len(hist) >= 5 else hist
         is_long_streak = len(recent_five) >= 5 and all(x == recent_five[0] for x in recent_five)
 
-        # ലെവൽ നോക്കാതെ ഏത് സമയത്തും പാറ്റേൺ കണ്ടായാൽ സ്കിപ്പ് ചെയ്യും
         if is_choppy or is_long_streak:
             st.session_state.is_skip = True
         else:
@@ -214,7 +213,16 @@ if st.session_state.auth_type is None:
     if login_option == "User Login":
         user_input_key = st.text_input("User Access Key നൽകുക:", type="password")
         if st.button("Login as User", use_container_width=True):
-            if user_input_key in st.session_state.allowed_keys:
+            if user_input_key in st.session_state.blocked_keys:
+                st.error("❌ ഈ കീ അഡ്മിൻ ബ്ലോക്ക് ചെയ്തിരിക്കുന്നു!")
+            elif user_input_key in st.session_state.allowed_keys:
+                if user_input_key in st.session_state.bound_devices:
+                    if st.session_state.bound_devices[user_input_key] != st.session_state.my_device_id:
+                        st.error("❌ ഈ കീ മറ്റൊരു ഡിവൈസിൽ രജിസ്റ്റർ ചെയ്തതാണ്! ഈ ഡിവൈസിൽ ഇത് വർക്ക് ചെയ്യുകയില്ല.")
+                        st.stop()
+                else:
+                    st.session_state.bound_devices[user_input_key] = st.session_state.my_device_id
+
                 st.session_state.auth_type = "user"
                 st.session_state.logged_in_key = user_input_key
                 st.rerun()
@@ -238,14 +246,45 @@ if st.session_state.auth_type == "admin":
     st.markdown("<div class='pred-card'>", unsafe_allow_html=True)
     st.markdown("<h2 style='color:#FFD700;'>🛠️ ADMIN PANEL</h2>", unsafe_allow_html=True)
     
-    st.write("### 👤 Allowed User Keys")
-    st.write(st.session_state.allowed_keys)
+    st.write("### 👤 Allowed User Keys & Control")
+    
+    for key in list(st.session_state.allowed_keys):
+        col_k1, col_k2, col_k3 = st.columns([2, 1, 1])
+        with col_k1:
+            is_blocked = key in st.session_state.blocked_keys
+            status_label = "🔴 (Blocked)" if is_blocked else ("🔒 (Bound)" if key in st.session_state.bound_devices else "🔓 (Active)")
+            st.write(f"🔑 `{key}` {status_label}")
+        with col_k2:
+            is_blocked = key in st.session_state.blocked_keys
+            if is_blocked:
+                if st.button("🟢 Unblock", key=f"unblock_{key}"):
+                    st.session_state.blocked_keys.remove(key)
+                    st.success(f"'{key}' അൺബ്ലോക്ക് ചെയ്തു!")
+                    st.rerun()
+            else:
+                if st.button("⛔ Block", key=f"block_{key}"):
+                    st.session_state.blocked_keys.append(key)
+                    st.warning(f"'{key}' ബ്ലോക്ക് ചെയ്തു!")
+                    st.rerun()
+        with col_k3:
+            if st.button("🗑️ Remove", key=f"del_{key}"):
+                st.session_state.allowed_keys.remove(key)
+                if key in st.session_state.bound_devices:
+                    del st.session_state.bound_devices[key]
+                if key in st.session_state.blocked_keys:
+                    st.session_state.blocked_keys.remove(key)
+                st.success(f"'{key}' നീക്കം ചെയ്തു!")
+                st.rerun()
+
+    st.divider()
     new_u = st.text_input("New User Key:")
     if st.button("Add User Key", use_container_width=True) and new_u:
         if new_u not in st.session_state.allowed_keys:
             st.session_state.allowed_keys.append(new_u)
             st.success("Key successfully added!")
             st.rerun()
+        else:
+            st.warning("ഈ കീ ഇതിനകം നിലവിലുണ്ട്!")
 
     if st.button("🚪 Logout Admin", use_container_width=True):
         st.session_state.auth_type = None
@@ -347,4 +386,4 @@ if st.session_state.auth_type == "user":
                     <span>{item['status']}</span>
                 </div>
             """, unsafe_allow_html=True)
-                         
+            
