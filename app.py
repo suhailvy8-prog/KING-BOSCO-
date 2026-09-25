@@ -347,4 +347,4 @@ if st.session_state.auth_type == "user":
                     <span>{item['status']}</span>
                 </div>
             """, unsafe_allow_html=True)
-            
+        
