@@ -4,7 +4,6 @@ import uuid
 
 st.set_page_config(page_title="CYBER HACK v3.0 ⚡", page_icon="💻", layout="centered")
 
-# Professional Cyber Theme (No Full Green, Clean Premium Look)
 st.markdown("""
     <style>
     .main { background: #030712; }
@@ -94,7 +93,6 @@ st.markdown("""
 
 st.markdown("<div class='app-header'>[⚡ CYBER PREDICTIVE ENGINE ⚡]</div>", unsafe_allow_html=True)
 
-# Session States Initialization
 if 'allowed_keys' not in st.session_state: st.session_state.allowed_keys = ["target123", "bosco456"]
 if 'blocked_keys' not in st.session_state: st.session_state.blocked_keys = []
 if 'bound_devices' not in st.session_state: st.session_state.bound_devices = {}
@@ -122,8 +120,7 @@ if 'initial_wallet' not in st.session_state: st.session_state.initial_wallet = 5
 if 'wallet_balance' not in st.session_state: st.session_state.wallet_balance = 500
 if 'double_level' not in st.session_state: st.session_state.double_level = 1
 if 'target_achieved' not in st.session_state: st.session_state.target_achieved = False
-    # Login Screen
-if st.session_state.auth_type is None:
+    if st.session_state.auth_type is None:
     st.markdown("<div class='hack-panel'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color:#38bdf8; text-align:center;'>🔐 SECURE TERMINAL LOGIN</h3>", unsafe_allow_html=True)
     
@@ -155,7 +152,6 @@ if st.session_state.auth_type is None:
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# Admin Panel
 if st.session_state.auth_type == "admin":
     st.markdown("<div class='admin-box'>", unsafe_allow_html=True)
     st.markdown("<h3 style='color:#c084fc; text-align:center;'>🛠️ ADMIN COMMAND CENTER</h3>", unsafe_allow_html=True)
@@ -182,25 +178,22 @@ if st.session_state.auth_type == "user":
     if st.button("🚪 Terminate Session (Logout)"): st.session_state.auth_type = None; st.rerun()
 
 st.divider()
-                    def handle_number_click(val):
+def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
     
-    # User Logic:
-    # - Fixed bet on current result = ₹1
-    # - Opposite side bet = ₹2, ₹4, ₹8, ₹16... (Doubles until win)
     base_bet = 1
     opposite_bet = 2 * (2 ** (st.session_state.double_level - 1))
     total_investment = base_bet + opposite_bet
     
-    is_opposite_win = True if val % 2 != 0 else False  # Simulation flag
+    is_opposite_win = True if val % 2 != 0 else False
     
     if is_opposite_win:
         st.session_state.wins += 1
         profit = opposite_bet - base_bet
         st.session_state.wallet_balance += profit
         net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (+₹{profit}) [{current_bs}]</span>"
-        st.session_state.double_level = 1  # Reset after win
+        st.session_state.double_level = 1
     else:
         st.session_state.losses += 1
         st.session_state.wallet_balance -= total_investment
@@ -217,7 +210,6 @@ st.divider()
     st.session_state.history.append(current_bs_short)
     st.session_state.history_details.insert(0, {"num": val, "type": current_bs, "status": net_change_str})
 
-# Target Achieved Screen
 if st.session_state.target_achieved:
     st.balloons()
     earned = int(st.session_state.initial_wallet * 0.20)
@@ -238,7 +230,6 @@ if st.session_state.target_achieved:
         st.rerun()
     st.stop()
 
-# Wallet Input
 st.markdown("<p style='text-align: center; color: #38bdf8;'>💰 WALLET CONFIGURATION (₹)</p>", unsafe_allow_html=True)
 col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
 with col_w2:
@@ -251,7 +242,6 @@ with col_w2:
 
 target_goal = st.session_state.initial_wallet + int(st.session_state.initial_wallet * 0.20)
 
-# Side-by-Side Win & Loss Statistics Dashboard
 st.markdown("<br>", unsafe_allow_html=True)
 stat_c1, stat_c2 = st.columns(2)
 with stat_c1:
@@ -286,7 +276,6 @@ if st.button("🔄 System Manual Reset", use_container_width=True):
 
 st.divider()
 
-# Large, Prominent Prediction Card (Clean, Bold, Without 'Fixed/Double' technical text)
 curr_opposite = 2 * (2 ** (st.session_state.double_level - 1))
 last_result = st.session_state.history[-1] if st.session_state.history else "B"
 
@@ -303,7 +292,6 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Input Buttons Panel
 st.markdown("<p style='text-align: center; color: #38bdf8;'>INPUT RECENT RESULT NUMBER:</p>", unsafe_allow_html=True)
 top_cols = st.columns(5)
 for i, (n, b) in enumerate([(0, "🟣🔴"), (1, "🟢"), (2, "🔴"), (3, "🟢"), (4, "🔴")]):
@@ -315,7 +303,6 @@ for i, (n, b) in enumerate([(5, "🟢🟣"), (6, "🔴"), (7, "🟢"), (8, "🔴
     with bot_cols[i]:
         if st.button(f"{n}\n{b}", key=f"b_{n}", use_container_width=True): handle_number_click(n); st.rerun()
 
-# Execution History Feed
 st.markdown("<h3 style='color: #38bdf8; text-align: center; font-size: 16px; margin-top: 25px;'>[ EXECUTION HISTORY ]</h3>", unsafe_allow_html=True)
 if not st.session_state.history_details:
     st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>No logs recorded.</p>", unsafe_allow_html=True)
