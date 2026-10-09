@@ -11,30 +11,30 @@ st.markdown("""
     
     .app-header {
         text-align: center;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+        background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 28px !important;
+        font-size: 30px !important;
         font-weight: 900 !important;
         letter-spacing: 2px;
         margin-bottom: 15px;
     }
 
     .prediction-card {
-        background: linear-gradient(135deg, #0f172a, #1e1b4b);
-        padding: 25px;
-        border-radius: 16px;
-        border: 2px solid #6366f1;
+        background: linear-gradient(135deg, #0f172a, #2e1065, #1e1b4b);
+        padding: 30px;
+        border-radius: 18px;
+        border: 2px solid #a855f7;
         text-align: center;
         margin: 20px 0;
-        box-shadow: 0px 0px 30px rgba(99, 102, 241, 0.3);
+        box-shadow: 0px 0px 35px rgba(168, 85, 247, 0.35);
     }
 
     .hack-panel {
         background: #0f172a;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid #334155;
+        border: 1px solid #3b82f6;
         margin: 12px 0;
     }
 
@@ -177,7 +177,7 @@ if st.session_state.auth_type == "admin":
             st.write(f"🔑 `{key}`")
         with c2:
             if key in st.session_state.blocked_keys:
-                if st.button("Unblock", key=f"un_{key}"):
+                if st.button("Unblock", key=f"un_{key}ंत्रिक"):
                     st.session_state.blocked_keys.remove(key)
                     st.rerun()
             else:
@@ -212,26 +212,27 @@ def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
     
-    base_bet = 1
+    fixed_bet = 1
     opposite_bet = 2 * (2 ** (st.session_state.double_level - 1))
-    total_investment = base_bet + opposite_bet
     
-    is_opposite_win = True if val % 2 != 0 else False
+    last_res = st.session_state.history[-1] if st.session_state.history else "B"
+    is_fixed_win = True if current_bs_short == last_res else False
     
-    if is_opposite_win:
-        st.session_state.wins += 1
-        profit = opposite_bet - base_bet
-        st.session_state.wallet_balance += profit
-        net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (+₹{profit}) [{current_bs}]</span>"
-        st.session_state.double_level = 1
-    else:
+    if is_fixed_win:
+        net_diff = fixed_bet - opposite_bet
+        st.session_state.wallet_balance += net_diff
         st.session_state.losses += 1
-        st.session_state.wallet_balance -= total_investment
-        net_change_str = f"<span style='color:#f87171; font-weight:bold;'>LOSS (-₹{total_investment}) [{current_bs}]</span>"
+        net_change_str = f"<span style='color:#f87171; font-weight:bold;'>LOSS (net: -₹{abs(net_diff)}) [{current_bs}]</span>"
         if st.session_state.double_level < 8:
             st.session_state.double_level += 1
         else:
             st.session_state.double_level = 1
+    else:
+        net_diff = opposite_bet - fixed_bet
+        st.session_state.wallet_balance += net_diff
+        st.session_state.wins += 1
+        net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (net: +₹{net_diff}) [{current_bs}]</span>"
+        st.session_state.double_level = 1
 
     profit_target = int(st.session_state.initial_wallet * 0.20)
     if st.session_state.wallet_balance >= (st.session_state.initial_wallet + profit_target):
@@ -316,9 +317,9 @@ else:
 
 st.markdown(f"""
     <div class='prediction-card'>
-        <div style='color: #94a3b8; font-size: 13px; margin-bottom: 8px; letter-spacing: 1px;'>🎯 NEXT PREDICTION SIGNAL</div>
-        <div style='color: #f8fafc; font-size: 24px; font-weight: 900; margin: 12px 0; text-transform: uppercase;'>{pred_display}</div>
-        <div style='color: #38bdf8; font-size: 13px; margin-top: 8px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
+        <div style='color: #c084fc; font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; font-weight: bold;'>🎯 NEXT PREDICTION SIGNAL</div>
+        <div style='color: #f8fafc; font-size: 28px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 10px rgba(168,85,247,0.5);'>{pred_display}</div>
+        <div style='color: #38bdf8; font-size: 13px; margin-top: 10px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
     </div>
 """, unsafe_allow_html=True)
 
@@ -343,9 +344,9 @@ if not st.session_state.history_details:
 else:
     for item in st.session_state.history_details[:8]:
         st.markdown(f"""
-            <div style='background: #0f172a; border-left: 3px solid #6366f1; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;'>
+            <div style='background: #0f172a; border-left: 3px solid #a855f7; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;'>
                 <span style='color: #e2e8f0;'>Num: <b>{item['num']}</b> ({item['type']})</span>
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-    
+            
