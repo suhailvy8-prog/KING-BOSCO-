@@ -11,7 +11,7 @@ st.markdown("""
     
     .app-header {
         text-align: center;
-        background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+        background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: 30px !important;
@@ -24,17 +24,17 @@ st.markdown("""
         background: linear-gradient(135deg, #0f172a, #2e1065, #1e1b4b);
         padding: 30px;
         border-radius: 18px;
-        border: 2px solid #ffd700;
+        border: 2px solid #a855f7;
         text-align: center;
         margin: 20px 0;
-        box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.4);
+        box-shadow: 0px 0px 35px rgba(168, 85, 247, 0.4);
     }
 
     .hack-panel {
         background: #0f172a;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid #ffd700;
+        border: 1px solid #3b82f6;
         margin: 12px 0;
     }
 
@@ -42,7 +42,7 @@ st.markdown("""
         background: #180d2b;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid #ffd700;
+        border: 1px solid #a855f7;
         margin: 12px 0;
     }
 
@@ -57,8 +57,8 @@ st.markdown("""
 
     .stButton button {
         background: #0f172a !important;
-        color: #ffd700 !important;
-        border: 1px solid #ffd700 !important;
+        color: #38bdf8 !important;
+        border: 1px solid #3b82f6 !important;
         font-family: monospace !important;
         font-weight: 900 !important;
         border-radius: 10px !important;
@@ -66,9 +66,9 @@ st.markdown("""
         transition: all 0.25s ease;
     }
     .stButton button:hover {
-        background: #ffd700 !important;
+        background: #3b82f6 !important;
         color: #030712 !important;
-        box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.7);
+        box-shadow: 0px 0px 20px rgba(59, 130, 246, 0.7);
     }
 
     input[type="text"], input[type="password"] {
@@ -77,31 +77,31 @@ st.markdown("""
         font-weight: bold !important;
         font-family: monospace !important;
         background-color: #0f172a !important;
-        color: #ffd700 !important;
-        border: 1px solid #ffd700 !important;
+        color: #38bdf8 !important;
+        border: 1px solid #3b82f6 !important;
         border-radius: 10px !important;
     }
 
     .stat-card {
         background: #0f172a;
-        border: 1px solid #ffd700;
+        border: 1px solid #334155;
         padding: 15px;
         border-radius: 12px;
         text-align: center;
-        box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.2);
+        box-shadow: 0px 0px 15px rgba(59, 130, 246, 0.2);
     }
 
     .history-box {
         background: linear-gradient(135deg, #0f172a, #1e1b4b);
-        border: 1px solid #ffd700;
-        border-left: 5px solid #ffd700;
+        border: 1px solid #3b82f6;
+        border-left: 5px solid #a855f7;
         padding: 12px 16px;
         border-radius: 10px;
         margin-bottom: 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.25);
+        box-shadow: 0px 0px 12px rgba(59, 130, 246, 0.25);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -153,7 +153,7 @@ if 'target_achieved' not in st.session_state:
 
 if st.session_state.auth_type is None:
     st.markdown("<div class='hack-panel'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#ffd700; text-align:center;'>🔐 SECURE TERMINAL LOGIN</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#38bdf8; text-align:center;'>🔐 SECURE TERMINAL LOGIN</h3>", unsafe_allow_html=True)
     
     login_option = st.selectbox("Select Auth Mode:", ["-- Select --", "User Access Key", "Admin Panel"])
     
@@ -185,7 +185,7 @@ if st.session_state.auth_type is None:
 
 if st.session_state.auth_type == "admin":
     st.markdown("<div class='admin-box'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#ffd700; text-align:center;'>🛠️ ADMIN COMMAND CENTER</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#a855f7; text-align:center;'>🛠️ ADMIN COMMAND CENTER</h3>", unsafe_allow_html=True)
     for key in list(st.session_state.allowed_keys):
         c1, c2, c3 = st.columns([2, 1, 1])
         with c1:
@@ -227,27 +227,18 @@ def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
     
-    # Corrected Dual-Side Betting Logic:
-    # Fixed side = ₹1, Opposite side = ₹(progression amount)
+    # Logic: The predicted/fixed side matches the previous result.
+    # If last result was BIG, we bet 1 on BIG, and opposite (SMALL) gets the progression amount.
+    last_res = st.session_state.history[-1] if st.session_state.history else "B"
+    fixed_side = "B" if last_res == "B" else "S"
+    
     fixed_bet = 1
     opposite_bet = 2 * (2 ** (st.session_state.double_level - 1))
     
-    last_res = st.session_state.history[-1] if st.session_state.history else "B"
-    
-    # Recommended fixed side based on last result trend
-    rec_fixed = "B" if last_res == "B" else "S"
-    
-    # Check if the incoming result matches our Fixed side or Opposite side
-    if current_bs_short == rec_fixed:
-        # Fixed side won (+₹1), Opposite side lost (-₹{opposite_bet})
+    # If the current actual result matches our fixed_side, fixed bet wins (+1), opposite loses (-bet)
+    # If actual result matches the opposite side, opposite wins (+bet), fixed bet loses (-1)
+    if current_bs_short == fixed_side:
         net_diff = fixed_bet - opposite_bet
-        st.session_state.wallet_balance += net_diff
-        st.session_state.wins += 1
-        net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (net: +₹{net_diff}) [{current_bs}]</span>"
-        st.session_state.double_level = 1  # Reset on win
-    else:
-        # Opposite side won (+₹{opposite_bet}), Fixed side lost (-₹1)
-        net_diff = opposite_bet - fixed_bet
         st.session_state.wallet_balance += net_diff
         st.session_state.losses += 1
         net_change_str = f"<span style='color:#f87171; font-weight:bold;'>LOSS (net: -₹{abs(net_diff)}) [{current_bs}]</span>"
@@ -255,6 +246,12 @@ def handle_number_click(val):
             st.session_state.double_level += 1
         else:
             st.session_state.double_level = 1
+    else:
+        net_diff = opposite_bet - fixed_bet
+        st.session_state.wallet_balance += net_diff
+        st.session_state.wins += 1
+        net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (net: +₹{net_diff}) [{current_bs}]</span>"
+        st.session_state.double_level = 1
 
     profit_target = int(st.session_state.initial_wallet * 0.20)
     if st.session_state.wallet_balance >= (st.session_state.initial_wallet + profit_target):
@@ -283,7 +280,7 @@ if st.session_state.target_achieved:
         st.rerun()
     st.stop()
 
-st.markdown("<p style='text-align: center; color: #ffd700; font-weight: bold;'>💰 WALLET CONFIGURATION (₹)</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #38bdf8; font-weight: bold;'>💰 WALLET CONFIGURATION (₹)</p>", unsafe_allow_html=True)
 col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
 with col_w2:
     def update_w():
@@ -313,9 +310,9 @@ with stat_c2:
     """, unsafe_allow_html=True)
 
 st.markdown(f"""
-    <div style='background: #0f172a; border: 1px solid #ffd700; padding: 14px; border-radius: 10px; text-align: center; margin-top: 12px; font-weight: bold;'>
+    <div style='background: #0f172a; border: 1px solid #3b82f6; padding: 14px; border-radius: 10px; text-align: center; margin-top: 12px; font-weight: bold;'>
         <span style='color: #94a3b8;'>Balance:</span> <b style='color: #34d399;'>₹{st.session_state.wallet_balance}</b> &nbsp;|&nbsp; 
-        <span style='color: #94a3b8;'>Target:</span> <b style='color: #ffd700;'>₹{target_goal}</b>
+        <span style='color: #94a3b8;'>Target:</span> <b style='color: #38bdf8;'>₹{target_goal}</b>
     </div>
 """, unsafe_allow_html=True)
 
@@ -339,13 +336,13 @@ else:
 
 st.markdown(f"""
     <div class='prediction-card'>
-        <div style='color: #ffd700; font-size: 15px; margin-bottom: 12px; letter-spacing: 2px; font-weight: 900;'>🎯 NEXT PREDICTION SIGNAL</div>
-        <div style='color: #f8fafc; font-size: 32px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,215,0,0.6);'>{pred_display}</div>
+        <div style='color: #a855f7; font-size: 15px; margin-bottom: 12px; letter-spacing: 2px; font-weight: 900;'>🎯 NEXT PREDICTION SIGNAL</div>
+        <div style='color: #f8fafc; font-size: 32px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(168,85,247,0.6);'>{pred_display}</div>
         <div style='color: #38bdf8; font-size: 14px; font-weight: bold; margin-top: 12px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; color: #ffd700; font-weight: bold;'>INPUT RECENT RESULT NUMBER:</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #38bdf8; font-weight: bold;'>INPUT RECENT RESULT NUMBER:</p>", unsafe_allow_html=True)
 top_cols = st.columns(5)
 for i, (n, b) in enumerate([(0, "🟣🔴"), (1, "🟢"), (2, "🔴"), (3, "🟢"), (4, "🔴")]):
     with top_cols[i]:
@@ -360,7 +357,7 @@ for i, (n, b) in enumerate([(5, "🟢🟣"), (6, "🔴"), (7, "🟢"), (8, "🔴
             handle_number_click(n)
             st.rerun()
 
-st.markdown("<h3 style='color: #ffd700; text-align: center; font-size: 18px; font-weight: bold; margin-top: 25px;'>[ EXECUTION HISTORY ]</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #38bdf8; text-align: center; font-size: 18px; font-weight: bold; margin-top: 25px;'>[ EXECUTION HISTORY ]</h3>", unsafe_allow_html=True)
 if not st.session_state.history_details:
     st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>No logs recorded.</p>", unsafe_allow_html=True)
 else:
@@ -371,4 +368,4 @@ else:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-        
+    
