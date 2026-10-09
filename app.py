@@ -27,7 +27,7 @@ st.markdown("""
         border: 2px solid #ffd700;
         text-align: center;
         margin: 20px 0;
-        box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.35);
+        box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.4);
     }
 
     .skip-card {
@@ -37,7 +37,7 @@ st.markdown("""
         border: 2px solid #ffd700;
         text-align: center;
         margin: 20px 0;
-        box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.4);
+        box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.5);
     }
 
     .hack-panel {
@@ -52,7 +52,7 @@ st.markdown("""
         background: #180d2b;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid #a855f7;
+        border: 1px solid #ffd700;
         margin: 12px 0;
     }
 
@@ -98,12 +98,12 @@ st.markdown("""
         padding: 15px;
         border-radius: 12px;
         text-align: center;
-        box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.2);
+        box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.25);
     }
 
     .history-box {
         background: linear-gradient(135deg, #0f172a, #1e1b4b);
-        border: 1px solid #334155;
+        border: 1px solid #ffd700;
         border-left: 5px solid #ffd700;
         padding: 12px 16px;
         border-radius: 10px;
@@ -111,7 +111,7 @@ st.markdown("""
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.2);
+        box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -305,14 +305,14 @@ stat_c1, stat_c2 = st.columns(2)
 with stat_c1:
     st.markdown(f"""
         <div class='stat-card'>
-            <div style='color: #94a3b8; font-size: 13px; font-weight: bold;'>TOTAL WINS</div>
+            <div style='color: #ffd700; font-size: 13px; font-weight: bold;'>TOTAL WINS</div>
             <div style='color: #34d399; font-size: 26px; font-weight: 900;'>{st.session_state.wins} 🟢</div>
         </div>
     """, unsafe_allow_html=True)
 with stat_c2:
     st.markdown(f"""
         <div class='stat-card'>
-            <div style='color: #94a3b8; font-size: 13px; font-weight: bold;'>TOTAL LOSSES</div>
+            <div style='color: #ffd700; font-size: 13px; font-weight: bold;'>TOTAL LOSSES</div>
             <div style='color: #f87171; font-size: 26px; font-weight: 900;'>{st.session_state.losses} 🔴</div>
         </div>
     """, unsafe_allow_html=True)
@@ -354,7 +354,7 @@ if is_skip_zone:
         <div class='skip-card'>
             <div style='color: #ffd700; font-size: 16px; margin-bottom: 10px; font-weight: 900;'>⚠️ SKIP ZONE DETECTED!</div>
             <div style='color: #f8fafc; font-size: 24px; font-weight: 900; margin: 10px 0;'>തൽക്കാലം ബെറ്റ് വെക്കരുത് (SKIP)</div>
-            <div style='color: #a1a1aa; font-size: 13px;'>തുടർച്ചയായി 4 ട്രെൻഡുകൾ വന്നതിനാൽ മാറി നിൽക്കുക</div>
+            <div style='color: #f59e0b; font-size: 13px; font-weight: bold;'>തുടർച്ചയായി 4 ട്രെൻഡുകൾ വന്നതിനാൽ മാറി നിൽക്കുക</div>
         </div>
     """, unsafe_allow_html=True)
 else:
@@ -362,7 +362,7 @@ else:
         <div class='prediction-card'>
             <div style='color: #ffd700; font-size: 15px; margin-bottom: 12px; letter-spacing: 2px; font-weight: 900;'>🎯 NEXT PREDICTION SIGNAL</div>
             <div style='color: #f8fafc; font-size: 32px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(255,215,0,0.6);'>{pred_display}</div>
-            <div style='color: #38bdf8; font-size: 14px; font-weight: bold; margin-top: 12px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
+            <div style='color: #ffd700; font-size: 14px; font-weight: bold; margin-top: 12px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
         </div>
     """, unsafe_allow_html=True)
 
