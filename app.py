@@ -11,7 +11,7 @@ st.markdown("""
     
     .app-header {
         text-align: center;
-        background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899);
+        background: linear-gradient(90deg, #f59e0b, #a855f7, #3b82f6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: 30px !important;
@@ -24,17 +24,17 @@ st.markdown("""
         background: linear-gradient(135deg, #0f172a, #2e1065, #1e1b4b);
         padding: 30px;
         border-radius: 18px;
-        border: 2px solid #a855f7;
+        border: 2px solid #f59e0b;
         text-align: center;
         margin: 20px 0;
-        box-shadow: 0px 0px 35px rgba(168, 85, 247, 0.35);
+        box-shadow: 0px 0px 35px rgba(245, 158, 11, 0.4);
     }
 
     .hack-panel {
         background: #0f172a;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid #3b82f6;
+        border: 1px solid #f59e0b;
         margin: 12px 0;
     }
 
@@ -57,36 +57,51 @@ st.markdown("""
 
     .stButton button {
         background: #0f172a !important;
-        color: #38bdf8 !important;
-        border: 1px solid #3b82f6 !important;
+        color: #f59e0b !important;
+        border: 1px solid #f59e0b !important;
         font-family: monospace !important;
-        font-weight: 700 !important;
+        font-weight: 900 !important;
         border-radius: 10px !important;
         height: 52px !important;
         transition: all 0.25s ease;
     }
     .stButton button:hover {
-        background: #3b82f6 !important;
+        background: #f59e0b !important;
         color: #030712 !important;
-        box-shadow: 0px 0px 20px rgba(59, 130, 246, 0.6);
+        box-shadow: 0px 0px 20px rgba(245, 158, 11, 0.7);
     }
 
     input[type="text"], input[type="password"] {
         text-align: center !important;
         font-size: 18px !important;
+        font-weight: bold !important;
         font-family: monospace !important;
         background-color: #0f172a !important;
-        color: #38bdf8 !important;
-        border: 1px solid #3b82f6 !important;
+        color: #f59e0b !important;
+        border: 1px solid #f59e0b !important;
         border-radius: 10px !important;
     }
 
     .stat-card {
         background: #0f172a;
-        border: 1px solid #334155;
+        border: 1px solid #f59e0b;
         padding: 15px;
         border-radius: 12px;
         text-align: center;
+        box-shadow: 0px 0px 15px rgba(245, 158, 11, 0.2);
+    }
+
+    .history-box {
+        background: linear-gradient(135deg, #0f172a, #1e1b4b);
+        border: 1px solid #f59e0b;
+        border-left: 5px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0px 0px 12px rgba(245, 158, 11, 0.25);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -138,7 +153,7 @@ if 'target_achieved' not in st.session_state:
 
 if st.session_state.auth_type is None:
     st.markdown("<div class='hack-panel'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#38bdf8; text-align:center;'>🔐 SECURE TERMINAL LOGIN</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#f59e0b; text-align:center;'>🔐 SECURE TERMINAL LOGIN</h3>", unsafe_allow_html=True)
     
     login_option = st.selectbox("Select Auth Mode:", ["-- Select --", "User Access Key", "Admin Panel"])
     
@@ -170,11 +185,11 @@ if st.session_state.auth_type is None:
 
 if st.session_state.auth_type == "admin":
     st.markdown("<div class='admin-box'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='color:#c084fc; text-align:center;'>🛠️ ADMIN COMMAND CENTER</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#f59e0b; text-align:center;'>🛠️ ADMIN COMMAND CENTER</h3>", unsafe_allow_html=True)
     for key in list(st.session_state.allowed_keys):
         c1, c2, c3 = st.columns([2, 1, 1])
         with c1:
-            st.write(f"🔑 `{key}`")
+            st.write(f"🔑 **{key}**")
         with c2:
             if key in st.session_state.blocked_keys:
                 if st.button("Unblock", key=f"un_{key}"):
@@ -202,7 +217,7 @@ if st.session_state.auth_type == "admin":
     st.stop()
 
 if st.session_state.auth_type == "user":
-    if st.button("🚪 Terminate Session (Logout)"):
+    if st.button("🚪 Logout"):
         st.session_state.auth_type = None
         st.rerun()
 
@@ -261,7 +276,7 @@ if st.session_state.target_achieved:
         st.rerun()
     st.stop()
 
-st.markdown("<p style='text-align: center; color: #38bdf8;'>💰 WALLET CONFIGURATION (₹)</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #f59e0b; font-weight: bold;'>💰 WALLET CONFIGURATION (₹)</p>", unsafe_allow_html=True)
 col_w1, col_w2, col_w3 = st.columns([1, 2, 1])
 with col_w2:
     def update_w():
@@ -277,23 +292,23 @@ st.markdown("<br>", unsafe_allow_html=True)
 stat_c1, stat_c2 = st.columns(2)
 with stat_c1:
     st.markdown(f"""
-        <div class='stat-card' style='border-color: #34d399;'>
-            <div style='color: #94a3b8; font-size: 13px;'>TOTAL WINS</div>
-            <div style='color: #34d399; font-size: 26px; font-weight: bold;'>{st.session_state.wins} 🟢</div>
+        <div class='stat-card'>
+            <div style='color: #94a3b8; font-size: 13px; font-weight: bold;'>TOTAL WINS</div>
+            <div style='color: #34d399; font-size: 28px; font-weight: 900;'>{st.session_state.wins} 🟢</div>
         </div>
     """, unsafe_allow_html=True)
 with stat_c2:
     st.markdown(f"""
-        <div class='stat-card' style='border-color: #f87171;'>
-            <div style='color: #94a3b8; font-size: 13px;'>TOTAL LOSSES</div>
-            <div style='color: #f87171; font-size: 26px; font-weight: bold;'>{st.session_state.losses} 🔴</div>
+        <div class='stat-card'>
+            <div style='color: #94a3b8; font-size: 13px; font-weight: bold;'>TOTAL LOSSES</div>
+            <div style='color: #f87171; font-size: 28px; font-weight: 900;'>{st.session_state.losses} 🔴</div>
         </div>
     """, unsafe_allow_html=True)
 
 st.markdown(f"""
-    <div style='background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 10px; text-align: center; margin-top: 12px;'>
+    <div style='background: #0f172a; border: 1px solid #f59e0b; padding: 14px; border-radius: 10px; text-align: center; margin-top: 12px; font-weight: bold;'>
         <span style='color: #94a3b8;'>Balance:</span> <b style='color: #34d399;'>₹{st.session_state.wallet_balance}</b> &nbsp;|&nbsp; 
-        <span style='color: #94a3b8;'>Target:</span> <b style='color: #38bdf8;'>₹{target_goal}</b>
+        <span style='color: #94a3b8;'>Target:</span> <b style='color: #f59e0b;'>₹{target_goal}</b>
     </div>
 """, unsafe_allow_html=True)
 
@@ -311,19 +326,19 @@ curr_opposite = 2 * (2 ** (st.session_state.double_level - 1))
 last_result = st.session_state.history[-1] if st.session_state.history else "B"
 
 if last_result == "B":
-    pred_display = f"ബിഗ് - 1 &nbsp;|&nbsp; സ്മോൾ - {curr_opposite}"
+    pred_display = f"SMALL - 1 &nbsp;|&nbsp; BIG - {curr_opposite}"
 else:
-    pred_display = f"സ്മോൾ - 1 &nbsp;|&nbsp; ബിഗ് - {curr_opposite}"
+    pred_display = f"BIG - 1 &nbsp;|&nbsp; SMALL - {curr_opposite}"
 
 st.markdown(f"""
     <div class='prediction-card'>
-        <div style='color: #c084fc; font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; font-weight: bold;'>🎯 NEXT PREDICTION SIGNAL</div>
-        <div style='color: #f8fafc; font-size: 28px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 10px rgba(168,85,247,0.5);'>{pred_display}</div>
-        <div style='color: #38bdf8; font-size: 13px; margin-top: 10px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
+        <div style='color: #f59e0b; font-size: 15px; margin-bottom: 12px; letter-spacing: 2px; font-weight: 900;'>🎯 NEXT PREDICTION SIGNAL</div>
+        <div style='color: #f8fafc; font-size: 32px; font-weight: 900; margin: 15px 0; text-transform: uppercase; text-shadow: 0 0 15px rgba(245,158,11,0.6);'>{pred_display}</div>
+        <div style='color: #38bdf8; font-size: 14px; font-weight: bold; margin-top: 12px;'>ട്രെൻഡ് അനുസരിച്ച് തുക കൃത്യമായി ഫോളോ ചെയ്യുക</div>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; color: #38bdf8;'>INPUT RECENT RESULT NUMBER:</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #f59e0b; font-weight: bold;'>INPUT RECENT RESULT NUMBER:</p>", unsafe_allow_html=True)
 top_cols = st.columns(5)
 for i, (n, b) in enumerate([(0, "🟣🔴"), (1, "🟢"), (2, "🔴"), (3, "🟢"), (4, "🔴")]):
     with top_cols[i]:
@@ -338,15 +353,15 @@ for i, (n, b) in enumerate([(5, "🟢🟣"), (6, "🔴"), (7, "🟢"), (8, "🔴
             handle_number_click(n)
             st.rerun()
 
-st.markdown("<h3 style='color: #38bdf8; text-align: center; font-size: 16px; margin-top: 25px;'>[ EXECUTION HISTORY ]</h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='color: #f59e0b; text-align: center; font-size: 18px; font-weight: bold; margin-top: 25px;'>[ EXECUTION HISTORY ]</h3>", unsafe_allow_html=True)
 if not st.session_state.history_details:
     st.markdown("<p style='text-align: center; color: #64748b; font-size: 13px;'>No logs recorded.</p>", unsafe_allow_html=True)
 else:
     for item in st.session_state.history_details[:8]:
         st.markdown(f"""
-            <div style='background: #0f172a; border-left: 3px solid #a855f7; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;'>
-                <span style='color: #e2e8f0;'>Num: <b>{item['num']}</b> ({item['type']})</span>
+            <div class='history-box'>
+                <span style='color: #e2e8f0; font-weight: bold;'>Num: <b>{item['num']}</b> ({item['type']})</span>
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-            
+        
