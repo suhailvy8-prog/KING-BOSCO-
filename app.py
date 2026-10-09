@@ -177,7 +177,7 @@ if st.session_state.auth_type == "admin":
             st.write(f"🔑 `{key}`")
         with c2:
             if key in st.session_state.blocked_keys:
-                if st.button("Unblock", key=f"un_{key}ंत्रिक"):
+                if st.button("Unblock", key=f"un_{key}"):
                     st.session_state.blocked_keys.remove(key)
                     st.rerun()
             else:
