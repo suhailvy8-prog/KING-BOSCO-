@@ -237,31 +237,42 @@ def handle_number_click(val):
     current_bs = "BIG" if val >= 5 else "SMALL"
     current_bs_short = "B" if val >= 5 else "S"
     
-    last_res = st.session_state.history[-1] if st.session_state.history else "B"
-    fixed_side = "B" if last_res == "B" else "S"
-    
-    fixed_bet = 1
-    opposite_bet = 2 * (2 ** (st.session_state.double_level - 1))
-    
-    if current_bs_short == fixed_side:
-        net_diff = fixed_bet - opposite_bet
-        st.session_state.wallet_balance += net_diff
-        st.session_state.losses += 1
-        net_change_str = f"<span style='color:#f87171; font-weight:bold;'>LOSS (net: -₹{abs(net_diff)}) [{current_bs}]</span>"
-        if st.session_state.double_level < 8:
-            st.session_state.double_level += 1
-        else:
-            st.session_state.double_level = 1
-    else:
-        net_diff = opposite_bet - fixed_bet
-        st.session_state.wallet_balance += net_diff
-        st.session_state.wins += 1
-        net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (net: +₹{net_diff}) [{current_bs}]</span>"
-        st.session_state.double_level = 1
+    # Check if we were in Skip Zone before adding this result
+    is_skip = False
+    if len(st.session_state.history) >= 4:
+        last_four = st.session_state.history[-4:]
+        if all(x == 'B' for x in last_four) or all(x == 'S' for x in last_four):
+            is_skip = True
 
-    profit_target = int(st.session_state.initial_wallet * 0.20)
-    if st.session_state.wallet_balance >= (st.session_state.initial_wallet + profit_target):
-        st.session_state.target_achieved = True
+    if is_skip:
+        # If it was a skip zone, just record the number in history without calculating bets/wallet changes
+        net_change_str = f"<span style='color:#f59e0b; font-weight:bold;'>SKIPPED [{current_bs}]</span>"
+    else:
+        last_res = st.session_state.history[-1] if st.session_state.history else "B"
+        fixed_side = "B" if last_res == "B" else "S"
+        
+        fixed_bet = 1
+        opposite_bet = 2 * (2 ** (st.session_state.double_level - 1))
+        
+        if current_bs_short == fixed_side:
+            net_diff = fixed_bet - opposite_bet
+            st.session_state.wallet_balance += net_diff
+            st.session_state.losses += 1
+            net_change_str = f"<span style='color:#f87171; font-weight:bold;'>LOSS (net: -₹{abs(net_diff)}) [{current_bs}]</span>"
+            if st.session_state.double_level < 8:
+                st.session_state.double_level += 1
+            else:
+                st.session_state.double_level = 1
+        else:
+            net_diff = opposite_bet - fixed_bet
+            st.session_state.wallet_balance += net_diff
+            st.session_state.wins += 1
+            net_change_str = f"<span style='color:#34d399; font-weight:bold;'>WIN (net: +₹{net_diff}) [{current_bs}]</span>"
+            st.session_state.double_level = 1
+
+        profit_target = int(st.session_state.initial_wallet * 0.20)
+        if st.session_state.wallet_balance >= (st.session_state.initial_wallet + profit_target):
+            st.session_state.target_achieved = True
 
     st.session_state.history.append(current_bs_short)
     st.session_state.history_details.insert(0, {"num": val, "type": current_bs, "status": net_change_str})
@@ -354,7 +365,7 @@ if is_skip_zone:
         <div class='skip-card'>
             <div style='color: #ffd700; font-size: 16px; margin-bottom: 10px; font-weight: 900;'>⚠️ SKIP ZONE DETECTED!</div>
             <div style='color: #f8fafc; font-size: 24px; font-weight: 900; margin: 10px 0;'>തൽക്കാലം ബെറ്റ് വെക്കരുത് (SKIP)</div>
-            <div style='color: #f59e0b; font-size: 13px; font-weight: bold;'>തുടർച്ചയായി 4 ട്രെൻഡുകൾ വന്നതിനാൽ മാറി നിൽക്കുക</div>
+            <div style='color: #ffd700; font-size: 13px; font-weight: bold;'>തുടർച്ചയായി 4 ട്രെൻഡുകൾ വന്നതിനാൽ മാറി നിൽക്കുക</div>
         </div>
     """, unsafe_allow_html=True)
 else:
@@ -392,4 +403,4 @@ else:
                 <span>{item['status']}</span>
             </div>
         """, unsafe_allow_html=True)
-        
+    
